@@ -1,0 +1,18 @@
+// NAME: Get Template Location
+// VARNAME: GetTemplateLocation
+// PARAM: system (String)
+// PARAM: operation (String)
+// DEPENDENCY: INT_SYSTEM_TEMPLATES (Data Table)
+// RETURN: String
+
+ret = "";
+
+// Get the entry from the INT_SYSTEM_TEMPLATES data table for the entered system and operation
+templates = bmql("select Template from INT_SYSTEM_TEMPLATES where System = $system AND Operation = $operation");
+
+// Get the template location for the returned entry
+for temp in templates {
+	ret = get(temp, "Template");
+}
+
+return ret;
