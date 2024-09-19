@@ -1,0 +1,11 @@
+{
+  "name" : "Has Recurring Pricing",
+  "variableName" : "hasRecurringPricing",
+  "description" : "Determines if the transaction has any recurring prices so that related columns can be hidden in the UI otherwise.",
+  "libraryFunctions" : [ ],
+  "returnType" : "Boolean",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "priceType_l" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

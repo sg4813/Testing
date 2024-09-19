@@ -1,0 +1,7 @@
+for line in transactionLine {
+	if(line.priceType_l == "Recurring") {
+		return true;
+	}
+}
+
+return false;
