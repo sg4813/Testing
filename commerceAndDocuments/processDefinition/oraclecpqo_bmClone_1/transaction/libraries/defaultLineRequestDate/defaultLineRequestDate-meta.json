@@ -1,0 +1,11 @@
+{
+  "name" : "Default Line Request Date",
+  "variableName" : "defaultLineRequestDate",
+  "description" : "Defaults the Request Date on the transaction line to the value of Default Request Date on the transaction when the line is initially created. Subsequently this line default value can be overridden by the user.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ ],
+  "mainDocAttributes" : [ "defaultRequestDate_t" ],
+  "systemAttributes" : [ ]
+}
