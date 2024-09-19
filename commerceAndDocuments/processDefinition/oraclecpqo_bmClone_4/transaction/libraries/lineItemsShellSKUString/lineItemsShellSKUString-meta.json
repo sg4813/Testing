@@ -1,0 +1,11 @@
+{
+  "name" : "LineItemsShellSKUString",
+  "variableName" : "lineItemsShellSKUString",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_part_number", "_part_custom_field11", "_document_number" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

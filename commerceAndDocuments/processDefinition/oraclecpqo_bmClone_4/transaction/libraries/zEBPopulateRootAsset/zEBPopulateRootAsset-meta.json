@@ -1,0 +1,14 @@
+{
+  "name" : "ZEB Populate Root Asset",
+  "variableName" : "zEBPopulateRootAsset",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "lineHierInfo",
+    "type" : "Anytype Dictionary"
+  } ],
+  "subDocAttributes" : [ "_document_number", "_line_bom_id", "_model_variable_name", "_parent_doc_number" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

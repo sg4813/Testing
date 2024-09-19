@@ -1,0 +1,84 @@
+table_name="";
+
+modelNamesArray=String[]{"OVSConnectMobileIron","ZT400 Series Industrial Printers","KR203","SN55XX","FX7500","ST55XX","BLE Beacon","KR403","FX9600","RS5000","RS507","Workforce Connect: Voice Client","ZQ630","ZQ630R","ZQ620","MP7000","MP70XX","MT2090","CC5000","CC6000","GK420 Healthcare","GK420t","MT2090","MK3100","LS3578ER","LS3578ER","MK40XX","MK500","ZE500","ATR7000","RFD2000","Enterprise Browser","Wavelink TE Client","WT6000","LS3408ER","Services","SE4710","SE4710","SE4750","SE4750","ZT220","ZT230","ZXP Series 9 Premium Retransfer Dual-sided ID Card Printer","ZXP Series 9 Premium Retransfer Single-sided ID Card Printer","ZXP Series 9 Dual-sided printer with Dual-Sided Laminator","ZQ520","ZT610 High Performance Industrial 4-inch Wide Standard","ZQ610-HC","ZQ610","MC9200 Premium","DS8178-HC","DS8178-HC","MiniScan MS12XX","MS954","CS3000","MC9200 Standard","DS4308-HC","TC51","CS4070","VC80","VC80x","TC8000","VH10","VH10 Freezer","MC3200 Standard","MC3200 Premium","VC70N0","VC70N0","MC9300","supplies","ET50","ET55","DS457","DS457","LS1203","LS1203","ZT610R","ZT620R","DS4308-HD and HL","Omnii XT15 Narrowband","VH10FreezerNARROWBAND","VH10STDNARROWBAND","ARC","B2M","MIS TeKConsole","MIS TekSpeech","TekTerm Family Products","Wavelink Speakeasy","SR55XX","SP55XX","MIS TekRF","MC3390R","GX430","TLP 2824 Plus","ZC10L Large Format","ZC100","ZD220","ZC300 Single-sided printer","ZC300 Dual-sided printer","ZD220t","ZXP Series 9 dual print","ZD230","ZD230t","ZXP Series 9 single print","MC9300 Freezer","MC9300 NFC Haptics","MC9300 NFC Haptics Camera","MC9300 NI Class 1 Div 2","M60","RS6000","MC3300BrickPremium","Omnii XT15 Gun Numeric","Omnii XT15 Brick Alpha Numeric","Omnii XT15 Brick No Keyboard","Omnii XT15 Brick Numeric","Omnii XT15 Gun Alpha Numeric","MC18","RS4000","MC3300BrickPremiumPlus","Omnii XT15f","MC3300BrickStandard","ZQ520R","ZQ320 Series Outdoor Mobile Printer","ZQ120","MC67","MC3300 Gun Premium","MC3300 Gun Premium Plus","ZQ320 Series Indoor Mobile Printer","ZQ310 Series Outdoor Mobile Printer","ZQ310 Series Indoor Mobile Printer","MC3300 Gun Standard","ZXP Series 7 Dual-sided Printer","ZXP Series 7 Dual-sided printer with Dual-Sided Laminator","ZXP Series 7 Single-sided Printer","ZXP Series 7 UHF Dual-sided Printer","Omnii XT15ni","ZQ220","ZQ510","ZE500R","SE1524ER","ZXP Series 7 UHF Dual-sided printer with Single-Sided Laminator","ZXP Series 7 UHF Single-sided Printer","SE2100","ZC350 UHF Single-sided Printer","TC25","TC20","SE2707","ZD500R","TC56","ZD888t","SE3300","ZE500-4","ZE500-6","SE6700","SE965","MC2100","LI2208","LI2208","ZC350 Single-sided printer","SE655","ZD410d-HC","ZC350 Dual-sided printer","SE4600","SE4700","SE960","SE950","ZD500","ET56","ET51","Workabout Pro 4 Long Brick","TC8300","MC55X","Workabout Pro 4 Short Gun","XBOOK L10 Android","EC30","Workabout Pro 4 Long Gun","Workabout Pro 4 Short Brick","XPADL10Android","LI4278","LI4278","XBOOK L10","TC70 Touch Computer","TC72","TC77","TC75","GC420d","ZT510","GC420t","XSLATE B10","XPAD L10","GT800","GK888d","GK888t","ZQ110","ZT410","TC70x","TC75x","ZD510-HC","220Xi4","MC3330R","ZT420","ZT610","ZT410 Silverline On Metal RFID Label","ZT410 Series RFID Printers","ZT420 Series RFID Printers","WFC PTT PRO SaaS- Historical Locationing Feature Upgrade","WFC PTT PRO SaaS- RTP PORT Service Upgrade","DS2208","DS2278","DS7708","VC8300","WT41N0","XSLATE L10 Android","XSLATE L10","XSLATE R12 I5","XSLATE R12 I7","XSLATE R12 Celeron","CS4070-HC","DS8108","DS8108-HC","CC600","GX420d","GX420t","DS9908","DS9908","SE4500","SE4500","DS3600-ER","DS3600-ER","WFC PTT PRO SaaS â€“ BASE SERVICE PRICING TIERS","DS3600-DP","DS3600-DP","DS3600-DPA","DS3600-DPA","LI3600-ER","LI3600-ER","LI3600-SR","LI3600-SR","DS3600-HD","DS3600-HD","DS3600-HP","DS3600-HP","DS3600-SR","DS3600-SR","ZD410","LS2208","LS2208","ZXP Series 7 Dual-sided printer with Single-Sided Laminator","QLn420","ZXP Series 9 Dual-sided printer with Single-Sided Laminator","DS4608","SP55XXX","DS9208","DS9208","ZQ620-HC","OperationalVisibilityService","OperationalVisibilityServiceConnectSOTI","MT2000","MT2000","RFD8500","DS4608DPE","DS4608DPE","DS4608XD","DS4608XD","RuggedHeadsets","DS9308","DS9308","AssetVisibilityService","DS9908-HD","DS9908-HD","SE4720SE4770","SE3317WA","ZT620","DS4308XD","DS4308XD","GK420d","RS5100","ZT411","ZT421","ZT421R","ZT210","DS2278-HC","DS2278-HC","DS2208-HC","DS2208-HC","DS4608-HC","DS4608-HC","ZC350 UHF Dual-sided Printer","ZT411R","OperationalVisibilityServConnectAirWatch","HD4000","VisibilityIQ Foresight","ZQ210","ZD888d","ZP888","DS4308-HC","CS4070","DS4308-HD and HL","DS2208","DS2278","DS7708","CS4070-HC","DS8108","DS8108-HC","DS4608","ZQ511","ZQ521","ZQ511R","ZQ521R","TC21","TC26","ET51 Android with Integrated Scanner","ET51 Windows with Integrated Scanner","MC3300x Brick","MC3300x Gun","PS20Plus","PS20Base","MS4717","TC52x","MC2200","TC21-HC","TC26-HC","TC57x","CS6080-HC","CS6080-HC","ZR118","ZR138","ZR318","ZR328","MC2700","WT6300","TC52x-HC","EC55","CS6080","CS6080","EC50","TC57","TC52","SOTI Mobicontrol Connector","ZD620d-HC","ZD620t-HC","ZD620d","ZD620t","ZD420d","ZD420d-HC","ZD420c","ZD420c-HC","ZD420t","ZD420t-HC","ZD421d","ZD421d-HC","ZD421t","ZD421t-HC","ZD621d","ZD621d-HC","ZD621t","ZD621t-HC","ZD421c","ZD421c-HC","ZD621R","MC3330xR","MC3390xR","Intelligent Cabinets","RFD40","FS40","VS40","VS70","FS70","DS8178","DS8178","MC3300ax Brick","MC3300ax Gun","TC52ax","ET80","FS10","FS20","VS20","ET85","TC52ax-HC"};
+
+allModelsJson=json();
+for eachModel in modelNamesArray
+{
+	allSkuArray=String[];
+	missedSkuArray=String[];
+	currentModelJson = json();
+	
+	model_name = eachModel;
+	category = "Standard Configurations";
+
+	if(model_name<>"" AND category<>"")
+	{
+		//Logic to Find Table Name Based on Model Name
+		resultSet1 = bmql("select Table from ModelColumns where Model=$model_name");
+		for each in resultSet1
+		{
+			table_name=get(each,"Table");
+			break;
+		}
+		if(table_name<>"")
+		{
+			//Logic to Find All SKU's Required
+			resultSet2 = bmql("select SkuNumber from ModelSKUrelationship where Model=$model_name AND Category=$category AND Status='Active'");
+			for each in resultSet2
+			{
+				sku=get(each,"SkuNumber");
+				if(findinarray(allSkuArray,sku)==-1)
+				{
+					append(allSkuArray,sku); //All SKU's available in ModelSKUrelationship data table for current model
+				}
+			}
+			//Logic to Find All SKU's Required
+			if(not isempty(allSkuArray))
+			{
+				tempArray= String[];
+				resultSet3 = bmql("select StdConfiguration from $table_name where StdConfiguration IN $allSkuArray");
+				for each in resultSet3
+				{
+					sku=get(each,"StdConfiguration");
+					if(findinarray(tempArray,sku)==-1)
+					{
+						append(tempArray,sku); //Skus available in model specific table
+					}
+				}
+				
+				for eachSKU in allSkuArray
+				{
+					if(findinarray(tempArray,eachSKU)==-1)
+					{
+						append(missedSkuArray,eachSKU); //Skus available in ModelSKUrelationship and not in model specific array
+					}
+				}
+				jsonput(allModelsJson,model_name,join(missedSkuArray,"$$"));
+			}
+			else
+			{
+				return "";
+			}
+		}
+		else
+		{
+			return "";
+		}
+	}
+}
+print allModelsJson;
+
+//Below code need to be uncommented after review and ready for updating data table
+
+/*
+modelKeys=jsonkeys(allModelsJson);
+for eachModel in modelKeys
+{
+	cModel=eachModel;
+	cSkuArray=split(jsonget(allModelsJson,cModel),"$$"));
+	results = bmql("update ModelSKUrelationship set ConfiguratorEnabled='Y' where Model=$cModel and SkuNumber in $cSkuArray");
+	results = bmql("update ModelSKUrelationship set ConfiguratorEnabled='N' where Model=$cModel and SkuNumber not in $cSkuArray");
+}
+*/
+return "";

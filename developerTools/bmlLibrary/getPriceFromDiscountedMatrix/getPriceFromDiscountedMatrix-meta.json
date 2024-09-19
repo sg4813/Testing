@@ -1,0 +1,15 @@
+{
+  "name" : "Get Price from Discounted Matrix",
+  "variableName" : "getPriceFromDiscountedMatrix",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "Dictionary of String Dictionaries",
+  "parameters" : [ {
+    "name" : "PriceGroupDetails",
+    "type" : "String"
+  }, {
+    "name" : "Account",
+    "type" : "String Dictionary"
+  } ],
+  "attributes" : [ ]
+}

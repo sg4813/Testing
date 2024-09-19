@@ -1,0 +1,12 @@
+{
+  "name" : "Get Account Details",
+  "variableName" : "getAccountDetails",
+  "description" : "Created by: Abhishek 07/02/19: Function will provide Account details for given Account.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String Dictionary",
+  "parameters" : [ {
+    "name" : "AccountID",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

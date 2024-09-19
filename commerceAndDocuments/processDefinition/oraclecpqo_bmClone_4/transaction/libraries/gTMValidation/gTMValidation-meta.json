@@ -1,0 +1,11 @@
+{
+  "name" : "GTM Validation",
+  "variableName" : "gTMValidation",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "contractStartDate_l", "contractEndDate_l", "_part_display_number", "_part_custom_field11", "annualCloudNetPrice_l", "totalContractValue", "_document_number", "license", "ZEB_countryOfUse", "_parent_doc_number", "modelName_l", "_model_name", "_part_number", "_model_variable_name", "oRCL_ABO_ActionCode_l", "_part_custom_field1" ],
+  "mainDocAttributes" : [ "defaultRequestDate_t", "transactionID_t", "bs_id", "purchaseOrderNumber_t", "currency_t", "endUserName_t", "resellerName", "endUserNum_t", "createdBy_t", "createdDate_t", "lastUpdatedDate_t", "lastUpdatedBy_t", "billAddressDetail_t", "region_t", "contractType_t", "syncNOTwithSiebel_t", "ZEB_ShipToAddress_t" ],
+  "systemAttributes" : [ ]
+}

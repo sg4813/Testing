@@ -1,0 +1,15 @@
+{
+  "name" : "Get PS CostPrice/Hour",
+  "variableName" : "getPSCostPriceHour",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "Float",
+  "parameters" : [ {
+    "name" : "emprole",
+    "type" : "String"
+  }, {
+    "name" : "Location",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

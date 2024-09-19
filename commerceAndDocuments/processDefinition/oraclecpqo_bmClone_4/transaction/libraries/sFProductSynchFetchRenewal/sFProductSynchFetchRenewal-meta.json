@@ -1,0 +1,11 @@
+{
+  "name" : "SF Product Synch - Fetch Renewal - Not in Use",
+  "variableName" : "sFProductSynchFetchRenewal",
+  "description" : "",
+  "libraryFunctions" : [ "util.productSynchToSF" ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_config_attr_info", "category_l", "_part_number", "parentSKU_l", "license", "annualCloudNetPrice_l", "_document_number", "unitCost_l", "annualCloudPriceInclHosting_l", "fetchProductType_l", "_part_custom_field11" ],
+  "mainDocAttributes" : [ "bs_id", "fetchRecordId", "fetchSFDCObject", "transactionID_t", "status_t", "contractType_t", "ZEB_PSBillType_t" ],
+  "systemAttributes" : [ ]
+}

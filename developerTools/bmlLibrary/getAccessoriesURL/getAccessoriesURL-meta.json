@@ -1,0 +1,39 @@
+{
+  "name" : "Get Accessories URL",
+  "variableName" : "getAccessoriesURL",
+  "description" : "Created By: Razvi Date: 11/17/2020 Purpose: To prepare string for warning message which will include link to accessories guide based on language.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "OCCModel",
+    "type" : "String"
+  }, {
+    "name" : "AdditionalItemJson",
+    "type" : "String"
+  }, {
+    "name" : "PartNumberArr",
+    "type" : "String[]"
+  }, {
+    "name" : "ErrorCodeArr",
+    "type" : "String[]"
+  }, {
+    "name" : "TypeArr",
+    "type" : "String[]"
+  }, {
+    "name" : "AutoAttachSkuVal",
+    "type" : "String"
+  }, {
+    "name" : "AutoAttachServicesVal",
+    "type" : "String"
+  }, {
+    "name" : "RegionVal",
+    "type" : "String"
+  }, {
+    "name" : "WarningMsgVal",
+    "type" : "String"
+  }, {
+    "name" : "LangCode",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

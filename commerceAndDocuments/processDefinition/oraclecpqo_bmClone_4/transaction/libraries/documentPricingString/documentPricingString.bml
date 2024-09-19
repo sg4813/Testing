@@ -1,0 +1,37 @@
+retString = "";
+rowDel = "###";
+colDel = "***";
+
+for line in transactionLine {
+	print line._document_number;
+	level = "model";
+	if(line._part_number <> "") {
+		level = line._part_custom_field11;
+	}
+	internalString = line._part_number + colDel + level + colDel + string(line.grossCloudPriceInclHosting_l) + colDel + string(line.annualCloudNetPrice_l) + colDel + string(line.grossCloudNetPrice_l) + rowDel;
+	if(NOT isnull(line.oRCL_manualAdjustments)) {
+		manualAdjsutmentJsonArray = line.oRCL_manualAdjustments;
+		indices = range(jsonarraysize(manualAdjsutmentJsonArray));
+		for index in indices {
+			tempJson = jsonarrayget(manualAdjsutmentJsonArray, index, "json");
+			
+			discountName = jsonget(tempJson, "oRCL_manual_adjustmentName_l","string", "defaultType");
+			discountType = jsonget(tempJson, "oRCL_manual_adjustmentType_l","string", "defaultType");
+			discountValue = jsonget(tempJson, "oRCL_manual_adjustmentValue_l", "float", 0.0);
+			finalPrice = jsonget(tempJson, "finalPrice_l", "float", 0.0);
+			internalString = internalString + discountName  + colDel + "" + colDel + "" + colDel + string(finalPrice) + colDel + "" + rowDel;
+			/*if(discountType == "ORA_DISCOUNT_PERCENT") {
+				finalPrice = finalPrice * (1 - (discountValue / 100));
+			} elif(discountType == "ORA_PRICE_OVERRIDE") {
+				finalPrice = discountValue;
+			} elif(discountType == "ORA_MARKUP_PERCENT") {
+				finalPrice = finalPrice * ((discountValue/100) + 1);
+			}*/
+		}
+	}
+
+	
+	retString = retString + line._document_number + "~ZEB_documentPricingString_l~" + internalString + "|";
+}
+
+return retString;

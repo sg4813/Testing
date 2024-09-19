@@ -1,0 +1,219 @@
+print "Abhishek POC";
+ret = dict("string");
+ModelJsonArray = jsonarray();
+tableColumn = "";
+localTable = "";
+sb = stringbuilder();
+bFlag = false;
+localColumn = string[];
+
+rs = bmql("Select * from ModelSkuSequence where Model = $Model Order by Sequence ASC");
+Attributcount = 0;
+for each in rs
+{
+	sbappend(sb,get(each,"ModelAttribute"),"$,$");
+	append(localColumn,get(each,"ModelAttribute"));
+	Attributcount  = Attributcount + 1;
+}
+rs = bmql("Select * from ModelsTableRelation where Model = $Model");
+for each in rs
+{
+	localTable = get(each,"Table");
+}
+print "localTable***********";
+print localTable;
+
+print "Model***********";
+print Model;
+
+
+if(BundledKit == "Yes")
+{
+
+	rs = bmql("Select $tableColumn from $localTable where StdConfiguration IN $SkuNumber AND ParentSKU IS NOT NULL");
+	//rs = bmql("Select $tableColumn from $localTable");
+	
+}
+else
+{
+	rs = bmql("Select * from $localTable where Sku IN $SkuNumber AND Status = 'Active' AND Model = $Model Order by Sku ");
+}
+print Attributcount;
+print "Inside Model Json******************";
+print rs;
+print "Inside Model Json******************";
+iCount = 0;
+ModelJson = json();
+tempJson = json();
+tempJsonArray = jsonarray();
+localSku = "";
+temparray = string[];
+
+loop = false;
+
+tempSku = "";
+tempSku1 = "";
+localCount = 0;
+for each in rs
+{
+	loop = true;
+	if(Model == "Imaging Library")
+	{
+			if(localCount == 0 OR Attributcount  > localCount)
+			{
+				print "inside if(localCount == 0 OR Attributcount  > localCount)";
+				jsonput(tempJson,"softwareTitle",get(each,"softwareTitle"));
+				jsonput(tempJson,"softwareVersion",get(each,"softwareVersion"));
+				jsonput(tempJson,"package",get(each,"package"));
+				jsonput(tempJson,"Identity",get(each,"Identity"));
+				jsonput(tempJson,"SR",get(each,"SR"));
+				jsonput(tempJson,"Codec",get(each,"Codec"));
+				jsonput(tempJson,"GPU",get(each,"GPU"));
+				jsonput(tempJson,"GMF",get(each,"GMF"));
+				jsonput(tempJson,"EF",get(each,"EF"));
+				jsonput(tempJson,"Interface",get(each,"Interface"));
+				jsonput(tempJson,"DMIL",get(each,"DMIL"));
+				jsonput(tempJson,"Registration",get(each,"Registration"));
+				jsonput(tempJson,"ThreeD",get(each,"ThreeD"));
+				jsonput(tempJson,"Metrology",get(each,"Metrology"));
+				jsonput(tempJson,"Color",get(each,"Color"));
+				jsonput(tempJson,"IndustrialComm",get(each,"IndustrialComm"));
+				jsonput(tempJson,"Classification",get(each,"Classification"));
+				jsonput(tempJson,"Dongle",get(each,"Dongle"));
+				localSku  = get(each,"Sku");
+				jsonput(tempJson,"Sku",localSku);
+				localCount = localCount + 1;
+				print tempJson;
+			}
+			else
+			{
+				print "else";
+				jsonput(tempJson,"Sku",localSku);
+				append(temparray,localSku);
+				jsonarrayappend(tempJsonArray,tempJson);
+				print tempJsonArray;
+				tempJson = json();
+				
+				jsonput(tempJson,"softwareTitle",get(each,"softwareTitle"));
+				jsonput(tempJson,"softwareVersion",get(each,"softwareVersion"));
+				jsonput(tempJson,"package",get(each,"package"));
+				jsonput(tempJson,"Identity",get(each,"Identity"));
+				jsonput(tempJson,"SR",get(each,"SR"));
+				jsonput(tempJson,"Codec",get(each,"Codec"));
+				jsonput(tempJson,"GPU",get(each,"GPU"));
+				jsonput(tempJson,"GMF",get(each,"GMF"));
+				jsonput(tempJson,"EF",get(each,"EF"));
+				jsonput(tempJson,"Interface",get(each,"Interface"));
+				jsonput(tempJson,"DMIL",get(each,"DMIL"));
+				jsonput(tempJson,"Registration",get(each,"Registration"));
+				jsonput(tempJson,"ThreeD",get(each,"ThreeD"));
+				jsonput(tempJson,"Metrology",get(each,"Metrology"));
+				jsonput(tempJson,"Color",get(each,"Color"));
+				jsonput(tempJson,"IndustrialComm",get(each,"IndustrialComm"));
+				jsonput(tempJson,"Classification",get(each,"Classification"));
+				jsonput(tempJson,"Dongle",get(each,"Dongle"));
+				
+				//jsonput(tempJson,get(each,"Attribute"),get(each,"Value"));
+				localSku  = get(each,"Sku");
+				jsonput(tempJson,"Sku",localSku);
+				localCount = 1;
+				print tempJson;
+			}
+	}
+	else
+	{
+			if(localCount == 0 OR Attributcount  > localCount)
+			{
+				print "inside if(localCount == 0 OR Attributcount  > localCount)";
+				jsonput(tempJson,get(each,"Attribute"),get(each,"Value"));
+				localSku  = get(each,"Sku");
+				jsonput(tempJson,"Sku",localSku);
+				localCount = localCount + 1;
+				print tempJson;
+			}
+			else
+			{
+				print "else";
+				jsonput(tempJson,"Sku",localSku);
+				append(temparray,localSku);
+				jsonarrayappend(tempJsonArray,tempJson);
+				print tempJsonArray;
+				tempJson = json();
+				jsonput(tempJson,get(each,"Attribute"),get(each,"Value"));
+				localSku  = get(each,"Sku");
+				jsonput(tempJson,"Sku",localSku);
+				localCount = 1;
+				print tempJson;
+			}
+	}
+
+	
+	
+}
+print "tempJsonArray";
+print tempJsonArray;
+print localColumn;
+if(loop)
+{
+		jsonput(tempJson,"Sku",localSku);
+		append(temparray,localSku);
+		jsonarrayappend(tempJsonArray,tempJson);
+		
+}
+for each in temparray 
+{
+		print "EACH";
+		print each;
+		tempJson = json();
+		narrayCount = range(jsonarraysize(tempJsonArray));
+		for arryacount in narrayCount 
+		{
+			tempJson = jsonarrayget(tempJsonArray,arryacount,"json");
+			if(jsonget(tempJson,"Sku") == each)
+			{
+				break;
+			}
+		}
+		if(containskey(ItemData,each))
+		{
+			tempPricingDict = get(itemData,each);
+			
+			print tempPricingDict;
+			jsonput(ModelJson,"Pricing",get(tempPricingDict,"PriceList"));
+			jsonput(ModelJson,"ErrorCode",get(tempPricingDict,"ErrorCode"));
+			jsonput(ModelJson,"Purchasing Method",get(tempPricingDict,"Purchase Method"));
+			jsonput(ModelJson,"Eligible Flag",get(tempPricingDict,"Eligible Flag"));
+			jsonput(ModelJson,"List Price",get(tempPricingDict,"List Price"));
+			jsonput(ModelJson,"Description",get(Description,each));
+			jsonput(ModelJson,"SiebelProductId",get(SiebelProductId,each));
+			jsonput(ModelJson,"ProductFamily",get(ProductFamilyId,each));
+			jsonput(ModelJson,"SkuId",each);
+			for each1 in localColumn
+			{
+				if(each1 <> "")
+				{
+					jsonput(ModelJson,each1 ,jsonget(tempJson,each1));
+				}
+			}
+		
+			jsonarrayappend(ModelJsonArray, ModelJson);
+			
+		}
+}
+	
+if(len(sbtostring(sb)) > 0)
+{
+	temp = sbtostring(sb);
+	temp = substring(temp, 0, len(temp) - 3);
+	put(ret,"Cloumn Sequence",temp);
+}
+if(jsonarraysize(ModelJsonArray) > 0)
+{
+	put(ret,"Model Json", jsonarraytostr(ModelJsonArray));
+}
+else
+{
+	put(ret,"Model Json","");
+}
+
+return ret;

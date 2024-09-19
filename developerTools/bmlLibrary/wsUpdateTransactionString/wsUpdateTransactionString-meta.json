@@ -1,0 +1,45 @@
+{
+  "name" : "wsUpdateTransactionString",
+  "variableName" : "wsUpdateTransactionString",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "company",
+    "type" : "String"
+  }, {
+    "name" : "sessionId",
+    "type" : "String"
+  }, {
+    "name" : "processName",
+    "type" : "String"
+  }, {
+    "name" : "transactionName",
+    "type" : "String"
+  }, {
+    "name" : "transactionVarName",
+    "type" : "String"
+  }, {
+    "name" : "transactionLineName",
+    "type" : "String"
+  }, {
+    "name" : "transactionLineVarName",
+    "type" : "String"
+  }, {
+    "name" : "transactionID",
+    "type" : "String"
+  }, {
+    "name" : "lineAttributeAndValuesString",
+    "type" : "String"
+  }, {
+    "name" : "userName",
+    "type" : "String"
+  }, {
+    "name" : "currencyPref",
+    "type" : "String"
+  }, {
+    "name" : "actionName",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

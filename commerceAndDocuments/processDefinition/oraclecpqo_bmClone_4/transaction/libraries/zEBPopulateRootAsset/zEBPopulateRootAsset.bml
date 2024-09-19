@@ -1,0 +1,29 @@
+// Input lineHierInfo(Anytype Dictionary)
+
+returnString = "";
+docNumToRootDocNum = get(lineHierInfo, "DocNumToRootDocNum", "dict<string>");
+docNumToAttrs = get(lineHierInfo, "DocNumToAttrs", "dict<anytype>");
+
+for line in transactionLine {
+
+rootAssetKey="";	
+	if(containskey(docNumToRootDocNum , line._document_number)){
+	    rootDocNumber = get(docNumToRootDocNum, line._document_number);	   
+	    lineAttrMap = get(docNumToAttrs, rootDocNumber ,"dict<string>");
+	   
+	    rootAssetKey =  get(lineAttrMap, "itemInstanceId_l");	
+	    
+	}
+	if(isnull(rootAssetKey) OR rootAssetKey == ""){	
+	  //Simple product case
+	  if ( len(line._model_variable_name) < 1 AND len(line._parent_doc_number) < 1 AND 
+             len(line._line_bom_id) > 1  ){            
+             lineAttrMap = get(docNumToAttrs, line._document_number ,"dict<string>");                      
+             rootAssetKey =  get(lineAttrMap, "itemInstanceId_l" );         
+          }
+	}	
+	
+        	  
+	returnString = returnString +"|"+ line._document_number+"~rootAssetKey_l~"+rootAssetKey;
+ }   
+return returnString ;

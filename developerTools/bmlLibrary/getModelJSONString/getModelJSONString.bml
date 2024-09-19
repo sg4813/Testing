@@ -1,0 +1,212 @@
+retStr = "";
+tableColumn = "";
+ModelJson = Json();
+ModelJsonArray = jsonarray();
+localTable = "";
+record =  recordset();
+recSet = bmql("Select Table, Column1, Column2, Column3, Column4, Column5, Column6, Column7, Column8, Column9, Column10, Column11, Column12, Column13, Column14, Column15 from ModelColumns where Model = $modelID AND BundledKit = $BundledKit");
+print recSet;
+for each in recSet{
+	localTable = get(each,"Table");
+	localColumn1 = get(each, "Column1");
+	localColumn2 = get(each, "Column2");
+	localColumn3 = get(each, "Column3");
+	localColumn4 = get(each, "Column4");
+	localColumn5 = get(each, "Column5");
+	localColumn6 = get(each, "Column6");
+	localColumn7 = get(each, "Column7");
+	localColumn8 = get(each, "Column8");
+	localColumn9 = get(each, "Column9");
+	localColumn10 = get(each, "Column10");
+	localColumn11 = get(each, "Column11");
+	localColumn12 = get(each, "Column12");
+	localColumn13 = get(each, "Column13");
+	localColumn14 = get(each, "Column14");
+	localColumn15 = get(each, "Column15");
+	if(localTable <> ""){
+		if(localColumn1 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn1 + ", ";
+		}
+		if(localColumn2 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn2 + ", ";
+		}
+		if(localColumn3 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn3 + ", ";
+		}
+		if(localColumn4 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn4 + ", ";
+		}
+		if(localColumn5 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn5 + ", ";
+		}
+		if(localColumn6 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn6 + ", ";
+		}
+		if(localColumn7 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn7 + ", ";
+		}
+		if(localColumn8 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn8 + ", ";
+		}
+		if(localColumn9 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn9 + ", ";
+		}
+		if(localColumn10 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn10 + ", ";
+		}
+		if(localColumn11 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn11 + ", ";
+		}
+		if(localColumn12 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn12 + ", ";
+		}
+		if(localColumn13 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn13 + ", ";
+		}
+		if(localColumn14 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn14 + ", ";
+		}
+		if(localColumn15 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn15 + ", ";
+		}
+		
+	}
+	tableColumn = tableColumn + "Pricing.ListPrice,";
+	tableColumn = tableColumn + "Pricing.ItemID";
+}
+
+if(endswith(tableColumn, ", ")){
+tableColumn = substring(tableColumn,0,len(tableColumn)-2);
+}
+if(localTable=="PrintersSKU"){
+record = bmql("Select $tableColumn from PrintersSKU INNER JOIN Pricing ON PrintersSKU.StdConfiguration = Pricing.ItemID WHERE PrintersSKU.Model = $modelID  AND Pricing.AccountID = $accountID ORDER BY PrintersSKU.StdConfiguration");
+}elif(localTable=="SKU_Solutions"){
+record = bmql("Select $tableColumn from SKU_Solutions INNER JOIN Pricing ON SKU_Solutions.StdConfiguration = Pricing.ItemID WHERE SKU_Solutions.Model = $modelID  AND Pricing.AccountID = $accountID ORDER BY SKU_Solutions.StdConfiguration");
+}elif(localTable=="SKU_FixedReaders"){
+record = bmql("Select $tableColumn from SKU_FixedReaders INNER JOIN Pricing ON SKU_FixedReaders.StdConfiguration = Pricing.ItemID WHERE SKU_FixedReaders.Model = $modelID  AND Pricing.AccountID = $accountID ORDER BY SKU_FixedReaders.StdConfiguration");
+}elif(localTable=="SKU_LocationSolution"){
+record = bmql("Select $tableColumn from SKU_LocationSolution INNER JOIN Pricing ON SKU_LocationSolution.StdConfiguration = Pricing.ItemID WHERE SKU_LocationSolution.Model = $modelID  AND Pricing.AccountID = $accountID ORDER BY SKU_LocationSolution.StdConfiguration");
+}elif(localTable=="SKU_WearComputers"){
+record = bmql("Select $tableColumn from SKU_WearComputers INNER JOIN Pricing ON SKU_WearComputers.StdConfiguration = Pricing.ItemID WHERE SKU_WearComputers.Model = $modelID  AND Pricing.AccountID = $accountID ORDER BY SKU_WearComputers.StdConfiguration");
+}elif(localTable=="SKU_Software"){
+record = bmql("Select $tableColumn from SKU_Software INNER JOIN Pricing ON SKU_Software.StdConfiguration = Pricing.ItemID WHERE SKU_Software.Model = $modelID  AND Pricing.AccountID = $accountID ORDER BY SKU_Software.StdConfiguration");
+}elif(localTable=="SKU_MP_Scanner"){
+record = bmql("Select $tableColumn from SKU_MP_Scanner INNER JOIN Pricing ON SKU_MP_Scanner.StdConfiguration = Pricing.ItemID WHERE SKU_MP_Scanner.Model = $modelID  AND Pricing.AccountID = $accountID ORDER BY SKU_MP_Scanner.StdConfiguration");
+}elif(localTable=="SKU_Rugged_Scanner"){
+record = bmql("Select $tableColumn from SKU_Rugged_Scanner INNER JOIN Pricing ON SKU_Rugged_Scanner.StdConfiguration = Pricing.ItemID WHERE SKU_Rugged_Scanner.Model = $modelID AND Pricing.AccountID = $accountID ORDER BY SKU_Rugged_Scanner.StdConfiguration");
+}elif(localTable=="SKU_Kloaks"){
+record = bmql("Select $tableColumn from SKU_Kloaks INNER JOIN Pricing ON SKU_Kloaks.StdConfiguration = Pricing.ItemID WHERE SKU_Kloaks.Model = $modelID  AND Pricing.AccountID = $accountID ORDER BY SKU_Kloaks.StdConfiguration");
+}elif(localTable=="SKU_HandheldReaders"){
+record = bmql("Select $tableColumn from SKU_HandheldReaders INNER JOIN Pricing ON SKU_HandheldReaders.StdConfiguration = Pricing.ItemID WHERE SKU_HandheldReaders.Model = $modelID  AND Pricing.AccountID = $accountID ORDER BY SKU_HandheldReaders.StdConfiguration");
+}elif(localTable=="SKU_ScanEngines"){
+record = bmql("Select $tableColumn from SKU_ScanEngines INNER JOIN Pricing ON SKU_ScanEngines.StdConfiguration = Pricing.ItemID WHERE SKU_ScanEngines.Model = $modelID  AND Pricing.AccountID = $accountID ORDER BY SKU_ScanEngines.StdConfiguration");
+}elif(localTable=="MobileComputersSKU"){
+record = bmql("Select $tableColumn from MobileComputersSKU INNER JOIN Pricing ON MobileComputersSKU.StdConfiguration = Pricing.ItemID WHERE MobileComputersSKU.Model = $modelID  AND Pricing.AccountID = $accountID ORDER BY MobileComputersSKU.StdConfiguration");
+}elif(localTable=="SKU_FM_Scanner"){
+record = bmql("Select $tableColumn from SKU_FM_Scanner INNER JOIN Pricing ON SKU_FM_Scanner.StdConfiguration = Pricing.ItemID WHERE SKU_FM_Scanner.Model = $modelID  AND Pricing.AccountID = $accountID ORDER BY SKU_FM_Scanner.StdConfiguration");
+}elif(localTable=="SKU_Tablet"){
+record = bmql("Select $tableColumn from SKU_Tablet INNER JOIN Pricing ON SKU_Tablet.StdConfiguration = Pricing.ItemID WHERE SKU_Tablet.Model = $modelID AND Pricing.AccountID = $accountID ORDER BY SKU_Tablet.StdConfiguration");
+}elif(localTable=="SKU_Kiosk"){
+record = bmql("Select $tableColumn from SKU_Kiosk INNER JOIN Pricing ON SKU_Kiosk.StdConfiguration = Pricing.ItemID WHERE SKU_Kiosk.Model = $modelID AND Pricing.AccountID = $accountID ORDER BY SKU_Kiosk.StdConfiguration");
+}elif(localTable=="SKU_IDCardPrinters"){
+record = bmql("Select $tableColumn from SKU_IDCardPrinters INNER JOIN Pricing ON SKU_IDCardPrinters.StdConfiguration = Pricing.ItemID WHERE SKU_IDCardPrinters.Model = $modelID AND Pricing.AccountID = $accountID ORDER BY SKU_IDCardPrinters.StdConfiguration");
+}elif(localTable=="SKU_DesktopPrinter"){
+record = bmql("Select $tableColumn from SKU_DesktopPrinter INNER JOIN Pricing ON SKU_DesktopPrinter.StdConfiguration = Pricing.ItemID WHERE SKU_DesktopPrinter.Model = $modelID AND Pricing.AccountID = $accountID ORDER BY SKU_DesktopPrinter.StdConfiguration");
+}elif(localTable=="SKU_IndusPrinters"){
+record = bmql("Select $tableColumn from SKU_IndusPrinters INNER JOIN Pricing ON SKU_IndusPrinters.StdConfiguration = Pricing.ItemID WHERE SKU_IndusPrinters.Model = $modelID AND Pricing.AccountID = $accountID ORDER BY SKU_IndusPrinters.StdConfiguration");
+}elif(localTable=="SKU_MobilePrinters"){
+record = bmql("Select $tableColumn from SKU_MobilePrinters INNER JOIN Pricing ON SKU_MobilePrinters.StdConfiguration = Pricing.ItemID WHERE SKU_MobilePrinters.Model = $modelID AND Pricing.AccountID = $accountID ORDER BY SKU_MobilePrinters.StdConfiguration");
+}elif(localTable=="SKU_PrintEngine"){
+record = bmql("Select $tableColumn from SKU_PrintEngine INNER JOIN Pricing ON SKU_PrintEngine.StdConfiguration = Pricing.ItemID WHERE SKU_PrintEngine.Model = $modelID AND Pricing.AccountID = $accountID ORDER BY SKU_PrintEngine.StdConfiguration");
+}elif(localTable=="SKU_RFIDPrinters"){
+record = bmql("Select $tableColumn from SKU_RFIDPrinters INNER JOIN Pricing ON SKU_RFIDPrinters.StdConfiguration = Pricing.ItemID WHERE SKU_RFIDPrinters.Model = $modelID AND Pricing.AccountID = $accountID ORDER BY SKU_RFIDPrinters.StdConfiguration");
+}elif(localTable=="SKU_HC_Scanner"){
+record = bmql("Select $tableColumn from SKU_HC_Scanner INNER JOIN Pricing ON SKU_HC_Scanner.StdConfiguration = Pricing.ItemID WHERE SKU_HC_Scanner.Model = $modelID AND Pricing.AccountID = $accountID ORDER BY SKU_HC_Scanner.StdConfiguration");
+}elif(localTable=="SKU_Comp_Scanner"){
+record = bmql("Select $tableColumn from SKU_Comp_Scanner INNER JOIN Pricing ON SKU_Comp_Scanner.StdConfiguration = Pricing.ItemID WHERE SKU_Comp_Scanner.Model = $modelID AND Pricing.AccountID = $accountID ORDER BY SKU_Comp_Scanner.StdConfiguration");
+}elif(localTable=="SKU_ArrayReaders"){
+record = bmql("Select $tableColumn from SKU_ArrayReaders INNER JOIN Pricing ON SKU_ArrayReaders.StdConfiguration = Pricing.ItemID WHERE SKU_ArrayReaders.Model = $modelID AND Pricing.AccountID = $accountID ORDER BY SKU_ArrayReaders.StdConfiguration");
+}elif(localTable=="SKU_VehicleMountComp"){
+if(BundledKit == "No")
+{
+record = bmql("Select $tableColumn from SKU_VehicleMountComp INNER JOIN Pricing ON SKU_VehicleMountComp.StdConfiguration = Pricing.ItemID WHERE SKU_VehicleMountComp.Model = $modelID AND Pricing.AccountID = $accountID AND SKU_VehicleMountComp.ParentSKU IS NULL ORDER BY SKU_VehicleMountComp.StdConfiguration");
+}
+else
+{
+record = bmql("Select $tableColumn from SKU_VehicleMountComp INNER JOIN Pricing ON SKU_VehicleMountComp.StdConfiguration = Pricing.ItemID WHERE SKU_VehicleMountComp.Model = $modelID AND Pricing.AccountID = $accountID AND SKU_VehicleMountComp.ParentSKU IS NOT NULL ORDER BY SKU_VehicleMountComp.StdConfiguration");
+}}elif(localTable=="SKU_GPS_Scanner"){
+record = bmql("Select $tableColumn from SKU_GPS_Scanner INNER JOIN Pricing ON SKU_GPS_Scanner.StdConfiguration = Pricing.ItemID WHERE SKU_GPS_Scanner.Model = $modelID AND Pricing.AccountID = $accountID ORDER BY SKU_GPS_Scanner.StdConfiguration");
+}
+
+for each in record
+{
+	for Val in recSet{
+		localColumn1 = get(Val, "Column1");
+		localColumn2 = get(Val, "Column2");
+		localColumn3 = get(Val, "Column3");
+		localColumn4 = get(Val, "Column4");
+		localColumn5 = get(Val, "Column5");
+		localColumn6 = get(Val, "Column6");
+		localColumn7 = get(Val, "Column7");
+		localColumn8 = get(Val, "Column8");
+		localColumn9 = get(Val, "Column9");
+		localColumn10 = get(Val, "Column10");
+		localColumn11 = get(Val, "Column11");
+		localColumn12 = get(Val, "Column12");
+		localColumn13 = get(Val, "Column13");
+		localColumn14 = get(Val, "Column14");
+		localColumn15 = get(Val, "Column15");
+		if(localColumn1 <> ""){
+		jsonput(ModelJson, localColumn1, get(each,localColumn1));
+		}
+		if(localColumn2 <> ""){
+		jsonput(ModelJson, localColumn2, get(each,localColumn2));
+		}
+		if(localColumn3 <> ""){
+		jsonput(ModelJson, localColumn3, get(each,localColumn3));
+		}
+		if(localColumn4 <> ""){
+		jsonput(ModelJson, localColumn4, get(each,localColumn4));
+		}
+		if(localColumn5 <> ""){
+		jsonput(ModelJson, localColumn5, get(each,localColumn5));
+		}
+		if(localColumn6 <> ""){
+		jsonput(ModelJson, localColumn6, get(each,localColumn6));
+		}
+		if(localColumn7 <> ""){
+		jsonput(ModelJson, localColumn7, get(each,localColumn7));
+		}
+		if(localColumn8 <> ""){
+		jsonput(ModelJson, localColumn8, get(each,localColumn8));
+		}
+		if(localColumn9 <> ""){
+		jsonput(ModelJson, localColumn9, get(each,localColumn9));
+		}
+		if(localColumn10 <> ""){
+		jsonput(ModelJson, localColumn10, get(each,localColumn10));
+		}
+		if(localColumn11 <> ""){
+		jsonput(ModelJson, localColumn11, get(each,localColumn11));
+		}
+		if(localColumn12 <> ""){
+		jsonput(ModelJson, localColumn12, get(each,localColumn12));
+		}
+		if(localColumn13 <> ""){
+		jsonput(ModelJson, localColumn13, get(each,localColumn13));
+		}
+		if(localColumn14 <> ""){
+		jsonput(ModelJson, localColumn14, get(each,localColumn14));
+		}
+		if(localColumn15 <> ""){
+		jsonput(ModelJson, localColumn15, get(each,localColumn15));
+		}
+		jsonput(ModelJson,"Pricing", get(each,"ListPrice"));
+		jsonput(ModelJson,"SkuId", get(each,"ItemID"));
+		jsonput(ModelJson,"ErrorCode","");
+		jsonput(ModelJson,"Description", get(each,"ItemID"));
+	}
+	jsonarrayappend(ModelJsonArray, ModelJson);
+}
+retStr = jsonarraytostr(ModelJsonArray);
+return retStr;

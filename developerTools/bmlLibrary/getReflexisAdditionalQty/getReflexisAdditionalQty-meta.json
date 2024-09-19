@@ -1,0 +1,18 @@
+{
+  "name" : "Get Reflexis Additional Qty",
+  "variableName" : "getReflexisAdditionalQty",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "Integer",
+  "parameters" : [ {
+    "name" : "SKUArray",
+    "type" : "String[]"
+  }, {
+    "name" : "Quantity",
+    "type" : "Integer[]"
+  }, {
+    "name" : "SKU",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

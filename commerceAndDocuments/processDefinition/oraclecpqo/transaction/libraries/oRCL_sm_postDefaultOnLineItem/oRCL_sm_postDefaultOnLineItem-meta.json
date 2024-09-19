@@ -1,0 +1,14 @@
+{
+  "name" : "PostDefaultOnLineItemSM",
+  "variableName" : "oRCL_sm_postDefaultOnLineItem",
+  "description" : "This BML is used for populating root asset Key, auto adjustments and charges for lines.",
+  "libraryFunctions" : [ "util.SM.oRCL_pRC_populateCharges" ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "lineHierInfo",
+    "type" : "Anytype Dictionary"
+  } ],
+  "subDocAttributes" : [ "_part_number", "_document_number", "oRCL_pRC_useUsageLock", "_price_calculation_info", "itemInstanceId_l", "rootAssetKey_l", "_model_variable_name", "_parent_doc_number", "_line_bom_id" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

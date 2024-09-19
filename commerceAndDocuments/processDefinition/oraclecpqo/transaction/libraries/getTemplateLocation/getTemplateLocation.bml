@@ -1,0 +1,20 @@
+//Name:getTemplateLocation
+//Variable Name: getTemplateLocation
+//Description: Queries the template location from the datatable INT_SYSTEM_TEMPLATES based on the System and Operation.
+//Input: system(String),operation(String)
+//Return Type:String
+//Dependency : None
+
+templateUrl = "";
+//bmql query
+resultSet = bmql("Select Template from INT_SYSTEM_TEMPLATES where System = $system and Operation = $operation");
+
+//loop through the records
+for record in resultSet {
+  templateUrl = get(record,"Template");
+  print templateUrl;
+}
+
+temp=split(templateUrl,"image");
+
+return temp[1];

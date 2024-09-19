@@ -1,0 +1,12 @@
+{
+  "name" : "Get Allowable value for Category",
+  "variableName" : "getAllowableValueForCategory",
+  "description" : "Created by: Abhishek 07/02/19: Function will provide all allowable category for Accessories, Software etc.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "JsonStr",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

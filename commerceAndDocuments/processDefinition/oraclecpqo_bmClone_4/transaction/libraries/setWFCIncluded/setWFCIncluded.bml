@@ -1,0 +1,7 @@
+for line in transactionLine {
+if(line._model_name <>"" AND (startswith(line._model_name,"WorkForce Connect") OR startswith(line._model_name,"Workcloud Sync"))) {
+return "Y";
+}
+}
+
+return "N";

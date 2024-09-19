@@ -1,0 +1,9 @@
+{
+  "name" : "Non Recurring Discounts_ZPA",
+  "variableName" : "nonRecurringDiscounts_ZPA",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "attributes" : [ "_company_name" ]
+}

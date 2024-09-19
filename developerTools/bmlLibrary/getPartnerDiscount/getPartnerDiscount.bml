@@ -1,0 +1,62 @@
+partnerdiscount = float[];             
+	partnermember = string[];
+	partnerAccountDiscountEligibility= string[];
+	discountEligibility ="";
+	maxPartnerdisc = 0.0;
+	accountNum="6081";
+
+	part_Number = "PTT Pro EMC Software";
+	parentVariableName  = "";
+	pricegroup = "Z3-1";	
+	results = bmql("SELECT Memberships,Status FROM Account_Memberships WHERE AccountNumber = $accountNum AND Status = 'Current Member'");
+	for eachPartnerProg in results  {
+				membership=get(eachPartnerProg, "Memberships");
+				append(partnermember,membership);
+				//print membership;
+				
+	}
+	currentDate = getdate()	;
+				
+		print 	partnermember;				
+	results = bmql("SELECT EffectiveTo FROM Eligibility_Matrix WHERE PartnerProgram IN $partnermember AND PriceGroup = $pricegroup AND EffectiveTo IS NOT NULL " );
+	print "effective to";
+    print results;
+	for eachrecord in results{
+	EffecDate = get(eachrecord, "EffectiveTo");
+	EffecDate1 = strtojavadate(EffecDate, "MM/dd/yyyy HH:mm:ss");
+	print "inside for loop";
+	if (comparedates(EffecDate1, currentDate)== 1){
+	discountEligibility ="Y";
+		print "discountEligibility";
+		print discountEligibility;
+							
+	}
+	else{
+				
+	discountEligibility ="N";
+		print "discountEligibility1";
+		print discountEligibility;
+	}
+	append(partnerAccountDiscountEligibility , discountEligibility );
+				
+	}
+	maxPartnerdisc =0.0;
+	tempEligiblity = findinarray(partnerAccountDiscountEligibility,"Y");
+	if(tempEligiblity > -1){				
+	results = bmql("SELECT AdjustmentAmount FROM DiscountMatrix WHERE PartnerProgram IN $partnermember AND PriceGroup = $pricegroup");
+
+	for eachDisc in results{
+	partnerdisc = getfloat(eachDisc, "AdjustmentAmount");
+	append(partnerdiscount, partnerdisc);
+	}
+	if (sizeofarray (partnerdiscount) >0) {
+	maxPartnerdisc = max(partnerdiscount);
+	print maxPartnerdisc;
+	}
+		}
+	else {
+	maxPartnerdisc = 0.0;
+			
+			
+	}
+	return maxPartnerdisc;

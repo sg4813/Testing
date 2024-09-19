@@ -1,0 +1,12 @@
+{
+  "name" : "New Questions Reflexis Pricing",
+  "variableName" : "newQuestionsReflexisPricing",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "Float[]",
+  "parameters" : [ {
+    "name" : "inputParamsDict",
+    "type" : "Anytype Dictionary"
+  } ],
+  "attributes" : [ ]
+}

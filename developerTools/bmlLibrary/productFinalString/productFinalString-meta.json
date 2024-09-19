@@ -1,0 +1,27 @@
+{
+  "name" : "ProductFinalString",
+  "variableName" : "productFinalString",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "productJsonarray",
+    "type" : "String"
+  }, {
+    "name" : "quantity",
+    "type" : "Integer"
+  }, {
+    "name" : "productname",
+    "type" : "String"
+  }, {
+    "name" : "product",
+    "type" : "String"
+  }, {
+    "name" : "ExtraParam",
+    "type" : "String"
+  }, {
+    "name" : "ExtraParam1",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

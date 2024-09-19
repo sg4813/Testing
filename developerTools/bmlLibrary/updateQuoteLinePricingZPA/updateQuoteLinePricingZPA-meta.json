@@ -1,0 +1,9 @@
+{
+  "name" : "Update Quote Line Pricing ZPA",
+  "variableName" : "updateQuoteLinePricingZPA",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "attributes" : [ "_company_name" ]
+}

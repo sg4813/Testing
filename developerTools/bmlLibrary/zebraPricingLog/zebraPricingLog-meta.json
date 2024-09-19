@@ -1,0 +1,12 @@
+{
+  "name" : "Zebra Pricing Log",
+  "variableName" : "zebraPricingLog",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "Inputs",
+    "type" : "String Dictionary"
+  } ],
+  "attributes" : [ ]
+}

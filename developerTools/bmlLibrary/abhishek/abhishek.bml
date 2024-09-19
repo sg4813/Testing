@@ -1,0 +1,17 @@
+ret = "";
+templateFileLocation = "$BASE_PATH$/Zebra/abhishek.txt";
+payload = dict("string");
+output = applytemplate(templateFileLocation, payload,"");
+headers=dict("string");
+put(headers, "content-type", "application/json");
+strUserDetails = "AS3869" + ":" + "Ad@123456";	
+encodecredential = encodebase64(strUserDetails);	
+authstring = "Basic "+ encodecredential;	
+//print authstring;	
+put(headers, "Authorization", authstring);
+print output;
+response=urldata("https://devzebra.bigmachines.com/rest/v11/pricing/actions/calculatePrice", "POST", headers,output);
+print response;
+print "Demo testing1456";
+print "Testing Developer Toolkit Subhra";
+return (get(response, "Message-Body"));

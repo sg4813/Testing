@@ -1,0 +1,24 @@
+{
+  "name" : "Get Services Standalone Json",
+  "variableName" : "getServicesStandaloneJson",
+  "description" : "Created By: Razvi Date: 03/August/2019 Purpose: To prepare JSON string that contains relevant attributes options required for arriving at appropriate Services.",
+  "libraryFunctions" : [ "util.zebraExternalPricingnew" ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "modelID",
+    "type" : "String"
+  }, {
+    "name" : "country",
+    "type" : "String"
+  }, {
+    "name" : "region",
+    "type" : "String"
+  }, {
+    "name" : "serviceType",
+    "type" : "String"
+  }, {
+    "name" : "accountID",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

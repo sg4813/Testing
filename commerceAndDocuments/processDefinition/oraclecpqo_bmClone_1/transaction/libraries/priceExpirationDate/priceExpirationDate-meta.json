@@ -1,0 +1,11 @@
+{
+  "name" : "Price Expiration Date",
+  "variableName" : "priceExpirationDate",
+  "description" : "Updates a transaction's price expiration date when the transaction is submitted for approval.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ ],
+  "mainDocAttributes" : [ "priceExpirationDate_t" ],
+  "systemAttributes" : [ ]
+}

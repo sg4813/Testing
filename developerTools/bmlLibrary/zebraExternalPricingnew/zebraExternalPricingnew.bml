@@ -1,0 +1,75 @@
+ret =  jsonArray();
+dictAccountData = dict("string");
+dictConfigurationData  = dict("string");
+arraySku = string[];
+dictAccountData = util.getAccountDetails(AccountNumber);
+if(get(dictAccountData,"No Account") == "Yes")
+{
+	
+	return ret;
+}
+strPriceList = get(dictAccountData,"Price List");
+strPurchasingMethod = get(dictAccountData,"Purchasing Method");
+strOrganization = get(dictAccountData,"Organization");
+strAccountType = get(dictAccountData,"Account Type");
+arrayConstrainsRule = util.getEligibilityConstrainRule("CPQ");
+dictretEligilbleItem = dict("string");
+dictretEligilbleItem = util.getEligibleItemsnew(strPriceList, SkuId, arrayConstrainsRule,strOrganization,strAccountType,AccountNumber,"CPQ");
+if(get(dictretEligilbleItem,"isEligibleItems") == "N")
+{	
+		return ret;
+}
+dictSiebelId = dict("string");
+dictDescription = dict("string");
+dictProductFamily = dict("string");
+JsonArraySiebelId = jsonarray(get(dictretEligilbleItem,"Item/Sku Id"));
+nCount = range(jsonarraysize(JsonArraySiebelId));
+for each in nCount
+{
+	jsonTemp = json(jsonarrayget(jsonArraySiebelId,each));
+	put(dictSiebelId,jsonget(jsonTemp,"Sku Number"),jsonget(jsonTemp,"Item ID"));
+	put(dictDescription,jsonget(jsonTemp,"Sku Number"),jsonget(jsonTemp,"Description"));
+	put(dictProductFamily,jsonget(jsonTemp,"Sku Number"),jsonget(jsonTemp,"ProductFamily"));
+}
+strMemebership = "";
+strDirectMembership = get(dictAccountData,"Direct Membership");
+strIndirectMembership = get(dictAccountData,"Indirect Membership");
+
+if(len(strDirectMembership) > 0)
+{
+	strMemebership  = strDirectMembership;
+	if(len(strIndirectMembership) > 0)
+	{
+		strMemebership = strMemebership + "|^|" + strIndirectMembership;		
+	}
+}
+elif(len(strIndirectMembership) > 0)
+{
+	print "insider";
+	strMemebership  = strIndirectMembership;
+}
+
+dictCheckPartnerProgramEligibility = util.checkPartnerProgramEligibility(dictAccountData,dictretEligilbleItem);
+
+for each in SkuId
+{
+	if(containskey(dictCheckPartnerProgramEligibility,each))
+	{
+		tempJson = json();
+		jsonput(tempJson,"SKU",each);
+		tempDict = get(dictCheckPartnerProgramEligibility,each);
+		jsonput(tempJson,"Purchase Method",get(tempDict,"Purchase Method"));
+		jsonput(tempJson,"Eligible Flag",get(tempDict,"Eligible Flag"));
+		jsonput(tempJson,"Price", get(tempDict,"PriceList"));
+		jsonput(tempJson,"Error Code",get(tempDict,"ErrorCode"));
+		jsonput(tempJson,"List Price",get(tempDict,"List Price"));
+		jsonput(tempJson,"Eligibility","");
+		jsonput(tempJson,"Membership",strMemebership);
+		jsonput(tempJson,"SiebelProductId",get(dictSiebelId,each));
+		jsonput(tempJson,"Description",get(dictDescription,each));
+		jsonput(tempJson,"ProductFamily",get(dictProductFamily,each));		
+		jsonput(tempJson,"Organization",strOrganization);
+		jsonarrayappend(ret,tempJson);
+	}
+}
+return ret;

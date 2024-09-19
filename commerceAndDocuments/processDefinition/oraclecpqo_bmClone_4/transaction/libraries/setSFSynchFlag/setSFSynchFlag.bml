@@ -1,0 +1,63 @@
+ret = "";
+ArraybOMBillingSku = string[];
+ArraysFShow = string[];
+partNumberArray = string[];
+categoryArray = string[];
+billingFrequencyArray = string[];
+bFlag =  false;
+
+for line in transactionLine
+{
+	ArraybOMBillingSku = split(getconfigattrvalue(line._document_number,"bOMBillingSku"),"$,$");
+	partNumberArray = split(getconfigattrvalue(line._document_number,"partNumberBomSC"),"$,$");
+	ArraysFShow = split(getconfigattrvalue(line._document_number,"sFShow"),"$,$");
+	categoryArray = split(getconfigattrvalue(line._document_number,"categoryBomSC"),"$,$");
+	billingFrequencyArray = split(getconfigattrvalue(line._document_number,"billingFrequencyBomSC"),"$,$");
+	break;
+}
+for line in transactionLine
+{
+	if(findinarray(ArraybOMBillingSku,line.parentSKU_l) <> -1)
+	{
+		nCount = findinarray(partNumberArray,line._part_number);
+		iCount = -1;
+		if(ArraybOMBillingSku[nCount] <> line.parentSKU_l)
+		{
+			
+			iCount = 0;
+			nCount = -1;
+			bFlag =  false;
+			for each in ArraybOMBillingSku
+			{
+				if(ArraybOMBillingSku[iCount] == line.parentSKU_l AND partNumberArray[iCount] == line._part_number)
+				{
+					bFlag =  true;
+					nCount = iCount;
+					
+					break;
+				}
+				
+				iCount = iCount + 1;			
+				
+			}
+		}
+		
+		
+		ret = ret + "|" + line._document_number +"~syncToSF~"+ ArraysFShow[nCount]  +"|";
+		
+		
+		// Added parentsku = 900-ACCESSORIES condition in below line for jira story CCZC-6846 by Triveni
+		if(billingFrequencyArray[nCount]=="5YR" OR (line.parentSKU_l == "Accessories" OR line.parentSKU_l == "900-ACCESSORIES") OR line.parentSKU_l == "Parts")
+		{
+			ret = ret + line._document_number + "~renewalType_l~DO_NOT_RENEW|";
+		}
+		elif(categoryArray[nCount] =="MandatoryHardware")
+		{
+			ret = ret + "|" + line._document_number +"~renewalType_l~RENEW|";
+		}
+
+		
+		
+	}
+}
+return ret;

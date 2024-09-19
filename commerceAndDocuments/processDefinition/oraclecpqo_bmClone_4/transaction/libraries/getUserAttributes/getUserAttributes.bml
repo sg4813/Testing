@@ -1,0 +1,32 @@
+//Name: getUserAttributes
+//Variable Name: getUserAttributes
+//Description: Queries UserName,Password from DataTable INT_SYSTEM_DETAILS and adds it in the payload.
+//Input: Main Doc Attr: orderId 
+//System Attr: _system_user_first_name
+//Return Type: String Dictionary
+//Dependency : getPassword  
+//bmql query
+resultSet = bmql("Select Username from INT_SYSTEM_DETAILS where System = $system");
+payload = dict("string");
+//loop through the records
+for record in resultSet {
+  userName = get(record,"Username");
+  password = "Welcome1";
+  put(payload, "USERNAME", userName);
+  put(payload, "PASSWORD", password);
+  
+}
+
+//2. Set the UTC time in header
+
+utcFormatDate = datetostr(getdate(),"yyyy-MM-dd\'T\'HH:mm:ss.SSS\'Z\'", "UTC");
+put(payload, "UTCTIME", utcFormatDate);
+
+//3. Useful only for Replacing DOO Template
+curDate = datetostr(getdate(),"dd-MM-yyyy");
+msgId = "BM_ORDER_"+orderID+"_SubmittedBy"+_system_user_first_name+"_ON_"+curDate;
+
+put(payload, "MSGID", msgId);
+
+//4. Return dictionary
+return payload;

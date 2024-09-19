@@ -1,0 +1,14 @@
+{
+  "name" : "ABO Post Defaults On Line Items",
+  "variableName" : "oRCL_abo_PostDefaultsOnLineItems",
+  "description" : "Performs initialization of subscription order  related fields for newly created line items",
+  "libraryFunctions" : [ "util.ORCL_ABO.abo_dateTimeConverter", "util.ORCL_ABO.abo_initializeContext" ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "lineHierInfo",
+    "type" : "Anytype Dictionary"
+  } ],
+  "subDocAttributes" : [ "_document_number", "_parent_doc_number", "_model_variable_name", "_line_bom_id", "itemInstanceId_l", "fulfillmentStatus_l", "requestDate_l", "oRCL_ABO_ActionCode_l" ],
+  "mainDocAttributes" : [ "defaultRequestDate_t" ],
+  "systemAttributes" : [ ]
+}

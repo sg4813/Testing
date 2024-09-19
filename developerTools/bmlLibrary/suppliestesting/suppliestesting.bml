@@ -1,0 +1,42 @@
+output = string[];
+rs = bmql("Select ItemNumber, StandardRibbonID, HighDurabRibbonID from SuppliesSelector where ModelName = $selectPrinterModel AND (Status = 'Active' OR Status = '' OR Status IS NULL)");
+PricingArray = String[];
+bFlag = false;
+for each in rs
+{
+	bFlag = true;
+	append(PricingArray,get(each,"ItemNumber"));
+	if(get(each,"StandardRibbonID") <> "")
+	{
+		tempArray = split(get(each,"StandardRibbonID"),",");
+		for each1 in tempArray
+		{
+			append(PricingArray,each1);
+		}
+	}
+	if(get(each,"HighDurabRibbonID") <> "")
+	{
+		tempArray = split(get(each,"HighDurabRibbonID"),",");
+		for each1 in tempArray
+		{
+			append(PricingArray,each1);
+		}
+	}
+}
+//print PricingArray;
+jsonArrayObj = jsonarray();
+if(bFlag)
+{
+	jsonArrayObj = util.zebraExternalPricingnew(PricingArray, oCCAccountID);
+}
+if(jsonarraysize(jsonArrayObj) > 0)
+{
+	nCount = range(jsonarraysize(jsonArrayObj));
+	for each in nCount
+	{
+		TempJson = json(jsonarrayget(jsonArrayObj,each));
+		temp = jsonget(TempJson,"SKU");
+		append(output,temp);
+	}
+}
+return output;

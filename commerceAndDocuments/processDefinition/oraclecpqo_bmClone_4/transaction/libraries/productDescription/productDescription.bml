@@ -1,0 +1,83 @@
+/*
+====================================================================================================
+Author: Venkatesh
+Description: This function will fetch the description for Reflexis & Fetch / SaaS Models
+Change Reference: https://jira.zebra.com/browse/CCZC-6396
+
+Logic: 
+- For Fetch / SaaS models we are getting the description from  BundleSKU_Relation & Adhoc_Products
+- For Reflexis we are getting the description from RefSKUDetails
+- New attribute (productDescription_l) created in the line level and added to the LIG. It should be read only for all users
+
+Change Revision:
+=====================================================================================================
+Date 		Name			Description 			Incident/JIRA Reference	
+		
+9/2/2024        Venkatesh                Row No:36-updated the query to get CPQDescription from "RefSKUDetails" table for all models.
+					 Row No:40 to 42 put on comment
+					 	
+=====================================================================================================
+*/
+
+retValue = "";
+modelName = "";
+adhocFlag = false;
+for line in transactionLine
+{
+
+if(modelName == "")
+{
+modelName = line._model_name; //print modelName;
+}
+lineDocumentNumber = line._document_number;
+partNumber = line._part_number;	
+	if(modelName =="Reflexis"OR modelName =="Prescriptive Analytics" OR modelName =="WorkForce Connect" OR modelName =="Professional Services")
+	{
+	resultSet  = bmql("select ProductLine, SKU, CPQDescription from RefSKUDetails where SKU = $partNumber");
+	//resultSet  = bmql("select ProductLine, SKU, CPQDescription from RefSKUDetails where ProductLine = 'Reflexis' AND SKU = $partNumber");
+		for each in resultSet
+		{
+		/*sku = get(each,"SKU");
+		if(line._part_number == SKU)
+		{
+		*/
+		description = get(each,"CPQDescription");
+		retValue = retValue + lineDocumentNumber + "~productDescription_l~" + description + "|";
+	}
+	}
+	elif(modelName =="Mobile Robotics" OR modelName =="Mobile Robotics PS" OR modelName =="Mobile Robotics PS PS")
+	{
+	resultSet  = bmql("select SKU, ProductCode from BundleSKU_Relation where ProductCode = $partNumber");
+	
+		for each in resultSet
+		{
+		productCode = get(each,"ProductCode");
+			if(line._part_number == productCode)
+			{
+			description = get(each,"SKU"); //print description;
+			retValue = retValue + lineDocumentNumber + "~productDescription_l~" + description + "|";
+			}
+			else
+			{
+			adhocFlag = true;
+			}
+		}
+	}
+		if(adhocFlag  OR line._part_number == "900-00178-QTR" ) // Added new part condition for 6622 jira
+		{
+		resultSetAdhocProducts  = bmql("select Description, Product_Code from Adhoc_Products where Product_Code = $partNumber");
+		
+		for each in resultSetAdhocProducts 
+		{
+		productCode = get(each,"Product_Code");
+			if(line._part_number == productCode)
+			{
+			description = get(each,"Description"); //print description;
+			retValue = retValue + lineDocumentNumber + "~productDescription_l~" + description + "|";
+			}
+		}
+		}
+
+}
+
+return retValue;

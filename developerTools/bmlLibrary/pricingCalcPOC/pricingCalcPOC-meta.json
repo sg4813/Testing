@@ -1,0 +1,12 @@
+{
+  "name" : "Pricing Calc POC",
+  "variableName" : "pricingCalcPOC",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "inputParamsDict",
+    "type" : "Anytype Dictionary"
+  } ],
+  "attributes" : [ ]
+}

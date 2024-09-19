@@ -1,0 +1,37 @@
+/*=====================================================================================================
+Author: Arun Bojan
+Date: 8th Nov 2023
+JIRA Reference: https://jira.zebra.com/browse/CCZC-6490
+Description: This function is to handle the clone or copy quote scenario where Asset Ids are also copied. 
+Added logic to retain asset ids for Renewal Quotes but not for New Quotes based on the action code attribute at line level
+
+Action Code Line Attribute: oRCL_ABO_ActionCode_l
+
+Asset Fields: itemInstanceId_l , rootAssetKey_l
+
+Change Revision:
+=====================================================================================================
+Date 		Name			Description 			Incident/JIRA Reference			
+
+
+=====================================================================================================*/
+
+returnValue = "";
+
+for line in transactionLine
+{
+actionCode = line.oRCL_ABO_ActionCode_l; //print actionCode;
+docNumber = line._document_number;
+itemInstanceID = line.itemInstanceId_l;
+rootAssetKey = line.rootAssetKey_l;
+fulfillmentStatus = line.fulfillmentStatus_l; //print fulfillmentStatus;
+
+	if((actionCode == "ADD") AND (fulfillmentStatus == "CREATED" OR fulfillmentStatus == ""))
+	{ //print docNumber;
+	returnValue = returnValue + docNumber + "~itemInstanceId_l~" + "|"; 
+	returnValue = returnValue + docNumber + "~rootAssetKey_l~" + "|"; 
+	}
+}
+
+
+return returnValue;

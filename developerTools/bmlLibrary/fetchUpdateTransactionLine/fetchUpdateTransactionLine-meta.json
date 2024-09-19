@@ -1,0 +1,9 @@
+{
+  "name" : "Fetch Update Transaction Line",
+  "variableName" : "fetchUpdateTransactionLine",
+  "description" : "Created by Shalini",
+  "libraryFunctions" : [ "util.updateDataTable" ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "attributes" : [ "_site_url" ]
+}

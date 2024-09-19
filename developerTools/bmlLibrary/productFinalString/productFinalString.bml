@@ -1,0 +1,121 @@
+retVal = "";
+productJsonarray1 = jsonarray(productJsonarray);
+productsRange = range(jsonarraysize(productJsonarray1));
+anuualPrice_pttpr0 = 0.0;
+totalPrice_pttpr0  = 0.0;
+PerUsermonthlyPrice_pttpr0  = 0.0;
+PricePerDevicePerMonth_pttpr0  = 0.0;
+configurablePrice_productsprice_pttpr0  = 0.0;
+Productjson =json();
+finalJsonArray =jsonarray();
+
+for index in productsRange {
+	tempJson = jsonarrayget(productJsonarray1, index, "json");
+	if(product == "PTTPRO") {
+		if(jsonget(tempJson, "product") == "PTTPRO") {
+			annualPrice = atof(jsonget(tempJson, "AnnualPrice"));
+			TotalPrice = atof(jsonget(tempJson, "TotalPrice"));
+			PerUsermonthlyPrice = atof(jsonget(tempJson, "PerUsermonthlyPrice"));
+			PricePerDevicePerMonth = atof(jsonget(tempJson, "PricePerDevicePerMonth"));
+			configurablePrice = atof(jsonget(tempJson, "configurablePrice"));
+			anuualPrice_pttpr0 = anuualPrice_pttpr0 + annualPrice;
+			totalPrice_pttpr0  = totalPrice_pttpr0 + TotalPrice;
+			PerUsermonthlyPrice_pttpr0 = PerUsermonthlyPrice_pttpr0 + PerUsermonthlyPrice;
+			PricePerDevicePerMonth_pttpr0  = PricePerDevicePerMonth_pttpr0 + PricePerDevicePerMonth;
+			configurablePrice_productsprice_pttpr0  = configurablePrice_productsprice_pttpr0 + configurablePrice;
+		}
+	}
+	if(product == "RTPPort") {
+		if(jsonget(tempJson, "product") == "RTPPort") {
+			anuualPrice_pttpr0 = atof(jsonget(tempJson, "AnnualPrice"));
+			totalPrice_pttpr0  = atof(jsonget(tempJson, "TotalPrice"));
+			PerUsermonthlyPrice_pttpr0 = atof(jsonget(tempJson, "PerUsermonthlyPrice"));
+			PricePerDevicePerMonth_pttpr0  =  atof(jsonget(tempJson, "configurablePrice"));
+			configurablePrice_productsprice_pttpr0  = atof(jsonget(tempJson, "PricePerDevicePerMonth"));
+		}
+	}
+	if(product == "profileManager") {
+		if(jsonget(tempJson, "product") == "profileManager") {
+			anuualPrice_pttpr0 = atof(jsonget(tempJson, "AnnualPrice"));
+			totalPrice_pttpr0  = atof(jsonget(tempJson, "TotalPrice"));
+			PerUsermonthlyPrice_pttpr0 = atof(jsonget(tempJson, "PerUsermonthlyPrice"));
+			PricePerDevicePerMonth_pttpr0  =  atof(jsonget(tempJson, "configurablePrice"));
+			configurablePrice_productsprice_pttpr0  = atof(jsonget(tempJson, "PricePerDevicePerMonth"));
+		}
+	}
+	if(product == "voiceClient") {
+		if(jsonget(tempJson, "product") == "voiceClient") {
+			anuualPrice_pttpr0 = atof(jsonget(tempJson, "AnnualPrice"));
+			totalPrice_pttpr0  = atof(jsonget(tempJson, "TotalPrice"));
+			PerUsermonthlyPrice_pttpr0 = atof(jsonget(tempJson, "PerUsermonthlyPrice"));
+			PricePerDevicePerMonth_pttpr0  =  atof(jsonget(tempJson, "configurablePrice"));
+			configurablePrice_productsprice_pttpr0  = atof(jsonget(tempJson, "PricePerDevicePerMonth"));
+		}
+	}
+	if(product == "ProfessionalServices") {
+		if(jsonget(tempJson, "product") == "ProfessionalServices") {
+			anuualPrice_pttpr0 = atof(jsonget(tempJson, "AnnualPrice"));
+			totalPrice_pttpr0  = atof(jsonget(tempJson, "TotalPrice"));
+			PerUsermonthlyPrice_pttpr0 = atof(jsonget(tempJson, "PerUsermonthlyPrice"));
+			PricePerDevicePerMonth_pttpr0  =  atof(jsonget(tempJson, "configurablePrice"));
+			configurablePrice_productsprice_pttpr0  = atof(jsonget(tempJson, "PricePerDevicePerMonth"));
+		}
+	}
+	if(product == "WFC  Managed Svcs (Custom Quoted)") {
+		if(jsonget(tempJson, "product") == "WFC  Managed Svcs (Custom Quoted)") {
+			anuualPrice_pttpr0 = atof(jsonget(tempJson, "AnnualPrice"));
+			totalPrice_pttpr0  = atof(jsonget(tempJson, "TotalPrice"));
+			PerUsermonthlyPrice_pttpr0 = atof(jsonget(tempJson, "PerUsermonthlyPrice"));
+			PricePerDevicePerMonth_pttpr0  =  atof(jsonget(tempJson, "configurablePrice"));
+			configurablePrice_productsprice_pttpr0  = atof(jsonget(tempJson, "PricePerDevicePerMonth"));
+		}
+	}
+}
+jsonput(Productjson, "parentproductname", "Workforce Connect");
+//jsonput(Productjson, "productname", pttproPartNumber);
+jsonput(Productjson, "productname", productname); //not using part number from Bom Table as PTT is given as PPT
+jsonput(Productjson, "configurablePrice", configurablePrice_productsprice_pttpr0);
+jsonput(Productjson, "AnnualPrice", anuualPrice_pttpr0);
+jsonput(Productjson, "TotalPrice", totalPrice_pttpr0);
+jsonput(Productjson, "PerUsermonthlyPrice", PerUsermonthlyPrice_pttpr0);
+jsonput(Productjson, "PricePerDevicePerMonth", PricePerDevicePerMonth_pttpr0);
+jsonput(Productjson, "PartNumber", productname);
+jsonput(Productjson, "Qunatity", quantity);
+jsonput(Productjson, "ParenPart", "yes");
+jsonput(Productjson, "product", product);
+jsonarrayappend(finalJsonArray, Productjson);
+for index in productsRange{
+	tempJson = jsonarrayget(productJsonarray1, index, "json");
+	if(product == "PTTPRO") {
+		if(jsonget(tempJson, "product") == "PTTPRO") {
+			jsonarrayappend(finalJsonArray, tempJson);
+		}
+	}
+	if(product == "RTPPORT") {
+		if(jsonget(tempJson, "product") == "RTPPORT") {
+			jsonarrayappend(finalJsonArray, tempJson);
+		}
+	}
+	if(product == "profileManager") {
+		if(jsonget(tempJson, "product") == "profileManager") {
+			jsonarrayappend(finalJsonArray, tempJson);
+		}
+	}
+	if(product == "voiceClient") {
+		if(jsonget(tempJson, "product") == "voiceClient") {
+			jsonarrayappend(finalJsonArray, tempJson);
+		}
+	}
+	if(product == "ProfessionalServices") {
+		if(jsonget(tempJson, "product") == "ProfessionalServices") {
+			jsonarrayappend(finalJsonArray, tempJson);
+		}
+	}
+	if(product == "WFC  Managed Svcs (Custom Quoted)") {
+		if(jsonget(tempJson, "product") == "WFC  Managed Svcs (Custom Quoted)") {
+			jsonarrayappend(finalJsonArray, tempJson);
+		}
+	}
+}
+
+return jsonarraytostr(finalJsonArray);

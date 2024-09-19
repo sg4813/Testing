@@ -1,0 +1,18 @@
+{
+  "name" : "List Price Change",
+  "variableName" : "listPriceChange",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "Inputs",
+    "type" : "String"
+  }, {
+    "name" : "NetPrice",
+    "type" : "String"
+  }, {
+    "name" : "ListPrice",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

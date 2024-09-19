@@ -1,0 +1,24 @@
+{
+  "name" : "Get Attribute Values for Recommendation Rule New",
+  "variableName" : "getAttributeValuesForRecommendationRuleNew",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "AttributeName",
+    "type" : "String"
+  }, {
+    "name" : "ConfigAttribute",
+    "type" : "String"
+  }, {
+    "name" : "ConfigurationJson",
+    "type" : "String"
+  }, {
+    "name" : "ColumnSequence",
+    "type" : "String"
+  }, {
+    "name" : "PrecedentValue",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

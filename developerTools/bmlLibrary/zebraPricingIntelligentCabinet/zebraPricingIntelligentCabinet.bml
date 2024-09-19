@@ -1,0 +1,57 @@
+ret =  json();
+dictAccountData = dict("string");
+dictConfigurationData  = dict("string");
+arraySku = string[];
+dictAccountData = util.getAccountDetails(AccountId);
+if(get(dictAccountData,"No Account") == "Yes")
+{
+	
+	jsonput(ret,"Configuration", "");
+	jsonput(ret,"Additional items", "");
+	jsonput(ret,"Auto Add","");
+	jsonput(ret,"Price List","");
+	return ret;
+}
+strPriceList = get(dictAccountData,"Price List");
+strPurchasingMethod = get(dictAccountData,"Purchasing Method");
+strOrganization = get(dictAccountData,"Organization");
+strAccountType = get(dictAccountData,"Account Type");
+//dictConfigurationData =  util.getConfigurationDataIC(AccountId,ModelName,SkuArray);
+strArraySkuJson = get(dictConfigurationData,"Sku Number");
+arraySkuJsonArray = jsonarray(strArraySkuJson);
+nCount = range(jsonarraysize(arraySkuJsonArray));
+strAutoAdd = get(dictConfigurationData,"AutoAdd");
+for each in nCount
+{
+	append(arraySku,jsonget(json(jsonarrayget(arraySkuJsonArray,each)),"Sku Number"));
+}
+
+//Get Item Master Constrains Rules
+arrayConstrainsRule = util.getEligibilityConstrainRule("CPQ");
+dictretEligilbleItem = dict("string");
+dictretEligilbleItem = util.getEligibleItemsnew(strPriceList, arraySku, arrayConstrainsRule,strOrganization,strAccountType,AccountId,"CPQ");
+if(get(dictretEligilbleItem,"isEligibleItems") == "N")
+{
+	
+	jsonput(ret,"Configuration", "");
+	jsonput(ret,"Additional items", "");
+	jsonput(ret,"Auto Add","");
+	jsonput(ret,"Price List","");
+	return ret;
+}
+
+dictCheckPartnerProgramEligibility = util.checkPartnerProgramEligibility(dictAccountData,dictretEligilbleItem);
+
+jsonFinalConfiguration = json();
+jsonGetAdditionalItemsDetails = json();
+jsonGetAdditionalItemsDetails = json();
+
+jsonFinalConfiguration = util.getFinalConfigurationData(ModelName,Language,dictConfigurationData,dictretEligilbleItem,dictCheckPartnerProgramEligibility);
+jsonGetAdditionalItemsDetails =  util.getAdditionalItemsDetailsnew(dictConfigurationData,dictretEligilbleItem,dictCheckPartnerProgramEligibility);
+
+jsonput(ret,"Configuration", jsonFinalConfiguration);
+jsonput(ret,"Additional items", jsonGetAdditionalItemsDetails);
+jsonput(ret,"Auto Add",strAutoAdd);
+jsonput(ret,"Price List",strPriceList);
+
+return ret;

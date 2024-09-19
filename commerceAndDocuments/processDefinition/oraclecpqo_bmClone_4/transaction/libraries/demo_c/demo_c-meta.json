@@ -1,0 +1,11 @@
+{
+  "name" : "demo",
+  "variableName" : "demo_c",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "annualCloudNetPrice_l", "actualMonths", "proRatedDays", "lastMonthDays", "ZEB_totalDiscount_l", "_document_number", "productDescription_l", "modelName_l", "grossCloudNetPrice_l" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

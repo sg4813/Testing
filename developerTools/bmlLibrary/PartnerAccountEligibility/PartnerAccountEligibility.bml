@@ -1,0 +1,53 @@
+//accountNum, accountNum1, partnerDiscountEligibility, priceGroupString, productName;
+maxPartnerdisc = 0.0;
+DiscountEligibility = "";
+finVal = "";
+resellerVal = "";
+accType  = "";
+purMethod = "Direct";
+partnermember = String[];
+partnermember1 = String[];
+accType1 = "";
+price = "";
+dCurrentDate = getDate();
+partnerdiscount = float[];
+
+results = bmql("SELECT ACCOUNTTYPE FROM Account WHERE ACCOUNTNUMBER = $accountNum");
+for each1 in results {
+	accType = get(each1,"ACCOUNTTYPE");
+}
+if (accType=="Partner"){
+	finVal = "N";
+	results = bmql("SELECT Memberships,Status FROM Account_Memberships WHERE AccountNumber = $accountNum AND Status = 'Current Member' AND PurchaseMethod = $purMethod");
+	for eachPartnerProg in results  {
+		membership=get(eachPartnerProg, "Memberships");
+		append(partnermember,membership);
+	}
+	finVal = util.partnerDiscountEligilibility_final(priceGroupString, productName, partnermember, "", "");
+}
+
+results1 = bmql("SELECT ACCOUNTTYPE FROM Account WHERE ACCOUNTNUMBER = $accountNum1");
+for each1 in results1 {
+	accType1 = get(each1,"ACCOUNTTYPE");
+}
+if(accountNum1 <> "") {
+	if (accType1 == "Partner"){
+		resellerVal = "N";
+		results = bmql("SELECT Memberships,Status FROM Account_Memberships WHERE AccountNumber = $accountNum1 AND Status = 'Current Member'");
+		for eachPartnerProg in results  {
+			membership=get(eachPartnerProg, "Memberships");
+			append(partnermember1,membership);
+		}
+		resellerVal = util.partnerDiscountEligilibility_final(priceGroupString, productName, partnermember1, "", "");
+	}
+} else {
+	resellerVal = "Y";
+}
+if(finVal == "Y" and resellerVal == "Y") {
+	DiscountEligibility = "Y";
+}
+if(finVal == "N" OR resellerVal == "N") {
+	DiscountEligibility = "N";
+}
+
+return DiscountEligibility;

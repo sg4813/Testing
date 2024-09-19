@@ -1,0 +1,11 @@
+{
+  "name" : "Product Description",
+  "variableName" : "productDescription",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_part_number", "_document_number", "_parent_doc_number", "_model_name", "_model_variable_name" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

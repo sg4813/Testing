@@ -1,0 +1,15 @@
+{
+  "name" : "Quote Approval Updates New",
+  "variableName" : "quoteApprovalUpdatesnew",
+  "description" : "This is not in use",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "transID",
+    "type" : "String"
+  }, {
+    "name" : "emailid",
+    "type" : "String"
+  } ],
+  "attributes" : [ "_company_name" ]
+}

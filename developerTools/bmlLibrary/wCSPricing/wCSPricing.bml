@@ -1,0 +1,142 @@
+price = float[];
+pricedummy = 0.0;
+jcount = integer[];
+icount =0;
+qty = 0;
+BillingFrequencyMultiplier =0.0;
+TermMultiplier=0.0;
+currency ="";
+coversionfac =1.0;
+termDummy = atoi(Term);
+termvalue ="";
+tempSkuArray=string[];
+
+if (termDummy >= 12 AND termDummy <24)
+	{
+	termvalue = "12";
+	}
+if (termDummy >=24 AND termDummy <36)
+	{
+	termvalue = "24";
+	}
+if (termDummy >= 36 AND termDummy <48)
+	{
+	termvalue = "36";
+	}
+if (termDummy >=48 AND termDummy <60)
+	{
+	termvalue = "48";
+	}
+if (termDummy >=60)
+	{
+	termvalue = "60";
+	}
+print "skuflagarray";
+print SKUFlagArray;
+print "Bf";
+print BillingFrequency;
+print "skuarry";
+print SKUArray;
+print "quantity";
+print QuantityArray;
+print "term";
+print Term;
+print "termValue";
+print termvalue ;
+
+rs1 = bmql("Select currency_t from commerce.transaction");
+for each in rs1
+	{
+		currency = get(each,"currency_t");
+	}
+rs1 = bmql("Select ConversionFactor from ConversionFactor where SourceCurrency =$currency and TargetCurrency ='USD'");
+for each in rs1
+	{
+		coversionfac = atof(get(each,"ConversionFactor"));
+	}		
+
+bfrs = bmql("Select Multiplier from Reflexis_Multiplier where Model = 'Workcloud Sync' AND Category = 'Billing Frequency' AND Value = $BillingFrequency");
+print bfrs;
+for each in bfrs
+	{
+		BillingFrequencyMultiplier = atof(get(each,"Multiplier"));
+		//BillingFrequencyMultiplier = (atof(get(each,"Multiplier"))/100);
+		print "BillingFrequencyMultiplier";
+		print BillingFrequencyMultiplier;
+	}
+	
+rs = bmql("Select Multiplier from Reflexis_Multiplier where Model = 'Workcloud Sync' AND Category = 'Term' AND Value = $termvalue");
+for each in rs
+	{
+		TermMultiplier= 1-(atof(get(each,"Multiplier")))/100;
+		//TermMultiplier= atof(get(each,"Multiplier"));
+		print "TermMultiplier";
+		print TermMultiplier;
+	}
+
+for each in SKUFlagArray
+{
+	if (each == true){
+	append(jcount,icount);
+	}
+	icount = icount+1;
+}
+for each in jcount
+{
+	dummysku = SKUArray[each];
+	print "dummysku";
+	print dummysku;
+	dummyqty = QuantityArray[each];
+	print "dummyqty";
+	print dummyqty;
+	resultset = bmql("Select ListPrice,MinQty,MaxQty,SKU from WFCPTTModelPrice where SKU =$dummysku");
+	//resultset = bmql("Select ListPrice from WFCPTTModelPrice");
+	//print resultset;
+	for j in resultset
+	{
+		append(tempSkuArray,get(j,"SKU"));
+		minqty=atoi(get(j,"MinQty"));
+		maxqty=atoi(get(j,"MaxQty"));
+		IF( dummyqty >= minqty AND dummyqty <= maxqty)
+		{
+			print "list price";
+			print get(j,"ListPrice");
+			pricedummy = atof(get(j,"ListPrice")) * dummyqty; print pricedummy;
+			billFreqUpliftPrice=0.0;
+			termDiscPrice=0.0;
+			/*if(BillingFrequencyMultiplier > 0.0)
+				{
+				billFreqUpliftPrice= pricedummy * BillingFrequencyMultiplier;
+				}
+				pricedummy=pricedummy+billFreqUpliftPrice; print pricedummy;
+			if(TermMultiplier > 0.0 )
+				{
+				termDiscPrice= pricedummy*TermMultiplier; 
+				}
+			pricedummy=pricedummy-termDiscPrice;*/
+			if(BillingFrequencyMultiplier > 0.0)
+				{
+				pricedummy= pricedummy * BillingFrequencyMultiplier; 
+				}
+				
+			if(TermMultiplier > 0.0 )
+				{
+				pricedummy= pricedummy*TermMultiplier; 
+				}
+			
+		}
+	}
+	if(findinarray(tempSkuArray,dummysku)<>-1){
+		price[each] = pricedummy;
+	}else{
+		price[each] = 0.0;
+	}
+}
+		
+for each in jcount
+{
+print "";
+price[each] = round(price[each]/coversionfac,0);
+}
+
+return price;

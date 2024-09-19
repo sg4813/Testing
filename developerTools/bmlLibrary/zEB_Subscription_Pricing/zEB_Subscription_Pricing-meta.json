@@ -1,0 +1,45 @@
+{
+  "name" : "ZEB_Subscription_Pricing",
+  "variableName" : "zEB_Subscription_Pricing",
+  "description" : "",
+  "libraryFunctions" : [ "util.SM.oRCL_pRC_calculateListPrice", "util.SM.oRCL_pRC_prepareTierInfoJson" ],
+  "returnType" : "Json",
+  "parameters" : [ {
+    "name" : "partNumber",
+    "type" : "String"
+  }, {
+    "name" : "quantity",
+    "type" : "Integer"
+  }, {
+    "name" : "chargeName",
+    "type" : "String"
+  }, {
+    "name" : "lockedAllowance",
+    "type" : "Integer"
+  }, {
+    "name" : "lockedBlockSize",
+    "type" : "Integer"
+  }, {
+    "name" : "tierFrom",
+    "type" : "Integer[]"
+  }, {
+    "name" : "lockedListPrice",
+    "type" : "Float"
+  }, {
+    "name" : "tierListPrice",
+    "type" : "Float[]"
+  }, {
+    "name" : "tierTo",
+    "type" : "Integer[]"
+  }, {
+    "name" : "tierBlockSize",
+    "type" : "Integer[]"
+  }, {
+    "name" : "billingFrequency",
+    "type" : "String"
+  }, {
+    "name" : "lockUsage",
+    "type" : "Boolean"
+  } ],
+  "attributes" : [ ]
+}

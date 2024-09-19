@@ -1,0 +1,20 @@
+retVal = "";
+for line in transactionLine{
+//print line.productDescription_l;
+if(line.productDescription_l == "Workcloud Task Management (Includes 1st Mobile OS, My Work, Pinboard, Advanced Analytics & Reporting)"){
+print "line.annualCloudNetPrice_l";
+print line.annualCloudNetPrice_l;
+print "line.actualMonths";
+print line.actualMonths;
+print "line.proRatedDays";
+print line.proRatedDays;
+print "line.lastMonthDays";
+print line.lastMonthDays;
+print  "line.ZEB_totalDiscount_l";
+print line.ZEB_totalDiscount_l;
+}
+Value = ( ( ( line.annualCloudNetPrice_l* line.actualMonths) / 12 ) + ( ( line.annualCloudNetPrice_l* line.proRatedDays) / ( line.lastMonthDays * 12 ) )  - line.ZEB_totalDiscount_l);
+//print value;
+retval = retval +line._document_number+ "~annualCloudNetPrice_l~" + string(Value) + "|";
+}
+ return retval;

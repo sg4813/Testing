@@ -1,0 +1,14 @@
+{
+  "name" : "Fetch Demo Status Update",
+  "variableName" : "fetchDemoStatusUpdate",
+  "description" : "",
+  "libraryFunctions" : [ "util.salesforceAuthenticationAccessToken" ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "RequestDemoStatus",
+    "type" : "String"
+  } ],
+  "subDocAttributes" : [ "_part_number", "demoNumber", "_document_number", "_parent_line_item" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

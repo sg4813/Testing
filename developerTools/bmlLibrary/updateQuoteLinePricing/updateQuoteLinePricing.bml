@@ -1,0 +1,126 @@
+//str = "{\"documents\": {\"transactionLine\":{\"items\": [{\"_document_number\":4,\"annualCloudPriceInclHosting_l\": {\"value\": 10000.35, \"currency\": \"USD\"}}]}}}";
+modelName = "Reflexis";
+headers = dict("string");
+put(headers, "content-type", "application/json");
+
+oldQuoteId = "";
+itemDescription3  = "";
+//resultSet = bmql("select * from QuotePricngReflexis where ModelName =$modelName");
+resultSet = bmql("select * from QuotePricngReflexis");
+
+systemUrl = "";
+if(find(_company_name,"dev")<> -1){ 
+systemUrl = "https://devzebra.bigmachines.com";
+}
+elif(find(_company_name,"test")<> -1){
+systemUrl = "https://test-cpq.zebra.com";
+}
+else {
+systemUrl = "https://cpq.zebra.com";
+}
+print systemUrl;
+
+for eachRec in resultSet{
+quoteLine = json();
+BillingFreqJson = json();
+RevTypeJson = json();
+RenewActionJson = json();
+DiscountTypeJson = json();
+eachquoteLine = json();
+transactionLine = json();
+items = json();
+quoteLineArray = jsonarray();
+listPriceJson = json();
+NetPriceJson = json();
+
+	listPrice = get(eachRec, "AnnualListPrice");
+	jsonput(listPriceJson, "value", listPrice);
+	jsonput(listPriceJson, "currency", "USD");
+	contractStartDate_l = get(eachRec, "StartDate");
+	if(find(contractStartDate_l, "-") <> -1) {
+			//print "tej";
+			contractStartDate_l = replace(contractStartDate_l, "-", "/");
+			//print ZEB_PoStartDate;
+		}
+	contractEndDate_l = get(eachRec, "EndDate");
+	if(find(contractEndDate_l, "-") <> -1) {
+			//print "tej";
+			contractEndDate_l = replace(contractEndDate_l, "-", "/");
+			//print ZEB_PoStartDate;
+		}
+	billingFrequency = get(eachRec, "BillingFreq"); // menu
+	jsonput(BillingFreqJson, "value", billingFrequency);
+	revenueType_l = get(eachRec, "RevType"); // menu     
+	jsonput(RevTypeJson, "value", revenueType_l);
+	annualCloudNetPrice_l = get(eachRec, "AnnualNetPrice");
+	jsonput(NetPriceJson, "value", annualCloudNetPrice_l);
+	jsonput(NetPriceJson, "currency", "USD");
+	ZEB_lineNotes_l = get(eachRec, "LineARNotes");
+	customDiscountValue_l = get(eachRec, "DiscountValue");
+	customDiscountType_l = get(eachRec, "DiscountType"); // menu
+	jsonput(DiscountTypeJson, "value", customDiscountType_l);
+	renewalType_l = get(eachRec, "RenewAction"); // menu
+	jsonput(RenewActionJson, "value", renewalType_l);
+	ZEB_convertedContractSource_l = get(eachRec, "ConvContSource");
+	ZEB_netSuiteSalesOrder_l = get(eachRec, "NetSuiteSalesOrder");
+	ZEB_SalesOrderLine = get(eachRec, "SalesOrderLine");
+	ZEB_itemDescription = get(eachRec, "ItemDescription");
+	ItemDescription2 = get(eachRec, "ItemDescription2");
+	
+	tcv = get(eachRec, "TCV");
+	print listPrice;
+	lineDoc = get(eachRec, "LineDoc");
+	bsId = get(eachRec, "BSID");
+	updateLineUrl = systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/" + bsId+ "/actions/_update_line_items";
+	jsonput(eachquoteLine, "_document_number", lineDoc);
+	jsonput(eachquoteLine, "_document_number", lineDoc);
+	jsonput(eachquoteLine, "annualCloudNetPrice_l", NetPriceJson);
+	jsonput(eachquoteLine, "annualCloudPriceInclHosting_l", listPriceJson);	
+	//jsonput(eachquoteLine, "billingFrequency", BillingFreqJson);
+	jsonput(eachquoteLine, "revenueType_l", RevTypeJson);
+	jsonput(eachquoteLine, "customDiscountType_l", DiscountTypeJson);
+	jsonput(eachquoteLine, "renewalType_l", RenewActionJson);
+	jsonput(eachquoteLine, "contractStartDate_l", contractStartDate_l);
+	
+	jsonput(eachquoteLine, "contractEndDate_l", contractEndDate_l);
+	jsonput(eachquoteLine, "ZEB_lineNotes_l", ZEB_lineNotes_l);
+	jsonput(eachquoteLine, "customDiscountValue_l", customDiscountValue_l);
+	jsonput(eachquoteLine, "ZEB_convertedContractSource_l", ZEB_convertedContractSource_l);
+	jsonput(eachquoteLine, "ZEB_netSuiteSalesOrder_l", ZEB_netSuiteSalesOrder_l);
+	jsonput(eachquoteLine, "totalContractValue", tcv);
+	 if(ZEB_SalesOrderLine <> "") {
+	 	jsonput(eachquoteLine, "ZEB_SalesOrderLine", ZEB_SalesOrderLine);
+	 }
+	  if(ItemDescription2 <> "" and ZEB_itemDescription <> "") {
+	  	itemDescription3 = ZEB_itemDescription + " " + ItemDescription2;
+	  	jsonput(eachquoteLine, "ZEB_itemDescription", itemDescription3);
+	  } elif(ZEB_itemDescription <> "") {
+	  	jsonput(eachquoteLine, "ZEB_itemDescription", ZEB_itemDescription);
+	  }
+	
+	jsonarrayappend(quoteLineArray, eachquoteLine);
+
+jsonput(items, "items", quoteLineArray);
+jsonput(transactionLine, "transactionLine", items);
+jsonput(quoteLine, "documents", transactionLine);
+print quoteLine;
+results = urldata(updateLineUrl, "POST", headers, jsontostr(quoteLine));
+print results;
+SaveURL= systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/" + bsId+ "/actions/cleanSave_t";
+SaveURLResults = urldata(SaveURL, "POST", headers);
+}
+ResultSet2 = bmql("select DISTINCT BSID from QuotePricngReflexis");
+/*for each in ResultSet2 {
+bsId = get(each, "BSID");
+UpdateAssetURL= systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/" + bsId+ "/actions/updateAssets_t";
+UpdateAssetURLResults = urldata(UpdateAssetURL, "POST", headers);
+
+SaveURL= systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/" + bsId+ "/actions/cleanSave_t";
+SaveURLResults = urldata(SaveURL, "POST", headers);
+
+submitOrder_t = systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/" + bsId+ "/actions/submitOrder_t";
+SubmitOrderURLResults = urldata(submitOrder_t , "POST", headers);
+print SubmitOrderURLResults;
+}*/
+
+return "";

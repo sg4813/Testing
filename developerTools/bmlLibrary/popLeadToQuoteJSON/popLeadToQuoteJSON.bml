@@ -1,0 +1,116 @@
+retJson = json();
+tempJson = json();
+availabeSizesArray=String[];
+
+resultSet = bmql("Select * from PS_HOURS where Model='BidToQuote'"); 
+
+if(action=="DISCOVERY")
+{
+	//Finding available Sizes
+	for eachRecord in resultSet
+	{
+		type=get(eachRecord,"Package");
+		size=get(eachRecord,"Size");
+		if(type=="Discovery" AND findinarray(availabeSizesArray,size) == -1)
+		{
+			append(availabeSizesArray,size);
+		}
+	}
+	print availabeSizesArray;
+	//Preparing Result JSON 
+	for eachSize in availabeSizesArray
+	{
+		currentSize=eachSize;
+		tempArrayJson=jsonarray();
+		for eachRecord in resultSet
+		{
+			type=get(eachRecord,"Package");
+			size=get(eachRecord,"Size");
+			if(type=="Discovery" AND currentSize==size)
+			{
+				jsonput(tempJson,"Package",get(eachRecord,"Package"));
+				jsonput(tempJson,"Size",get(eachRecord,"Size"));	
+				jsonput(tempJson,"SKU",get(eachRecord,"SKU"));	
+				jsonput(tempJson,"Description",get(eachRecord,"Description"));	
+				jsonput(tempJson,"ResourceRole",get(eachRecord,"Role_Type"));		
+				jsonput(tempJson,"TotalNoOfDays",get(eachRecord,"BQ_Bill_Hours"));
+				//jsonput(tempJson,"TotalHours",string(8*atoi(get(eachRecord,"BQ_Bill_Hours"))));
+				jsonarrayappend(tempArrayJson,tempJson);
+			}
+		}
+		jsonput(retJson,currentSize,jsonarraytostr(tempArrayJson));
+	}	
+}
+if(action=="ARFID")
+{
+		//Finding available Sizes
+	for eachRecord in resultSet
+	{
+		type=get(eachRecord,"Package");
+		size=get(eachRecord,"Size");
+		if(type=="ARFID" AND findinarray(availabeSizesArray,size) == -1)
+		{
+			append(availabeSizesArray,size);
+		}
+	}
+	//Preparing Result JSON 
+	for eachSize in availabeSizesArray
+	{
+		currentSize=eachSize;
+		tempArrayJson=jsonarray();
+		for eachRecord in resultSet
+		{
+			type=get(eachRecord,"Package");
+			size=get(eachRecord,"Size");
+			if(type=="ARFID" AND currentSize==size)
+			{
+				jsonput(tempJson,"Package",get(eachRecord,"Package"));
+				jsonput(tempJson,"Size",get(eachRecord,"Size"));	
+				jsonput(tempJson,"SKU",get(eachRecord,"SKU"));	
+				jsonput(tempJson,"Description",get(eachRecord,"Description"));	
+				jsonput(tempJson,"ResourceRole",get(eachRecord,"Role_Type"));		
+				jsonput(tempJson,"TotalNoOfDays",get(eachRecord,"BQ_Bill_Hours"));
+				//jsonput(tempJson,"TotalHours",string(8*atoi(get(eachRecord,"BQ_Bill_Hours"))));
+				jsonarrayappend(tempArrayJson,tempJson);
+			}
+		}
+		jsonput(retJson,currentSize,jsonarraytostr(tempArrayJson));
+	}	
+}
+if(action=="PRFID")
+{
+	//Finding available Sizes
+	for eachRecord in resultSet
+	{
+		type=get(eachRecord,"Package");
+		size=get(eachRecord,"Size");
+		if(type=="PRFID" AND findinarray(availabeSizesArray,size) == -1)
+		{
+			append(availabeSizesArray,size);
+		}
+	}
+	//Preparing Result JSON 
+	for eachSize in availabeSizesArray
+	{
+		currentSize=eachSize;
+		tempArrayJson=jsonarray();
+		for eachRecord in resultSet
+		{
+			type=get(eachRecord,"Package");
+			size=get(eachRecord,"Size");
+			if(type=="PRFID" AND currentSize==size)
+			{
+				jsonput(tempJson,"Package",get(eachRecord,"Package"));
+				jsonput(tempJson,"Size",get(eachRecord,"Size"));	
+				jsonput(tempJson,"SKU",get(eachRecord,"SKU"));	
+				jsonput(tempJson,"Description",get(eachRecord,"Description"));	
+				jsonput(tempJson,"ResourceRole",get(eachRecord,"Role_Type"));		
+				jsonput(tempJson,"TotalNoOfDays",get(eachRecord,"BQ_Bill_Hours"));
+				//jsonput(tempJson,"TotalHours",string(8*atoi(get(eachRecord,"BQ_Bill_Hours"))));
+				jsonarrayappend(tempArrayJson,tempJson);
+			}
+		}
+		jsonput(retJson,currentSize,jsonarraytostr(tempArrayJson));
+	}	
+}
+return jsontostr(retJson);

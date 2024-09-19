@@ -1,0 +1,9 @@
+{
+  "name" : "Update Quote Line Details",
+  "variableName" : "updateQuoteLineDetails",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "attributes" : [ "_company_name" ]
+}

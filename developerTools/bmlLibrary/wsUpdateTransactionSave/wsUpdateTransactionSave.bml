@@ -1,0 +1,43 @@
+/*
+company 		(string)
+sessionId 		(string)
+processName 	(string)
+transactionID 	(string)
+actionName 		(string)
+*/
+
+result = "";
+
+bmiURL = "https://" + company + ".bigmachines.com/v1_0/receiver";
+
+wsCreateUpdateXML = "";
+wsCreateUpdateXML = wsCreateUpdateXML + "<?xml version=\"1.0\" encoding=\"UTF-8\"?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">";
+wsCreateUpdateXML = wsCreateUpdateXML + "<soapenv:Header>";
+wsCreateUpdateXML = wsCreateUpdateXML + "<bm:userInfo xmlns:bm=\"urn:soap.bigmachines.com\">";
+wsCreateUpdateXML = wsCreateUpdateXML + "<bm:sessionId>" + sessionId + "</bm:sessionId>";
+wsCreateUpdateXML = wsCreateUpdateXML + "</bm:userInfo>";
+wsCreateUpdateXML = wsCreateUpdateXML + "<bm:category xmlns:bm=\"urn:soap.bigmachines.com\">Commerce</bm:category>";
+wsCreateUpdateXML = wsCreateUpdateXML + "<bm:xsdInfo xmlns:bm=\"urn:soap.bigmachines.com\">";
+wsCreateUpdateXML = wsCreateUpdateXML + "<bm:schemaLocation>https://" + company + ".bigmachines.com/bmfsweb/" + company + "/schema/v1_0/commerce/" + processName + ".xsd</bm:schemaLocation>";
+wsCreateUpdateXML = wsCreateUpdateXML + "</bm:xsdInfo>";
+wsCreateUpdateXML = wsCreateUpdateXML + "</soapenv:Header>";
+wsCreateUpdateXML = wsCreateUpdateXML + "<soapenv:Body>";
+wsCreateUpdateXML = wsCreateUpdateXML + "<bm:updateTransaction xmlns:bm=\"urn:soap.bigmachines.com\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
+wsCreateUpdateXML = wsCreateUpdateXML + "<bm:transaction>";
+wsCreateUpdateXML = wsCreateUpdateXML + "<bm:id>" + transactionID + "</bm:id>";
+//wsCreateUpdateXML = wsCreateUpdateXML + "<bm:process_var_name>" + processName + "</bm:process_var_name>";
+
+wsCreateUpdateXML = wsCreateUpdateXML + "<bm:action_data>";
+wsCreateUpdateXML = wsCreateUpdateXML + "<bm:action_var_name>" + actionName + "</bm:action_var_name>";
+wsCreateUpdateXML = wsCreateUpdateXML + "</bm:action_data>";
+wsCreateUpdateXML = wsCreateUpdateXML + "</bm:transaction>";
+wsCreateUpdateXML = wsCreateUpdateXML + "</bm:updateTransaction>";
+wsCreateUpdateXML = wsCreateUpdateXML + "</soapenv:Body>";
+wsCreateUpdateXML = wsCreateUpdateXML + "</soapenv:Envelope>";
+
+triggerUpdateTransactionWS = urldatabypost(bmiURL, wsCreateUpdateXML, "Failed to update transaction");
+
+print "triggerUpdateTransactionWS WS response";
+print triggerUpdateTransactionWS;
+
+return result;

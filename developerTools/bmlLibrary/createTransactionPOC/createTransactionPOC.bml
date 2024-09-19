@@ -1,0 +1,246 @@
+headers = dict("string");
+put(headers, "Content-Type", "application/json");
+
+records = bmql("SELECT * from TransData_Fetch where BS_ID IS NULL");
+// records = bmql("SELECT FetchAccNum, FetchCurrency, ExistingCustomer, FetchSolutionType, NetSuiteSO from TransData_Fetch where BS_ID IS NULL");
+
+for record in records{
+	accNum = get(record, "FetchAccNum");
+	fetCurr = get(record, "FetchCurrency");
+	extCust = get(record, "ExistingCustomer");
+	extCustBoolean = true;
+	if(extCust == "No"){
+		extCustBoolean = false;
+	}
+	solType = get(record, "FetchSolutionType");
+	netSuiteSO = get(record, "NetSuiteSO");
+	fetchAccRegion = get(record, "FetchAccountRegion");
+	fetchAccType = get(record, "FetchAccountType");
+	pONumber = get(record, "PONumber");
+	pOStartDate = get(record, "POStartDate");
+	pOEndDate = get(record, "POEndDate");
+	pOReceivedDate = get(record, "POReceivedDate");
+	//conversionRate="";
+	//conversionRateType="";
+	//if(fetCurr <>"USD"){
+	//conversionRateType = "Spot";
+	conversionRate = get(record, "ConversionRate");
+	//}
+	endUserNo = get(record, "EndUserNo");
+	endUserName = get(record, "EndUserName");
+	contractType = get(record, "ContractType");
+	contractStartDate = get(record, "ContractStartDate");
+	contractEndDate = get(record, "ContractEndDate");
+	region = get(record, "Region");
+	billToAddress = get(record, "BillToAddress");
+	financialAccountNum = get(record, "FinancialAccountNum");
+	renewalOpptID = get(record, "RenewalOpptID");
+	paymentTerm = get(record, "PaymentTerm");
+	showInvocieBy = get(record, "ShowInvocieBy");
+	convContSource = get(record, "ConvContSource");
+
+	shipToPartySiteID = get(record, "ShipToPartySiteID");
+	shipToPartySiteID = replace(shipToPartySiteID, "_", "");
+
+	partyID = get(record, "PartyID");
+	partyID = replace(partyID, "_", "");
+
+	customerID = get(record, "CustomerID");
+	customerID = replace(customerID, "_", "");
+
+	buID = get(record, "BuID");
+	buID = replace(buID, "_", "");
+
+	accountNum = get(record, "AccountNum");
+	accountNum = replace(accountNum, "_", "");
+
+	billToSiteUseID = get(record, "BillToSiteUseID");
+	billToSiteUseID = replace(billToSiteUseID, "_", "");
+
+	createTransactionUrl = _site_url+"/rest/v14/commerceDocumentsOraclecpqo_bmClone_4Transaction";
+	// createTransactionUrl = "https://devzebra.bigmachines.com/rest/v14/commerceDocumentsOraclecpqo_bmClone_4Transaction";
+
+	response = urldatabypost(createTransactionUrl, "", "ERROR", headers, true);
+
+	if( NOT(startswith(response, "ERROR")) ){
+		// grab bsid from createtransaction response
+		responseJson = json(response);
+		bsId = jsonget(responseJson, "bs_id");
+		transactionId = jsonget(responseJson, "transactionID_t");
+
+		saveTransactionUrl = _site_url+"/rest/v14/commerceDocumentsOraclecpqo_bmClone_4Transaction/"+ bsId +"/actions/cleanSave_t";
+		// saveTransactionUrl = "https://devzebra.bigmachines.com/rest/v14/commerceDocumentsOraclecpqo_bmClone_4Transaction/"+ bsId +"/actions/cleanSave_t";
+
+		request = json();
+		saveObject = json();
+		jsonput(saveObject, "fetchAccNum", accNum);
+		jsonput(saveObject, "fetchCurrency", fetCurr);
+		jsonput(saveObject, "fetchExistingCustomer", extCustBoolean);
+		jsonput(saveObject, "fetchSolutionType", solType);
+		jsonput(saveObject, "conversionFlag_t", "true");
+		jsonput(saveObject, "ZEB_convertedSubscription_t", "true");// comment this line when Bill Hold is uncommented
+		//jsonput(saveObject, "ZEB_billHold", "true");
+		jsonput(saveObject, "contractType_t", contractType);
+		jsonput(saveObject, "ZEB_convertedSubscriptionNumber_t", netSuiteSO);
+		jsonput(saveObject, "fetchAccountRegion", fetchAccRegion);
+		jsonput(saveObject, "fetchAccountType", fetchAccType);
+		jsonput(saveObject, "purchaseOrderNumber_t", pONumber);
+
+		if( find(pOStartDate, "-") > -1 ){
+			pOStartDate = replace(pOStartDate, "-", "/");
+		}
+		jsonput(saveObject, "ZEB_PoStartDate", pOStartDate);
+
+		if( find(pOEndDate, "-") > -1 ){
+			pOEndDate = replace(pOEndDate, "-", "/");
+		}
+		jsonput(saveObject, "ZEB_PoEndDate", pOEndDate);
+
+		if( find(pOReceivedDate, "-") > -1 ){
+			pOReceivedDate = replace(pOReceivedDate, "-", "/");
+		}
+		jsonput(saveObject, "ZEB_POrcvd_dt_t", pOReceivedDate);
+		//if(fetCurr <>"USD"){
+		jsonput(saveObject, "ZEB_ConversionRate", conversionRate );
+		//jsonput(saveObject, "ZEB_ConversionRateDate", conversionRate );
+		//jsonput(saveObject, "ZEB_ConversionRateType",conversionRateType );
+		//}
+		jsonput(saveObject, "endUserNum_t", endUserNo);
+		jsonput(saveObject, "endUserName_t", endUserName);
+
+		if( find(contractStartDate, "-") > -1 ){
+			contractStartDate = replace(contractStartDate, "-", "/");
+		}
+		jsonput(saveObject, "defaultRequestDate_t", contractStartDate);
+
+		if( find(contractEndDate, "-") > -1 ){
+			contractEndDate = replace(contractEndDate, "-", "/");
+		}
+		jsonput(saveObject, "subscriptionEndDate_t", contractEndDate);
+
+		jsonput(saveObject, "region_t", region);
+		jsonput(saveObject, "billAddressDetail_t", billToAddress);
+		jsonput(saveObject, "customerCompanyName_t", financialAccountNum);
+		jsonput(saveObject, "ZEB_renewalOptyId_Conversion", renewalOpptID);
+		jsonput(saveObject, "ZEB_paymentTerms", paymentTerm);
+		jsonput(saveObject, "ZEB_showPriceBy_t", showInvocieBy);
+		// jsonput(saveObject, "<variable name>", convContSource); // once Vinay updates need to replace the <variable name> with the appropriate value for column 'ConvContSource'
+		jsonput(saveObject, "shipToPartySiteID_t", shipToPartySiteID);
+		jsonput(saveObject, "partyId_t", partyID);
+		jsonput(saveObject, "_customer_id", customerID);
+		jsonput(saveObject, "businessUnitId_t", buID);
+		jsonput(saveObject, "accountNumber_t", accountNum);
+		jsonput(saveObject, "billToSiteUseId_t", billToSiteUseID);
+
+		jsonput(request, "documents", saveObject);
+
+		saveResponse = urldatabypost(saveTransactionUrl, jsontostr(request), "ERROR", headers, true);
+		if( startswith(saveResponse, "ERROR") ){
+			print "ERROR while saving "+ transactionId;
+		}else{
+			print "created "+ transactionId;
+
+			// Update data table with transaction bsid
+			tableName = "TransData_Fetch";
+			setClause = sbtostring(stringbuilder("BS_ID='", bsId, "'", ",", "QuoteNumber='", transactionId,"'"));
+			whereClause = sbtostring(stringbuilder("NetSuiteSO=$netSuiteSO"));
+			fieldsDict = dict("string");
+			put(fieldsDict, "$netSuiteSO", netSuiteSO);
+			paramDict = dict("string");
+			response = util.updateDataTable(setClause, whereClause, fieldsDict, "", paramDict, tableName);
+		}
+
+		// call add transaction lines
+		lineInfoDict = dict("string");
+
+		lang = dict("string");
+		fields = dict("string");
+		put(fields, "$NetSuiteSO", netSuiteSO);
+		where = "NetSuiteSO = $NetSuiteSO";
+		partRecords = bmql("SELECT Parts, Quantity, BundleName, SalesOrderLine from PartsandPriceDataCon where $where", lang, fields);
+
+		for partRecord in partRecords{
+			parts = get(partRecord, "Parts");
+			quantity = get(partRecord, "Quantity");
+			bundleName= get(partRecord, "BundleName");
+			partsOfTransaction = split(parts, ",");
+			partQuantities = split(quantity, ",");
+			partbundleName = split(bundleName, ",");
+			salesOrderLine = get(partRecord, "SalesOrderLine");
+			partsArrIdx = range(sizeofarray(partsOfTransaction));
+			print partsOfTransaction;
+			print partQuantities;
+			print partbundleName;
+			docNumbers = string[];
+			for index in partsArrIdx{
+				addPartsToTransactionUrl = _site_url+"/rest/v14/commerceDocumentsOraclecpqo_bmClone_4Transaction/"+ bsId +"/transactionLine";
+				// addPartsToTransactionUrl = "https://devzebra.bigmachines.com/rest/v14/commerceDocumentsOraclecpqo_bmClone_4Transaction/"+ bsId +"/transactionLine";
+
+				lineRequest = json();
+				jsonput(lineRequest, "_part_number", partsOfTransaction[index]);
+				jsonput(lineRequest, "_price_book_var_name", "_default_price_book");
+				jsonput(lineRequest, "_price_quantity", partQuantities[index]);
+				// jsonput(lineRequest, "bundleName", partbundleName[index]);
+				// jsonput(lineRequest, "annualCloudPriceInclHosting_l", partPrice[index]);
+				lineResponse = urldatabypost(addPartsToTransactionUrl, jsontostr(lineRequest), "ERROR", headers, true);
+				if( startswith(lineResponse, "ERROR") ){
+					print "ERROR while adding line "+ bsId;
+					append(docNumbers, "f");
+				}
+				else{
+					lineResponseJson = json(lineResponse);
+					docNum = jsonget(lineResponseJson, "_document_number");
+
+					/* THIS GOES INTO UPDATE FUNCTIONALITY
+					lineInfoJson = json();
+					jsonput(lineInfoJson, "_document_number", docNum);
+					jsonput(lineInfoJson, "bundleName", partbundleName[index]);
+					if( NOT(ISNULL(partPrice[index])) ){
+						jsonput(lineInfoJson, "annualCloudPriceInclHosting_l", partPrice[index]);
+					}
+					put(lineInfoDict, docNum, jsontostr(lineInfoJson));*/
+
+					append(docNumbers, docNum);
+				}
+			}
+
+			// Update data table with line document Numbers
+			if( sizeofarray(docNumbers) > 0 ){
+				tableName = "PartsandPriceDataCon";
+				setClause = sbtostring(stringbuilder("DOC_NUMBERS='",join(docNumbers, ","),"'"));
+				whereClause = sbtostring(stringbuilder("NetSuiteSO=$netSuiteSO AND Parts=$parts AND SalesOrderLine=$salesOrderLine"));
+				fieldsDict = dict("string");
+				put(fieldsDict, "$netSuiteSO", netSuiteSO);
+				put(fieldsDict, "$parts", parts);
+				put(fieldsDict, "$salesOrderLine", salesOrderLine);
+				paramDict = dict("string");
+				response = util.updateDataTable(setClause, whereClause, fieldsDict, "", paramDict, tableName);
+			}
+		}
+
+		/* THIS GOES INTO UPDATE FUNCTIONALITY
+		// Code to update line item info after adding the line
+		documentNumbers = keys(lineInfoDict);
+		if( sizeofarray(documentNumbers) > 0 ){
+			items = jsonarray();
+			for docNum in documentNumbers{
+				jsonarrayappend(items, json(get(lineInfoDict, docNum)));
+			}
+
+			lineItemJson = json();
+			jsonput(lineItemJson, "items", items);
+
+			documentsJson = json();
+			jsonput(documentsJson, "transactionLine", lineItemJson);
+
+			payload = json();
+			jsonput(payload, "documents", documentsJson);
+
+			saveResponse = urldatabypost(saveTransactionUrl, jsontostr(payload), "ERROR", headers, true);
+		}*/
+	}else{
+		print "ERROR";
+	}
+}
+
+return "";

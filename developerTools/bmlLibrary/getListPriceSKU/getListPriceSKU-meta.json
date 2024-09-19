@@ -1,0 +1,21 @@
+{
+  "name" : "Get List Price SKU",
+  "variableName" : "getListPriceSKU",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "Dictionary of String Dictionaries",
+  "parameters" : [ {
+    "name" : "Account",
+    "type" : "String Dictionary"
+  }, {
+    "name" : "ItemData",
+    "type" : "String Dictionary"
+  }, {
+    "name" : "SkuList",
+    "type" : "String[]"
+  }, {
+    "name" : "Error",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

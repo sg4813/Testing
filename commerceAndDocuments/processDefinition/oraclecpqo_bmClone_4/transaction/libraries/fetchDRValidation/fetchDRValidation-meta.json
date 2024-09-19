@@ -1,0 +1,11 @@
+{
+  "name" : "Fetch DR Validation",
+  "variableName" : "fetchDRValidation",
+  "description" : "",
+  "libraryFunctions" : [ "util.salesforceAuthenticationAccessToken" ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_parent_doc_number", "_part_number", "_parent_line_item", "_document_number", "syncWithOCC_l", "syncWithSFDC_l", "customDiscountType_l", "listPriceForDrPercentageCalculation_l", "discountedPriceFetch_l" ],
+  "mainDocAttributes" : [ "dRNumber", "endUserNum_t", "resellerID" ],
+  "systemAttributes" : [ ]
+}

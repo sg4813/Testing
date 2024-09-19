@@ -1,0 +1,17 @@
+{
+  "name" : "invokeWebService",
+  "variableName" : "invokeWebService",
+  "description" : "Invokes Web service and returns the response.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "system",
+    "type" : "String"
+  }, {
+    "name" : "soapReq",
+    "type" : "String"
+  } ],
+  "subDocAttributes" : [ ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

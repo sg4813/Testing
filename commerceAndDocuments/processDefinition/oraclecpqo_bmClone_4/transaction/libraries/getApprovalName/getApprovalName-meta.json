@@ -1,0 +1,11 @@
+{
+  "name" : "Get Approval Name",
+  "variableName" : "getApprovalName",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String[]",
+  "parameters" : [ ],
+  "subDocAttributes" : [ ],
+  "mainDocAttributes" : [ "isThisCustomerAMultiNationalOrGlobalAccount_t", "opportunityID_t", "remainingTCV", "multinationalAccounts_t", "ownerLogin_t", "status_t", "contractType_t", "discountFlag", "fetchPrerelease", "fetchSolutionType", "region_t" ],
+  "systemAttributes" : [ ]
+}

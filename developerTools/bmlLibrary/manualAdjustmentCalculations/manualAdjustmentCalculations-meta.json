@@ -1,0 +1,15 @@
+{
+  "name" : "Manual Adjustment Calculations",
+  "variableName" : "manualAdjustmentCalculations",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "inputJsonArray",
+    "type" : "JsonArray"
+  }, {
+    "name" : "inputDict",
+    "type" : "String Dictionary"
+  } ],
+  "attributes" : [ ]
+}

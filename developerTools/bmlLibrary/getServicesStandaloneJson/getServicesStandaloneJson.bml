@@ -1,0 +1,206 @@
+ret = "";
+partsArr = string[];
+ServicesJson = Json();
+ServicesJsonArray = jsonarray();
+jsonArrayObj = jsonarray();
+tempServiceType = serviceType;
+tempModel = modelID;
+tempRegion = region;
+tempCountry = country;
+siebelRowId = "";
+strPrice = 0.0;
+strErrorCode = "";
+strDescription = "";
+ArrayStdConfiguration =  string[];
+dictCountry = dict("string");
+jsonArrayStdConfig = jsonarray();
+put(dictCountry,"NA","All NA Countries");
+put(dictCountry,"EMEA","All EMEA Countries");
+put(dictCountry,"APAC","All APAC Countries");
+put(dictCountry,"LATAM","All LA Countries");
+strCountries = get(dictCountry,region);
+record = recordset();
+if(serviceType == "Hardware")
+{
+	record = bmql("Select StdConfiguration, Countries_Col1, Countries_Col2, Countries_Col3, Countries_Col4, Countries_Col5, DeviceAge, ServiceLevel, ServiceDuration, CoverageType, BatteryCoverage, DeviceCommissioning, Recommended, RepairReturn,AutoAttach from Services WHERE Model = $tempModel AND DeviceAge = 'New and purchased within the last 30 days' AND (Status = 'Active' OR Status = '' OR Status IS NULL) ORDER BY StdConfiguration");
+}
+else
+{
+
+	record = bmql("Select StdConfiguration, Countries_Col1, Countries_Col2, Countries_Col3, Countries_Col4, Countries_Col5, DeviceAge, ServiceLevel, ServiceDuration, CoverageType, BatteryCoverage, DeviceCommissioning, Recommended, RepairReturn,AutoAttach from Services WHERE Model = $tempModel AND (Status = 'Active' OR Status = '' OR Status IS NULL) ORDER BY StdConfiguration");
+}
+
+for each in record
+{
+	if(findinarray(ArrayStdConfiguration,get(each,"StdConfiguration")) == -1)
+	{
+		append(ArrayStdConfiguration,get(each,"StdConfiguration"));
+	}
+}
+if(sizeofarray(ArrayStdConfiguration) > 0)
+{
+	//jsonArrayObj = util.zebraExternalPricing(ArrayStdConfiguration, accountID);
+	jsonArrayObj = util.zebraExternalPricingnew(ArrayStdConfiguration, accountID);
+}
+if(jsonarraysize(jsonArrayObj) > 0)
+{
+	for each in record
+	{
+		if(findinarray(partsArr, get(each,"StdConfiguration")) == -1)
+		{
+			append(partsArr, get(each,"StdConfiguration"));
+			nCount = range(jsonarraysize(jsonArrayObj));
+			for value in nCount
+			{
+				localJsonObj = json(jsonarrayget(jsonArrayObj,value));
+				if(jsonget(localJsonObj,"SKU") == get(each,"StdConfiguration") AND atof(jsonget(localJsonObj,"Price")) >= 0)
+				{
+					strDescription = jsonget(localJsonObj,"Description");
+					strPrice = atof(jsonget(localJsonObj,"Price"));
+					strPurchaseMethod = jsonget(localJsonObj,"Purchasing Method");
+					strErrorCode = jsonget(localJsonObj,"Error Code");
+					strEligibleFlag = jsonget(localJsonObj,"Eligible Flag");
+					siebelRowId = jsonget(localJsonObj,"SiebelProductId");
+					strListPrice = jsonget(localJsonObj,"List Price");
+					strProductFamily = jsonget(localJsonObj,"ProductFamily");
+					localCountry_Col1 = get(each,"Countries_Col1");
+					localCountry_Col2 = get(each,"Countries_Col2");
+					localCountry_Col3 = get(each,"Countries_Col3");
+					localCountry_Col4 = get(each,"Countries_Col4");
+					localCountry_Col5 = get(each,"Countries_Col5");
+					strAutoAttach = get(each,"AutoAttach");
+					bFlag = false;
+					if(localCountry_Col1 <> "")
+					{
+						if(strCountries == localCountry_Col1)
+						{
+							bFlag = true;
+						}
+						else
+						{
+							splitArray = split(localCountry_Col1,"|");
+							for eachsplit in splitArray
+							{
+								if(eachsplit == country OR eachsplit == strCountries)
+								{
+									bFlag = true;
+								}
+							}
+						}
+					}
+					if(localCountry_Col2 <> "" AND NOT(bFlag))
+					{
+						if(strCountries == localCountry_Col2)
+						{
+							bFlag = true;
+						}
+						else
+						{
+							splitArray = split(localCountry_Col2,"|");
+							for eachsplit in splitArray
+							{
+								if(eachsplit == country OR eachsplit == strCountries)
+								{
+									bFlag = true;
+								}
+							}
+						}
+					}
+					if(localCountry_Col3 <> "" AND NOT(bFlag))
+					{
+						if(strCountries == localCountry_Col3)
+						{
+							bFlag = true;
+						}
+						else
+						{
+							splitArray = split(localCountry_Col3,"|");
+							for eachsplit in splitArray
+							{
+								if(eachsplit == country OR eachsplit == strCountries)
+								{
+									bFlag = true;
+								}
+							}
+						}
+					}
+					if(localCountry_Col4 <> "" AND NOT(bFlag))
+					{
+						if(strCountries == localCountry_Col4)
+						{
+							bFlag = true;
+						}
+						else
+						{
+							splitArray = split(localCountry_Col4,"|");
+							for eachsplit in splitArray
+							{
+								if(eachsplit == country OR eachsplit == strCountries)
+								{
+									bFlag = true;
+								}
+							}
+						}
+					}
+					if(localCountry_Col5 <> "" AND NOT(bFlag))
+					{
+						if(strCountries == localCountry_Col5)
+						{
+							bFlag = true;
+						}
+						else
+						{
+							splitArray = split(localCountry_Col5,"|");
+							for eachsplit in splitArray
+							{
+								if(eachsplit == country OR eachsplit == strCountries)
+								{
+									bFlag = true;
+								}
+							}
+						}
+					}
+					if(bFlag)
+					{
+						jsonput(ServicesJson, "Region", tempRegion);
+						jsonput(ServicesJson, "ServiceType", tempServiceType);
+						jsonput(ServicesJson, "Model", tempModel);
+						jsonput(ServicesJson, "Part Number", get(each,"StdConfiguration"));
+						jsonput(ServicesJson, "Part Description", strDescription);//"Description - " + get(each,"StdConfiguration")
+						jsonput(ServicesJson, "DeviceAge", get(each,"DeviceAge"));
+						jsonput(ServicesJson,"ProductFamily",strProductFamily);
+						if(get(each,"Recommended") == ""){jsonput(ServicesJson, "Recommended","N");}
+						else{jsonput(ServicesJson, "Recommended", get(each,"Recommended"));}
+						if(get(each,"ServiceLevel") == ""){jsonput(ServicesJson, "ServiceLevel","ServiceLevelNA");}
+						else{jsonput(ServicesJson, "ServiceLevel", get(each,"ServiceLevel"));}
+						if(get(each,"ServiceDuration") == ""){jsonput(ServicesJson, "ServiceDuration","ServiceDurationNA");}
+						else{jsonput(ServicesJson, "ServiceDuration", get(each,"ServiceDuration"));}
+						if(get(each,"CoverageType") == ""){jsonput(ServicesJson, "CoverageType","CoverageTypeNA");}
+						else{jsonput(ServicesJson, "CoverageType", get(each,"CoverageType"));}
+						if(get(each,"BatteryCoverage") == "" OR get(each,"BatteryCoverage") == "NA"){jsonput(ServicesJson, "BatteryCoverage","BatteryCoverageNA");}
+						else{jsonput(ServicesJson, "BatteryCoverage", get(each,"BatteryCoverage"));}
+						if(get(each,"DeviceCommissioning") == "" OR get(each,"DeviceCommissioning") == "NA"){jsonput(ServicesJson, "DeviceCommissioning","DeviceCommissioningNA");}
+						else{jsonput(ServicesJson, "DeviceCommissioning", get(each,"DeviceCommissioning"));}
+						if(get(each,"RepairReturn") == "" OR get(each,"RepairReturn") == "NA"){jsonput(ServicesJson, "RepairReturn","RepairReturnNA");}
+						else{jsonput(ServicesJson, "RepairReturn", get(each,"RepairReturn"));}
+						jsonput(ServicesJson, "Price", strPrice);	//get(each,"ListPrice")
+						jsonput(ServicesJson, "errorCode", strErrorCode);
+						jsonput(ServicesJson, "SiebelProductId", siebelRowId);
+						jsonput(ServicesJson, "Country", country);
+						jsonput(ServicesJson,"Auto Attach",strAutoAttach);
+						jsonput(ServicesJson,"Purchasing Method",strPurchaseMethod);
+						jsonput(ServicesJson,"Eligible Flag",strEligibleFlag);
+						jsonput(ServicesJson,"List Price",strListPrice);
+						jsonarrayappend(ServicesJsonArray, ServicesJson);
+					}
+				}
+			}
+		}
+	}
+
+}
+if(jsonarraysize(ServicesJsonArray) > 0)
+{
+	ret = jsonarraytostr(ServicesJsonArray);
+}
+return ret;

@@ -1,0 +1,18 @@
+{
+  "name" : "SKU Price Calculation",
+  "variableName" : "sKUPriceCalculation",
+  "description" : "",
+  "libraryFunctions" : [ "util.getPriceFromDiscountedMatrixnew" ],
+  "returnType" : "Dictionary of String Dictionaries",
+  "parameters" : [ {
+    "name" : "Account",
+    "type" : "String Dictionary"
+  }, {
+    "name" : "ItemDetails",
+    "type" : "String Dictionary"
+  }, {
+    "name" : "PricingSkuArray",
+    "type" : "String[]"
+  } ],
+  "attributes" : [ ]
+}

@@ -1,0 +1,167 @@
+ret = "";
+NotEligible = string[];
+CCItemEVM = string[];
+CCItemAIT = string[];
+localCountrySku = string[];
+strAvailbility = dict("string");
+dCurrentDate = getdate();
+localCountry = dict("string");
+strOrg = "";
+CCItemAvaliblity = dict("string");
+
+rs = bmql("Select ORGANIZATION from Account where ACCOUNTNUMBER = $AccountNumber");
+	
+for each in rs
+{
+	strOrg = get(each,"ORGANIZATION");
+}
+print strOrg;
+
+strSiebelCountry = "";
+strOCCCountry = "";
+
+rs = bmql("Select Siebel_Country,OCC_Country from Region_Country_Rel where ISO_Code = $shipToCountry");
+for each in rs
+{
+	strSiebelCountry = get(each,"Siebel_Country");
+	strOCCCountry = get(each,"OCC_Country");
+}
+
+recordSet = bmql("Select PartNumber, Country, DECODE, ERPFlag,Startdate,Enddate, Organization from CountryCertification where PartNumber IN $additionalItems Order by PartNumber DESC");
+print recordSet;
+for each in recordSet
+{
+	dStartDate = strtojavadate(get(each,"Startdate"), "MM/dd/yyyy HH:mm:ss","America/New_York");
+	dEndDate = getdate();
+	strEndDate = get(each,"Enddate");
+	if(strEndDate <> "")
+	{
+		dEndDate = strtojavadate(strEndDate, "MM/dd/yyyy HH:mm:ss","America/New_York");
+	}
+	if(comparedates(dCurrentDate,dStartDate ) <> -1 AND (strEndDate == "" OR comparedates(dEndDate,dCurrentDate ) <> -1))
+	{
+		if(get(each,"ERPFlag") == "Y" OR get(each,"ERPFlag") == "Yes" OR get(each,"ERPFlag") == "YES")
+		{
+			append(CCItemEVM,get(each,"PartNumber"));
+		}
+		elif((get(each,"ERPFlag") == "N" OR len(get(each,"ERPFlag")) == 0) AND (strOrg == get(each,"Organization")) AND (findinarray(CCItemAIT,get(each,"PartNumber")) == -1))
+		{
+			append(CCItemAIT,get(each,"PartNumber"));
+			put(CCItemAvaliblity,get(each,"PartNumber"),get(each,"DECODE"));			
+		}
+	}
+}
+print "CCItemAvaliblity";
+print CCItemAvaliblity;
+if(sizeofarray(CCItemEVM) > 0)
+{
+	for each in recordSet
+	{
+		if(findinarray(localCountrySku,get(each,"PartNumber")) == -1 AND findinarray(CCItemEVM,get(each,"PartNumber")) <> -1)
+		{
+			append(localCountrySku,get(each,"PartNumber"));
+			put(strAvailbility,get(each,"PartNumber"),get(each,"DECODE"));
+		}
+	
+	}
+	print localCountrySku;
+	for each in recordSet
+	
+	{
+		if(get(each,"Country") == strSiebelCountry AND findinarray(CCItemEVM,get(each,"PartNumber")) <> -1)
+		{
+			put(localCountry,get(each,"PartNumber"),get(each,"DECODE"));	
+		}
+	}
+	
+	for each in CCItemEVM
+	{
+		strAvalilble = "";
+		if(containskey(localCountry,each))
+		{
+			strAvalilble = get(localCountry,each);
+		}
+		elif(containskey(strAvailbility,each))
+		{
+			strAvalilble = get(strAvailbility,each);
+			print strAvalilble;
+			if(strAvalilble == "Available")
+			{
+				strAvalilble = "Not Available";
+			}
+			else
+			{
+				strAvalilble = "Available";
+			}
+		}
+		print strAvalilble;
+		if(strAvalilble == "Not Available")
+		{
+			append(NotEligible,each);
+			break;
+		}
+		
+	}
+}//end of if(sizeofarray(CCItemEVM) > 0)
+if(sizeofarray(CCItemAIT) > 0)
+{
+	
+	for record in CCItemAIT
+	{
+		bRec = false;
+		for each in recordSet
+		{
+			dStartDate = strtojavadate(get(each,"Startdate"), "MM/dd/yyyy HH:mm:ss","America/New_York");
+			dEndDate = getdate();
+			strEndDate = get(each,"Enddate");
+			if(strEndDate <> "")
+			{
+				dEndDate = strtojavadate(strEndDate, "MM/dd/yyyy HH:mm:ss","America/New_York");
+			}
+			if(comparedates(dCurrentDate,dStartDate ) <> -1 AND (strEndDate == "" OR comparedates(dEndDate,dCurrentDate ) <> -1))
+			{
+				if((get(each,"ERPFlag") == "N" OR len(get(each,"ERPFlag")) == 0) AND (strOrg == get(each,"Organization")) AND (get(each,"PartNumber") == record))
+				{
+					//bInside = true;
+					if(get(each,"Country") == strSiebelCountry)
+					{
+						bRec = true;
+						if(get(each,"DECODE") == "Not Available")
+						{
+							append(NotEligible,record);							
+							break;
+						}
+						
+					}
+				}
+			}
+		}
+		if(NOT(bRec))
+		{
+			if(get(CCItemAvaliblity,record) == "Available")
+			{
+				append(NotEligible,record);
+			}
+		}
+	}
+}//if(sizeofarray(CCItemAIT) > 0)
+print NotEligible;
+if(sizeofarray(NotEligible) > 0)
+{
+	ret = "<li>This item is not sellable in " + strOCCCountry + ".</li><li>Item(s): ";
+	iCount = 0;
+	for each in NotEligible
+	{
+		if(iCount == 0)
+		{
+			iCount = 1;
+			ret = ret + each;
+		}
+		else
+		{
+			ret = ret + "," + each;
+		}
+	}
+	ret = ret + " This item is not available in the country you selected. If you have any questions, contact your Channel Account Manager or the Partner Interaction Center (PIC). " + ".</li>";
+}
+return ret;

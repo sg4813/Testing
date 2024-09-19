@@ -1,0 +1,11 @@
+{
+  "name" : "Renew Action Roll Up",
+  "variableName" : "renewActionRollUp",
+  "description" : "Created for JIRA - 6574 to rollup the renewal action for PS type.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_part_number", "_part_custom_field11", "oRCL_ABO_ActionCode_l", "renewalType_l", "_model_name", "_parent_doc_number", "_document_number" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

@@ -1,0 +1,11 @@
+{
+  "name" : "Test AddParts to transaction",
+  "variableName" : "testAddPartsToTransaction",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "JsonArray",
+  "parameters" : [ ],
+  "subDocAttributes" : [ ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

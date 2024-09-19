@@ -1,0 +1,107 @@
+ret = string[];
+strParentSku = Model;
+strAttribute = AttributeName;
+arrayCategory = string[];
+setJson = jsonarray(JsonStr);
+arraySize = range(jsonarraysize(setJson));
+testSearch = "";
+testSearch1 = "";
+testSearch2 = "";
+testSearchArray = string[];
+if(find(trim(Search)," ") <> -1)
+{
+	splitSearch = split(Search, " ");
+	for each in splitSearch
+	{
+		if(len(each) > 0)
+		{
+			if(testSearch == "")
+			{
+				testSearch  = each; 
+				append(testSearchArray,testSearch);
+			}
+			else
+			{
+				append(testSearchArray,each);
+			}
+		}
+	}
+	testSearch = trim(testSearch);
+	testSearch1 = upper(testSearch);
+	testSearch2 = lower(testSearch);
+}
+else
+{
+	testSearch = trim(Search);
+	testSearch1 = upper(testSearch);
+	testSearch2 = lower(testSearch);
+}
+
+for each in arraySize
+{
+	localJson = jsonarrayget(setJson, each);
+	localJsonObj = json(localJson);
+	strParentTemp = jsonget(localJsonObj,"Parent Sku");
+	if(strParentTemp == Sku)
+	{
+		strParentSku = Sku;
+		break;
+	}
+
+}
+
+for each in arraySize
+{
+	localJson = jsonarrayget(setJson, each);
+	localJsonObj = json(localJson);
+	
+	strValue= jsonget(localJsonObj,strAttribute);
+	strParentTemp = jsonget(localJsonObj,"Parent Sku");
+	strPartNumber = jsonget(localJsonObj,"Part Number");
+	if(strParentSku == strParentTemp)
+	{
+		if(find(strPartNumber,testSearch) <> -1 OR find(strPartNumber,testSearch1) <> -1 OR find(strPartNumber,testSearch2) <> -1)
+		{
+			if(sizeofarray(testSearchArray) == 0)
+			{
+				append(ret,strValue);
+			}
+			else
+			{ 
+				ioldCount = 0;
+				bFRec  = true;
+				bRec = true;
+				for each1 in testSearchArray
+				{
+					inewCount = find(strPartNumber,upper(trim(each1)));
+					
+					if(bFRec)
+					{
+						ioldCount = inewCount;
+						bFRec = false;
+					}
+					else
+					{
+						if(inewCount >= ioldCount)
+						{
+							ioldCount = inewCount;
+						}
+						else
+						{
+							bRec = false;
+							break;
+						}
+					}
+				}
+				if(bRec)
+				{
+					append(ret,strValue);
+				}
+			}
+		}
+	}
+	
+}
+
+
+return ret;

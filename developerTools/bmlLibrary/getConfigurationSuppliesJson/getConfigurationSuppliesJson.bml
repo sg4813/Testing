@@ -1,0 +1,100 @@
+retStr = "";
+tableColumn = "";
+ModelJson = Json();
+ModelJsonArray = jsonarray();
+strItemNumber = "";
+strPrice = 0.0;
+strListPrice = 0.0;
+strErrorCode = "";
+strDescription = "";
+arrayStandardRibbonID = string[];
+arrayHighDurableRibbon = string[];
+ArrayItemNumber =  string[];
+partsArr = string[];
+accountID = oCCAccountID;
+jsonArrayObj = jsonarray();
+record =  recordset();
+ModelName = printerID;
+tableColumn = "ModelName,RegionID,ProductType,PrintTechnology,MaterialType,WidthMetric,LengthMetric,WidthInches,LengthInches,ItemNumber,Name,StandardRibbonID,HighDurabRibbonID,Industry,Adhesive,Perforations,Color,OrderUnitsBox,ShortDesc,AmountOrderUnit,DetailedSpec,MinOrderUnit,Availability,NA,Core,OrderUnit";
+if(productType == "Card Cleaning Supplies" OR productType == "Cards" OR productType == "Card Ribbons" OR productType == "Card Media Kit" OR productType == "Card Laminates" OR productType == "Cleaning Cards"){
+	//removing region dependancy as part of new req suggested by Palani - Jayaram
+	
+//record = bmql("Select $tableColumn from SuppliesSelector WHERE ModelName = $ModelName and (NA = $regionID OR APAC = $regionID OR LATAM = $regionID OR EMEA = $regionID) and ProductType = $productType OR (Industry = $industry or PrintTechnology = $printTechnology) OR MaterialType = $materialType OR ((WidthInches = $width AND LengthInches = $length) OR (WidthMetric = $width AND LengthMetric = $length))");
+record = bmql("Select $tableColumn from SuppliesSelector WHERE ModelName = $ModelName and ProductType = $productType AND (Status = 'Active' OR Status = '' OR Status IS NULL) OR (Industry = $industry or PrintTechnology = $printTechnology) OR MaterialType = $materialType OR ((WidthInches = $width AND LengthInches = $length) OR (WidthMetric = $width AND LengthMetric = $length))");
+}else{
+record = bmql("Select $tableColumn from SuppliesSelector WHERE ModelName = $ModelName and ProductType = $productType AND (Status = 'Active' OR Status = '' OR Status IS NULL) AND (Industry = $industry or PrintTechnology = $printTechnology) AND MaterialType = $materialType AND ((WidthInches = $width AND LengthInches = $length) OR (WidthMetric = $width AND LengthMetric = $length))");
+}
+
+for each in record
+{
+	if(findinarray(ArrayItemNumber,get(each,"ItemNumber")) == -1)
+	{
+		append(ArrayItemNumber,get(each,"ItemNumber"));
+	}
+}
+if(sizeofarray(ArrayItemNumber) > 0)
+{
+	jsonArrayObj = util.zebraExternalPricingnew(ArrayItemNumber, accountID);
+
+}
+if(jsonarraysize(jsonArrayObj) > 0)
+{
+	for Val in record{	
+		if(findinarray(partsArr, get(Val,"ItemNumber")) == -1)
+		{
+			append(partsArr, get(Val,"ItemNumber"));
+			nCount = range(jsonarraysize(jsonArrayObj));
+			for value in nCount
+			{
+				localJsonObj = json(jsonarrayget(jsonArrayObj,value));
+				//if(jsonget(localJsonObj,"SKU") == get(Val,"ItemNumber") AND atof(jsonget(localJsonObj,"Price")) > 0)
+				if(jsonget(localJsonObj,"SKU") == get(Val,"ItemNumber"))
+				{	
+					strItemNumber = jsonget(localJsonObj,"SKU");
+					strDescription = jsonget(localJsonObj,"Description");
+					strPrice = atof(jsonget(localJsonObj,"Price"));
+					strListPrice = atof(jsonget(localJsonObj,"List Price"));
+					strPurchaseMethod = jsonget(localJsonObj,"Purchase Method");
+					strErrorCode = jsonget(localJsonObj,"Error Code");
+					siebelRowId = jsonget(localJsonObj,"SiebelProductId");							
+					jsonput(ModelJson, "ItemNumber", strItemNumber);
+					jsonput(ModelJson, "Price", strPrice);
+					jsonput(ModelJson, "List Price", strListPrice);
+					jsonput(ModelJson, "ErrorCode", strErrorCode);
+					jsonput(ModelJson, "Part Description", strDescription);
+					jsonput(ModelJson, "ModelName", get(Val,"ModelName"));
+					jsonput(ModelJson, "RegionID", get(Val,"RegionID"));
+					jsonput(ModelJson, "ProductType", get(Val,"ProductType"));
+					jsonput(ModelJson, "PrintTechnology", get(Val,"PrintTechnology"));
+					jsonput(ModelJson, "MaterialType", get(Val,"MaterialType"));
+					jsonput(ModelJson, "WidthMetric", get(Val,"WidthMetric"));
+					jsonput(ModelJson, "LengthMetric", get(Val,"LengthMetric"));
+					jsonput(ModelJson, "WidthInches", get(Val,"WidthInches"));
+					jsonput(ModelJson, "LengthInches", get(Val,"LengthInches"));
+					jsonput(ModelJson, "Name", get(Val,"Name"));
+					jsonput(ModelJson, "StandardRibbonID", get(Val,"StandardRibbonID"));
+					jsonput(ModelJson, "HighDurabRibbonID", get(Val,"HighDurabRibbonID"));
+					jsonput(ModelJson, "Industry", get(Val,"Industry"));
+					jsonput(ModelJson, "Adhesive", get(Val,"Adhesive"));
+					jsonput(ModelJson, "Perforations", get(Val,"Perforations"));
+					jsonput(ModelJson, "Color", get(Val,"Color"));
+					jsonput(ModelJson, "OrderUnitsBox", get(Val,"OrderUnitsBox"));
+					jsonput(ModelJson, "AmountOrderUnit", get(Val,"AmountOrderUnit"));
+					jsonput(ModelJson, "ShortDesc", get(Val,"ShortDesc"));
+					jsonput(ModelJson, "DetailedSpec", get(Val,"DetailedSpec"));
+					jsonput(ModelJson, "MinOrderUnit", get(Val,"MinOrderUnit"));
+					jsonput(ModelJson, "Availability", get(Val,"Availability"));
+					jsonput(ModelJson, "Core", get(Val,"Core"));
+					jsonput(ModelJson, "NA", get(Val,"NA"));
+					jsonput(ModelJson, "OrderUnit", get(Val,"OrderUnit"));
+					jsonput(ModelJson,"SiebelId",siebelRowId);
+					jsonarrayappend(ModelJsonArray, ModelJson);
+					break;
+				}
+			}		
+
+		}
+		}
+		}
+retStr = jsonarraytostr(ModelJsonArray);
+return retStr;

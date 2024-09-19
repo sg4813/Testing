@@ -1,0 +1,40 @@
+// NAME: Get Template
+// VARNAME: GetTemplate
+// PARAM: system (String)
+// PARAM: operation (String)
+// PARAM: params (String Dictionary)
+// IMPORT: GetTemplateLocation (Library Function)
+// IMPORT: GetIntegrationDetails (Library Function)
+// RETURN: String
+
+ret = "";
+
+// Get Template Location
+tempLocale = util.oRCL_INT_GetTemplateLocation(system, operation);
+
+// Get Username and Password for the integration
+details = util.oRCL_INT_GetIntegrationDetails(system);
+
+// Generate keys for the template
+tempKeys = dict("string");
+
+// Add Username and Password for the integration to the Template Keys dictionary
+put(tempKeys, "USERNAME", get(details, "Username"));
+put(tempKeys, "PASSWORD", get(details, "Password"));
+
+// Add any other parameters for the integration to the Template Keys dictionary
+paramKeys = keys(params);
+for key in paramKeys {
+	put(tempKeys, key, get(params, key));
+}
+
+// Apply the Template Keys to the template
+outTemplate = applytemplate(tempLocale, tempKeys);
+
+time1 = getcurrenttimeinmillis();
+// Send the generated template to the Soap Endpoint for the integration
+ret = urldatabypost(get(details, "SoapEndpoint"), outTemplate, "System Error");
+time2 = getcurrenttimeinmillis();
+print time2-time1;
+
+return ret;

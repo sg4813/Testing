@@ -1,0 +1,17 @@
+typeofDevice = Type;
+count = 0;
+deviceRange = range(sizeofarray(devices));
+val = 0;
+recordSet = bmql("select ListOfPBX,Stand_Premium  from PBX where Stand_Premium=$typeofDevice and ListOfPBX IN $devices");
+
+for each in recordSet {
+	deviceNames = get(each, "ListOfPBX");
+	deviceType = get(each, "Stand_Premium");
+	for each3 in deviceRange{
+		if(find(deviceNames, devices[each3]) <> -1)  {
+			//print devices[each3];
+		        val = val + number[each3];
+		}
+	}
+}
+return val;

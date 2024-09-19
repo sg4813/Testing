@@ -1,0 +1,11 @@
+{
+  "name" : "ZEB Subscription Pricing",
+  "variableName" : "zEBSubscriptionPricing",
+  "description" : "",
+  "libraryFunctions" : [ "commerce.zEBCharges" ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_part_number", "_part_custom_field11", "billingFrequency", "annualCloudPriceInclHosting_l", "_model_variable_name", "_document_number", "_line_bom_id", "_parent_doc_number", "customDiscountValue_l", "customDiscountType_l", "requestedQuantity_l", "grossCloudPriceInclHosting_l", "_part_custom_field2", "contractTermInMonths", "_config_attr_info", "unitCost_l", "perStorePerMonthNet_l", "parentSKU_l", "enableMultiYearPricing_l", "category_l", "fixedPrice", "grossCloudNetPrice_l" ],
+  "mainDocAttributes" : [ "contractType_t", "enableConsumptionBilling_t", "conversionFlag_t", "fetchSolutionType" ],
+  "systemAttributes" : [ ]
+}

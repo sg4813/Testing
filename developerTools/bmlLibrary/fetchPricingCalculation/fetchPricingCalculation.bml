@@ -1,0 +1,108 @@
+ret = "";
+
+arrayBundle = string[];
+skuList = string[];
+skuPriceJson = jsonarray();
+skuListPrice = string[];
+
+strPurchasingType = get(Inputs,"purchasingType");
+strCurrencyFactor = atof(get(Inputs,"CurrencyFactor"));
+strAccountType  = get(Inputs,"AccountType");
+strAccountMembership = get(Inputs,"AccountMembership");
+bExistingCustomer = get(Inputs,"ExistingCustomer");
+strSolutionType = get(Inputs,"fetchSolutionType");
+if(strAccountMembership <> "")
+{
+	if(find(strAccountMembership,"Advance Mobile Robotics Specialist") <> -1)
+	{
+		strAccountMembership = "Advance Mobile Robotics Specialist";
+	}
+	else
+	{
+		strAccountMembership = "Mobile Robotics Specialist";
+	}
+}
+
+rs = bmql("Select * from Relavent_Bundles where Status = 'Active' AND Purchasing_Type = $strPurchasingType");
+
+for each in rs
+{
+	append(arrayBundle,get(each,"Bundle"));
+}
+
+if(bExistingCustomer == "TRUE")
+{
+	rs = bmql("Select Product_Code from Adhoc_Products");
+	for each in rs
+	{
+		append(skuList,get(each,"Product_Code"));
+	} 
+}
+elif(strSolutionType == "Renewal")
+{
+	rs = bmql("Select Product_Code from Adhoc_Products Where Name = 'Software'");
+	for each in rs
+	{
+		append(skuList,get(each,"Product_Code"));
+	}
+}
+
+rs  = bmql("Select DISTINCT ProductCode from BundleSKU_Relation where Bundle IN $arrayBundle  AND (Active ='Y' OR Active = 'y' OR Active IS NULL)");
+for each in rs
+{
+	append(skuList,get(each,"ProductCode"));
+}
+append(skuList,"900-00180");
+// added lines for 6309 - start
+append(skuList,"900-00208");
+append(skuList,"900-00172");
+// added lines for 6309 - end
+rsPrice = recordset();
+if(strAccountType  == "Direct")
+{
+	rsPrice = bmql("Select * from Fetch_Price_POC where Part_Number IN $skuList AND (Account_Type = $strAccountType OR Account_Type IS NULL)");
+}
+elif(strAccountType  == "Partner")
+{
+	rsPrice = bmql("Select * from Fetch_Price_POC where Part_Number IN $skuList AND ((Account_Type = $strAccountType AND Account_Membership = $strAccountMembership) OR Account_Type IS NULL)");
+	
+}
+print skuList;
+print rsPrice;
+for each in rsPrice 
+{
+	tempJson = json();
+	isListPrice = "N";
+	strMinQuantity = get(each,"Min_Quantity");
+	strMaxQuantity = get(each,"Max_Quantity");
+	if( strMinQuantity  == "" AND strMaxQuantity  == "")
+	{
+		isListPrice = "Y";
+		append(skuListPrice,get(each,"Part_Number"));
+	}
+	strPartNumber = get(each,"Part_Number");
+	strPrice = atof(get(each,"Price"));
+	
+	if(strCurrencyFactor <> 1.0)
+	{
+		strPrice = strPrice * strCurrencyFactor;
+	}
+	strPrice = round(strPrice,2);
+	jsonput(tempJson,"PartNumber",strPartNumber);
+	jsonput(tempJson,"Price",strPrice );
+	jsonput(tempJson,"ListPrice",isListPrice);
+	jsonput(tempJson,"MinQuantity",strMinQuantity);
+	if(strMaxQuantity == "")
+	{
+		strMaxQuantity = "99999999";
+	}
+	jsonput(tempJson,"MaxQuantity",strMaxQuantity);
+	
+	jsonarrayappend(skuPriceJson,tempJson);
+}
+if(jsonarraysize(skuPriceJson) > 0)
+{
+	ret = jsonarraytostr(skuPriceJson);
+}
+
+return ret;

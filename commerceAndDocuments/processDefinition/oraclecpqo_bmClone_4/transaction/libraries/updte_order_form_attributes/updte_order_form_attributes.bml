@@ -1,0 +1,174 @@
+retVal="";
+contractTermYearFlag = false;
+emplFlag= false;
+storeFlag= false;
+billingFlag= false;
+pfFlag = false;
+zpaFlag = false;
+contractEndDate = false;
+typeOfHosting = false;
+typeOfSupport = false;
+contractTermYearFlagZpa = false;
+cmZpa = 0.0;
+emplFlagZpa = false;
+empCount = 0;
+storeFlagZpa = false;
+storeCountZpa = 0;
+billingFlagZpa = false;
+bfZpa = "";
+contractEndDateZpa = false;
+conEndateZpa = "";
+val = 0.0;
+val1 = 0;
+val2 = 0;
+val3 = "";
+val4 = "";
+val5 = "";
+val6 = "";
+refFlag = false;
+psTotalPriceRef = 0.0;
+PsTotalPticeZpa = 0.0;
+
+for each in transactionLine {
+	//Reflexis
+    if(contractTermYearFlag == false AND emplFlag == false AND storeFlag == false AND billingFlag == false) {
+		if(each._model_variable_name == "reflexis") {
+			contractTermYearFlag = true;
+			val = each.contractTermInMonths;
+			emplFlag= true;
+			val1 = each.empcount_l;
+			storeFlag= true;
+			val2 = 	each.storecount_l;	
+			billingFlag= true;
+			val3 = each.billingFrequency;
+			if(val3 == "5YR") {
+				val3 = "Total Upfront Payment";
+			} elif(val3 == "YR") {
+				val3 = "Yearly";
+			} elif(val3 == "HYR") {
+				val3 = "Half yearly";
+			}  elif(val3 == "QRT") {
+				val3 = "Quarterly";
+			}elif(val3 == "MON") {
+				val3 = "Monthly";
+			}
+			contractEndDate = true;
+			val4 = each.contractEndDate_l;
+			typeOfHosting = true;
+			val5 = each.typeOfHosting_l;
+			typeOfSupport = true;
+			val6 = each.typeOfSupport_l;
+			
+			
+		}
+	}
+	//ZPA
+	 if(contractTermYearFlagZpa == false AND emplFlagZpa == false AND storeFlagZpa == false AND billingFlagZpa == false) {
+		if(each._model_name== "Prescriptive Analytics") {
+			contractTermYearFlagZpa = true;
+			cmZpa = each.contractTermInMonths;
+			emplFlagZpa = true;
+			empCount = each.empcount_l;
+			storeFlagZpa = true;
+			storeCountZpa = 	each.storecount_l;	
+			billingFlagZpa = true;
+			bfZpa = each.billingFrequency;
+			if(bfZpa == "5YR") {
+				bfZpa = "Total Upfront Payment";
+			} elif(bfZpa == "YR") {
+				bfZpa = "Yearly";
+			}  elif(bfZpa == "HYR") {
+				bfZpa = "Half yearly";
+			} elif(bfZpa == "QRT") {
+				bfZpa = "Quarterly";
+			}elif(bfZpa == "MON") {
+				bfZpa = "Monthly";
+			}
+			contractEndDateZpa = true;
+			conEndateZpa = each.contractEndDate_l;
+			/*typeOfHostingZpa = true;
+			val5 = each.typeOfHosting_l;
+			typeOfSupport = true;
+			val6 = each.typeOfSupport_l;*/
+		}
+	}
+	if((find(each._part_number, "Reflexis Professional Services") <> -1 OR find(each._part_number, "PA Professional Services") <> -1)AND (pfFlag == false)){ 
+		pfFlag = true;
+		//ZEB_pFFlag_t = true;
+	}
+	if(find(each._model_name, "Prescriptive Analytics") <> -1 AND (zpaFlag == false)){ 
+		zpaFlag = true;
+	}
+	if(find(each._model_name, "Reflexis") <> -1 AND (refFlag== false)){ 
+		refFlag = true;
+	}
+	if(each._part_custom_field11 == "Billing" and each._part_number == "Reflexis Professional Services"){
+			print "testing";
+			psTotalPriceRef = psTotalPriceRef + each.grossCloudPriceInclHosting_l;
+			print psTotalPriceRef;
+	}
+	if(each._part_custom_field11 == "Shell" and each._part_number == "PA Professional Services"){
+			psTotalPriceRef = psTotalPriceRef + each.grossCloudPriceInclHosting_l;
+	}
+}
+
+//Start: Adding below code by Sampath for CCZC-3117 on 05-Jan-2023
+totalSubtotal=0.0;
+if(totalAnnualCloudNetPrice_t>0.0 AND refFlag)//Reflexis model
+{
+	if(val3 == "Total Upfront Payment") 
+	{
+		totalSubtotal=totalNetPrice_t;
+	} elif(val3 == "Yearly") {
+		totalSubtotal=totalAnnualCloudNetPrice_t;
+	} elif(val3 == "Half yearly") {
+		totalSubtotal=totalAnnualCloudNetPrice_t/6;
+	}  elif(val3 == "Quarterly") {
+		totalSubtotal=totalAnnualCloudNetPrice_t/4;
+	}elif(val3 == "Monthly") {
+		totalSubtotal=totalAnnualCloudNetPrice_t/12;
+	}
+}
+if(totalAnnualCloudNetPrice_t>0.0 AND zpaFlag) //ZPA model
+{
+	if(bfZpa == "Total Upfront Payment") 
+	{
+		totalSubtotal=totalNetPrice_t;
+	} elif(bfZpa == "Yearly") {
+		totalSubtotal=totalAnnualCloudNetPrice_t;
+	} elif(bfZpa == "Half yearly") {
+		totalSubtotal=totalAnnualCloudNetPrice_t/6;
+	}  elif(bfZpa == "Quarterly") {
+		totalSubtotal=totalAnnualCloudNetPrice_t/4;
+	}elif(bfZpa == "Monthly") {
+		totalSubtotal=totalAnnualCloudNetPrice_t/12;
+	}
+}
+retVal = retVal + "1~ZEB_RefTotalSubtotal_t~" + string(totalSubtotal) + "|";
+//End: Adding code by Sampath for CCZC-3117 on 05-Jan-2023
+
+
+retVal = retVal + "1~ZEB_contractTerm_t~" + string(val) + "|";
+retVal = retVal + "1~ZEB_employeeCount_t~" + string(val1) + "|";
+retVal = retVal + "1~ZEB_storeCount_t~" + string(val2) + "|";
+retVal = retVal + "1~ZEB_billingFrequency_t~" + val3 + "|";
+retVal = retVal + "1~ZEB_contractEndDatee_t~" + val4 + "|";
+retVal = retVal + "1~typeOfHosting_t~" + val5 + "|";
+retVal = retVal + "1~typeOfSupport_t~" + val6 + "|";
+retVal = retVal + "1~ZEB_pFFlag_t~" + string(pfFlag) + "|";
+retVal = retVal + "1~ZEB_zPAFlag_t~" + string(zpaFlag) + "|";
+retVal = retVal + "1~ZEB_reflexisFlag_t~" + string(refFlag) + "|";
+
+//ZPA
+retVal = retVal + "1~ZEB_contractTerm_ZPA_t~" + string(cmZpa) + "|";
+retVal = retVal + "1~ZEB_employeeCount_ZPA_t~" + string(empCount) + "|";
+retVal = retVal + "1~ZEB_storeCount_ZPA_t~" + string(storeCountZpa) + "|";
+retVal = retVal + "1~ZEB_billingFrequency_ZPA_t~" + bfZpa + "|";
+retVal = retVal + "1~ZEB_contractEndDatee_ZPA_t~" + conEndateZpa + "|";
+
+retVal = retVal + "1~ZEB_PsTotalPrice_t~" + string(psTotalPriceRef) + "|";
+
+
+print(retVal);
+
+return retVal;

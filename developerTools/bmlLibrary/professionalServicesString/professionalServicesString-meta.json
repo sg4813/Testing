@@ -1,0 +1,30 @@
+{
+  "name" : "ProfessionalServicesString",
+  "variableName" : "professionalServicesString",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "Price",
+    "type" : "Float"
+  }, {
+    "name" : "ExtraParameter",
+    "type" : "String Dictionary"
+  }, {
+    "name" : "PartNumber",
+    "type" : "String"
+  }, {
+    "name" : "PartnerBasePrice",
+    "type" : "Float"
+  }, {
+    "name" : "ExtraParameter1",
+    "type" : "String"
+  }, {
+    "name" : "DiscountEligibility",
+    "type" : "String"
+  }, {
+    "name" : "MaxDiscount",
+    "type" : "Float"
+  } ],
+  "attributes" : [ ]
+}

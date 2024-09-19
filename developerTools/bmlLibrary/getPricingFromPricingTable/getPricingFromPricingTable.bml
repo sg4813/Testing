@@ -1,0 +1,181 @@
+ret =  dict("dict<string>");
+tempdict = dict("dict<string>");
+strPriceList = "";
+strIndirectMembership = "";
+strDirectMembership = "";
+strPurchasingMethod = "";
+strIndirectMembership = "";
+strWhere = "";
+sbWhere = stringbuilder();
+strPriceList = get(Account,"PRICELISTNAME");
+strPurchasingMethod = get(Account,"Purchasing Method");
+strDirectMembership = get(Account,"Direct Membership");
+strIndirectMembership = get(Account,"Indirect Membership");
+arrayDirectMembership = string[];
+arrayIndirectMembership = string[];
+arrayAccessCodePart4 = string[];
+arrayAccessCodepart = string[];
+sbSkuNumber = stringbuilder();
+
+arrayIndirect = string[];
+arrayDirect = string[];
+
+if(NOT(isempty(SkuNumber)))
+{
+	bFlag = true;
+	for each in SkuNumber
+	{
+		if(bFlag)
+		{
+			sbappend(sbSkuNumber,"( SkuNumber = '",each,"')");
+			bFlag = false;
+			
+		}
+		else
+		{
+			sbappend(sbSkuNumber," OR ( SkuNumber = '",each,"')");
+		}
+		
+	}
+	
+	sbappend(sbWhere,"(", sbtostring(sbSkuNumber), ")"); 
+}
+
+bFlag = true;
+sbPurchasingMethod = stringbuilder();
+
+if(strPurchasingMethod == "Both" OR strPurchasingMethod == "Direct")
+{
+	splitArray = split(strDirectMembership,"|^|");
+	for each in splitArray
+	{
+		if(bFlag)
+		{
+			sbappend(sbPurchasingMethod,"( Membership = '",each,"')");
+			append(arrayDirectMembership,each);
+			bFlag = false;
+		}
+		else
+		{
+			sbappend(sbPurchasingMethod," OR ( Membership = '",each,"')");
+			append(arrayDirectMembership,each);
+		}
+	}
+	
+}
+if(strPurchasingMethod == "Both" OR strPurchasingMethod == "Indirect")
+{
+	splitArray = split(strIndirectMembership,"|^|");
+	for each in splitArray
+	{
+		if(bFlag)
+		{
+			sbappend(sbPurchasingMethod,"( Membership = '",each,"')");
+			append(arrayIndirectMembership,each);
+			bFlag = false;
+		}
+		else
+		{
+			sbappend(sbPurchasingMethod," OR ( Membership = '",each,"')");
+			append(arrayIndirectMembership,each);
+		}
+	}
+}
+
+//print sbPurchasingMethod;
+sbappend(sbWhere," AND (", sbtostring(sbPurchasingMethod), ")"); 
+strWhere = sbtostring(sbWhere);
+//print strWhere ;
+rs = bmql("Select SkuNumber, Membership, ListPrice, DiscountPrice, AccessCode from NAUSDPriceList where $strWhere Order by AccessCode DESC");
+//print rs;
+dictTempSku = dict("string");
+
+for each in rs
+{
+	localdict = dict("string");
+	//print get(each,"AccessCode");
+	if(get(each,"AccessCode") == "4")
+	{
+		put(localdict,"PriceList",get(each,"ListPrice"));
+		put(localdict,"ErrorCode","CPQ-Err-002");
+		//print localdict;
+		put(tempdict,get(each,"SkuNumber"),localdict);
+		append(arrayAccessCodePart4,get(each,"SkuNumber"));
+	}
+	
+}
+
+for each in SkuNumber
+{
+	
+	localdict = dict("string");
+	localPricearray = Float[];
+	localDirectMemberShip = false;
+	localIndirectMemberShip = false;
+	strListPrice = "";
+	
+	for each1 in rs
+	{
+		
+		if(each == get(each1,"SkuNumber") AND findinarray(arrayAccessCodePart4,each) == -1)
+		{
+			if(strPurchasingMethod == "Indirect" AND NOT(containskey(tempdict,each)))
+			{
+				strFloatPrice = get(each1,"ListPrice");
+				put(localdict,"PriceList",get(each1,"ListPrice"));
+				put(localdict,"ErrorCode","");
+				//print localdict;
+				put(tempdict,get(each1,"SkuNumber"),localdict);
+				break;
+			}
+			if(strPurchasingMethod == "Direct" OR strPurchasingMethod == "Both")
+			{
+				strFloatPrice = get(each1,"DiscountPrice");
+				append(localPricearray,atof(strFloatPrice));
+				if(findinarray(arrayDirectMembership,get(each1,"Membership")) > -1)
+				{
+					localDirectMemberShip  = true;
+				}
+				else
+				{
+					localIndirectMemberShip = true;
+				}
+				strListPrice = get(each1,"ListPrice");
+				
+			}
+		}
+	}
+	//print each;
+	//print localPriceArray;
+	if(strPurchasingMethod == "Direct" AND findinarray(arrayAccessCodePart4,each) == -1)
+	{
+		put(localdict,"ErrorCode","");
+		strMinPrice = min(localPricearray);
+		put(localdict,"PriceList",string(strMinPrice));
+		put(tempdict,each,localdict);		
+	}
+	elif(strPurchasingMethod == "Both" AND findinarray(arrayAccessCodePart4,each) == -1)
+	{
+		put(localdict,"ErrorCode","");
+		if(localDirectMemberShip)
+		{
+			strMinPrice = min(localPricearray);
+			put(localdict,"PriceList",string(strMinPrice));
+		}
+		else
+		{
+			put(localdict,"PriceList",strListPrice);
+		}
+		put(tempdict,each,localdict);		
+	}
+	
+}
+
+
+
+//Print "****";
+//print tempdict;
+
+ret = tempdict;
+
+return ret;

@@ -1,0 +1,982 @@
+/*Name		Date		Description 			Jira/Incident
+=============================================================================
+SK4788		02/29/2024	added array variable and 	CZ6736
+/Prathyusha			if condition updated	 	
+
+============================================================================= */
+
+billingFreq = "";
+ProdLine = "";
+accreg ="";
+locations= "";
+Hosting= "";
+HostingHst= "";
+emp= "";
+retailRevenue = "";
+NetProfitMargin = "";
+RetailerType = "";
+HostingType = "";
+SupportType = "";
+Term ="";
+LangPack ="";
+result  = "";
+endDate  ="";
+endDate_WFC = "";
+NoofyearsR = "36";
+countryList = "";
+EmpCollaboration = "";
+NoOfDevices = "";
+NoOfEndpoints = "";
+NoOfGroups = "";
+ConsumerCalling = "";
+IpCheckpoints = "";
+ProfileManagers = "";
+VoiceClient = "";
+Locations = "";
+empCount = "";
+locationCount = "";
+psOfferings = "";
+psOfferings_s  = "";
+DDFlag = false;
+countryEligibility = "";
+NumberOfBanners = "";
+AddnHypercareWeeks = "";
+AddOnProduct = "";
+Languages = "";
+oCCAccountId = "";
+subvoiceClientPremiumRoyaltyCostString = string[];
+VendorStr = "";
+QtyStr = "";
+RoyaltyCostStr = "";
+DeviceStr = "";
+Ptt_VendorStr = "";
+Ptt_QtyStr = "";
+Ptt_RoyaltyCostStr = "";
+Ptt_DeviceStr = "";
+TshirtSize = "";
+ProductLine = "";
+newQuestions="";
+noOfPacks="";
+noOfMaintenancePacks="";
+noOfReports="";
+storePulseRTTM="";
+storePRTTMUseCaseM="";
+configBlockHours="";
+tacBlockOfHours="";
+implShadowing=false;
+annualVolumnShipment="";
+RefTraining = "";
+//Added for CCZC6736- SK4788(Santhoshi)
+blankProductTypeForPartsArry=string[]{"F100-SHELF-V2","F100-SHELF-V2-USL-C","F100-CONNECT-V2","F100-CONNECT-V2-USL-C","F100-CONNECT-V2-USL-R","F100-ROLLER-V2","F100-ROLLER-V2-USL-C","F100-ROLLER-V2-USL-R","F100-ROLLER-GD-V2-USL-C","F100-ROLLER-GD-V2-USL-R","F100-OEM-BASE-V2","F100-OEM-BASE-V2-USL","F100-FLEX-GD-V2-MM-R","F100-FLEX-DUA-V2-MM-R","F100-FLEX-GD-V2-USL-MM-R","F100-FLEX-DUA-V2-USL-MM-R","F100-FLEX-GD-V2-USL-R","F100-FLEX-DUA-V2-USL-R"};//added parts by Prathyusha based on JIRA CCZC-6760
+//start of code by Supraja Gadey for CCZC-6617
+professionalservicesPA ="";
+professionalservicesReflexis="";
+professionalservicesselected="";
+//end of code by Supraja Gadey for CCZC-6617
+for each in transactionline {
+
+	//endDate =(each.contractStartDate_l);
+	partnumber = each._part_number;    
+	if(each._model_name == "Prescriptive Analytics" AND each.oRCL_ABO_ActionCode_l<>"RENEW" AND each.oRCL_ABO_ActionCode_l<>"TERMINATE") 
+	{
+		billingFreq = getconfigattrvalue(each._document_number, "paymentTermscommon");
+		locations= getconfigattrvalue(each._document_number, "numberOfStoresZPA");
+		retailRevenue = getconfigattrvalue(each._document_number, "rUMZPA");
+		Hosting= getconfigattrvalue(each._document_number, "monthlyHostingZPA");
+		HostingHst= getconfigattrvalue(each._document_number, "hostingForMoreHistoryZPA");
+		Term = getconfigattrvalue(each._document_number, "contractTerminMonthsnew");
+		endDate= getconfigattrvalue(each._document_number, "contractEndDateRef");
+		countryList = getconfigattrvalue(each._document_number, "whereAreTheProductsBeingUsed_multiselectmenu");
+		oCCAccountId = getconfigattrvalue(each._document_number, "oCCAccountID");
+		//start of code by Supraja Gadey for CCZC-6617
+		professionalservicesPA =getconfigattrvalue(each._document_number, "isPAProfessionalServices");
+		//print "professionalservicesPA ";
+		//print professionalservicesPA ;
+		//end of code by Supraja Gadey for CCZC-6617
+			
+	}
+	
+	if(startswith(each.modelName_l,"Prescriptive Analytics") AND each.oRCL_ABO_ActionCode_l<>"RENEW" AND each.oRCL_ABO_ActionCode_l<>"TERMINATE"  AND each.ZEB_customActionCode_l<>"RENEW") {
+		docNum = each._document_number;
+		result = result + docNum  + "~billingFrequency~" + billingFreq + "|";
+		result = result + docNum  + "~storecount_l~" + locations + "|";
+		result = result + docNum  + "~revenueFromRetailStoresNotOverall_l~" + retailRevenue + "|";
+		result = result + docNum  + "~monthlyHosting_l~" + Hosting+ "|";
+		result = result + docNum  + "~hostingForMoreHistory_l~" + HostingHst+ "|";
+		result = result + docNum  + "~contactTerm_l~" + Term + " Months" + "|";
+		if(each.oRCL_ABO_ActionCode_l<>"NO_UPDATE" AND each.oRCL_ABO_ActionCode_l<>"DELETE" AND each.oRCL_ABO_ActionCode_l<>"UPDATE"){
+		result = result + docNum  + "~contractEndDate_l~" + endDate+ "|";	
+		}	
+		//result = result + docNum  + "~contractEndDate_l~" + datetostr(addmonths(strtodate(each.contractStartDate_l,"%m/%d/%Y %H:%M:%S"), atoi(Term)), "MM/dd/yyyy HH:mm:ss")+ "|";
+		result = result + docNum  + "~contractTermInMonths~" + Term+ "|";
+		result = result + docNum  + "~useincountriy_l~" + countryList + "|";
+		//start of code by Supraja Gadey for CCZC-6617
+		if(professionalservicesPA == "Y" AND each._part_custom_field2 =="Y")
+		{
+		//change it to WK in next sprint
+		 result = result + docNum   + "~billingFrequency~" + "WK" + "|";////Canged MON to WK  By prathyusha 
+		 print "result";
+		 print result;
+		}
+		//end of code by Supraja Gadey for CCZC-6617
+	}
+	
+	if(each._model_name == "Reflexis" AND each.oRCL_ABO_ActionCode_l<>"RENEW" AND each.oRCL_ABO_ActionCode_l<>"TERMINATE") {
+		billingFreq = getconfigattrvalue(each._document_number, "paymentTermscommon");
+		locations= getconfigattrvalue(each._document_number, "numberOfLocationsRef");
+		emp= getconfigattrvalue(each._document_number, "empRef");
+		retailRevenue = getconfigattrvalue(each._document_number, "revenueRef");
+		NetProfitMargin = getconfigattrvalue(each._document_number, "netProfitMarginRef");
+		RetailerType = getconfigattrvalue(each._document_number, "typeOfRetailerRef");
+		HostingType = getconfigattrvalue(each._document_number, "typeOfHostingRef");
+		SupportType = getconfigattrvalue(each._document_number, "typeOfSupportRef");
+		Term = getconfigattrvalue(each._document_number, "contractTerminMonthsnew");
+		LangPack = getconfigattrvalue(each._document_number, "multiLanguagePackRef");
+		endDate= getconfigattrvalue(each._document_number, "contractEndDateRef");
+		countryList = getconfigattrvalue(each._document_number, "whereAreTheProductsBeingUsed_multiselectmenu");
+		NumberOfBanners  = getconfigattrvalue(each._document_number,"numberOfBannersInSameApplicationRef");
+		AddnHypercareWeeks = getconfigattrvalue(each._document_number,"additionalHypercareWeeksRef");
+		AddOnProduct = getconfigattrvalue(each._document_number,"isThisAnAddonProductForAnExistingClient");
+		Languages  = getconfigattrvalue(each._document_number,"languagesOtherThanEnglishRef");
+		TshirtSize = getconfigattrvalue(each._document_number, "tSize");
+		oCCAccountId = getconfigattrvalue(each._document_number, "oCCAccountID");
+		//Added by Shalini for 4411 JIRA
+		annualVolumnShipment= getconfigattrvalue(each._document_number, "annualVolumnShipmentsSIECRef");
+		if(annualVolumnShipment=="Small"){
+		annualVolumnShipment="Small Segment: <40K";
+		}elif(annualVolumnShipment=="Medium"){
+		annualVolumnShipment="Medium Segment: 40K-125K";
+		}elif(annualVolumnShipment=="Large"){
+		annualVolumnShipment="Large Segment: 125K+";
+		}
+		//start of code by Supraja Gadey for CCZC-6617
+		professionalservicesReflexis=getconfigattrvalue(each._document_number, "professionalServiceRef");
+	        //print "professionalservicesReflexis";
+	        //print professionalservicesReflexis;	
+	        //end of code by Supraja Gadey for CCZC-6617
+	
+	}
+	
+	if(startswith(each.modelName_l,"Reflexis") AND each.oRCL_ABO_ActionCode_l<>"RENEW" AND each.oRCL_ABO_ActionCode_l<>"TERMINATE"  AND each.ZEB_customActionCode_l<>"RENEW") { //added condition for ZEB_customActionCode_l- CCZC-7079-Emp/Store count issue by VinayA
+		docNum = each._document_number;
+		result = result + docNum  + "~billingFrequency~" + billingFreq + "|";
+		result = result + docNum  + "~storecount_l~" + locations + "|";
+		result = result + docNum  + "~empcount_l~" + emp + "|";
+		result = result + docNum  + "~revenueFromRetailStoresNotOverall_l~" + retailRevenue + "|";
+		result = result + docNum  + "~netProfitMargin_l~" + NetProfitMargin + "|";
+		result = result + docNum  + "~typeOfRetailer_l~" + RetailerType + "|";
+		result = result + docNum  + "~typeOfHosting_l~" + HostingType + "|";
+		result = result + docNum  + "~typeOfSupport_l~" + SupportType + "|";
+		result = result + docNum  + "~contactTerm_l~" + Term + " Months" + "|";
+		result = result + docNum  + "~multiLanguagePack_l~" + LangPack + "|";
+		if(each.oRCL_ABO_ActionCode_l<>"NO_UPDATE" AND each.oRCL_ABO_ActionCode_l<>"DELETE" AND each.oRCL_ABO_ActionCode_l<>"UPDATE"){
+		result = result + docNum  + "~contractEndDate_l~" + endDate+ "|";
+		}
+		result = result + docNum  + "~contractTermInMonths~" + Term + "|";
+		result = result + docNum  + "~useincountriy_l~" + countryList + "|";
+		result = result + docNum + "~ZEB_numberOfBannersInSameApplication~" + NumberOfBanners + "|";
+		result = result + docNum + "~ZEB_additionalHypercareWeeks~" + AddnHypercareWeeks + "|";
+		result = result + docNum + "~ZEB_isThisAnAddonProductForAnExistingClient~" + AddOnProduct + "|";
+		result = result + docNum + "~languagesOtherThanEnglish~" + Languages + "|";
+		result = result + docNum + "~pSSize_l~" + TshirtSize + "|";
+		//Added by Shalini for 4411 JIRA
+		if(startswith(each.modelName_l,"Reflexis") AND each._part_custom_field11 == "Shell" AND each._part_number=="Fourkites real time transportation visibility Solution to Reflexis RTTM integration"){
+		result = result + docNum + "~annaulVolumnShipment_l~" + annualVolumnShipment+ "|";
+		}
+		//start of code by Supraja Gadey for CCZC-6617
+		if(professionalservicesReflexis== "true" AND each._part_custom_field2 =="Y")
+		{
+		//change it to WK in next sprint
+		  	result = result + docNum  + "~billingFrequency~" + "WK" + "|";//Canged MON to WK  By prathyusha 
+		  	print "result ";
+	        print result ;
+		}
+		//Below two lines code added by Venkatesh - CCZC-6844
+		/*if((oCCAccountId <> "") AND (isnull(customerCompanyName_t) OR customerCompanyName_t=="")) {
+		result = result  + "1~customerCompanyName_t~" + oCCAccountId + "|";
+		}*/
+		//end of code by Supraja Gadey for CCZC-6617
+
+	}
+	// Added for WCS story CCZC-6912 by Pratyusha - START
+	if(each._model_name == "Workcloud Sync" AND each.oRCL_ABO_ActionCode_l<>"RENEW" AND each.oRCL_ABO_ActionCode_l<>"TERMINATE") {
+		billingFreq = getconfigattrvalue(each._document_number, "billingFrequency_WCS");
+		Term = getconfigattrvalue(each._document_number, "contractLengthInMonths_WCS");
+		countryList = getconfigattrvalue(each._document_number, "whereAreTheProductsBeingUsed_multiselectmenu");
+	}
+	
+	if(startswith(each.modelName_l,"Workcloud Sync") AND each.oRCL_ABO_ActionCode_l<>"RENEW" AND each.oRCL_ABO_ActionCode_l<>"TERMINATE"  AND each.ZEB_customActionCode_l<>"RENEW") {
+		docNum = each._document_number;
+		result = result + docNum  + "~billingFrequency~" + billingFreq + "|";
+		result = result + docNum  + "~contactTerm_l~" + Term + " Months" + "|";
+		result = result + docNum  + "~contractTermInMonths~" + Term + "|";
+		result = result + docNum  + "~useincountriy_l~" + countryList + "|";
+		
+		dDate=getDate();
+		if(each.oRCL_ABO_ActionCode_l<>"NO_UPDATE" AND each.contractStartDate_l == ""){				
+			result = result + each._document_number + "~contractStartDate_l~" + datetostr(getdate(false),"MM/dd/yyyy HH:mm:ss")  + "|";
+		}else{
+			result = result + each._document_number + "~contractStartDate_l~" + each.contractStartDate_l + "|";
+		}
+		dDate = minusdays(addmonths(strtojavadate(each.contractStartDate_l, "yyyy-MM-dd HH:mm:ss"),atoi(Term)),1);		
+		strDate = datetostr(dDate,"MM/dd/yyyy HH:mm:ss");
+		if(each.oRCL_ABO_ActionCode_l<>"NO_UPDATE"){
+			result = result + each._document_number + "~contractEndDate_l~" + strDate  + "|";
+		}
+	}
+	// Added for WCS story CCZC-6912 by Pratyusha - END
+	if(each._model_name == "WorkForce Connect" AND each.oRCL_ABO_ActionCode_l<>"RENEW" AND each.oRCL_ABO_ActionCode_l<>"TERMINATE") {
+		pTTProRoyaltyCostString = getconfigattrvalue(each._document_number, "pTTProRoyaltyCostString");
+		if(pTTProRoyaltyCostString <> ""){
+			subpTTProRoyaltyCostString = split(pTTProRoyaltyCostString , "#####");
+			Ptt_DeviceStr = subpTTProRoyaltyCostString[0];
+			Ptt_VendorStr = subpTTProRoyaltyCostString[1];
+			Ptt_QtyStr = subpTTProRoyaltyCostString[2];
+			Ptt_RoyaltyCostStr = subpTTProRoyaltyCostString[3];
+		}
+		voiceClientPremiumRoyaltyCostString= getconfigattrvalue(each._document_number, "voiceClientPremiumRoyaltyCostString");
+		if (voiceClientPremiumRoyaltyCostString <> ""){
+			subvoiceClientPremiumRoyaltyCostString = split(voiceClientPremiumRoyaltyCostString, "#####");
+			DeviceStr = subvoiceClientPremiumRoyaltyCostString[0];
+			VendorStr = subvoiceClientPremiumRoyaltyCostString[1];
+			QtyStr = subvoiceClientPremiumRoyaltyCostString[2];
+			RoyaltyCostStr = subvoiceClientPremiumRoyaltyCostString[3];
+		}
+		billingFreq = getconfigattrvalue(each._document_number, "paymentTerms");
+		EmpCollaboration = getconfigattrvalue(each._document_number, "testAttribute");
+		NoOfDevices = getconfigattrvalue(each._document_number, "howManyDevicesDoYouNeedToConnect_ZS_");
+		NoOfEndpoints = getconfigattrvalue(each._document_number, "numberOfEndPoints");
+		NoOfGroups = getconfigattrvalue(each._document_number, "numberofGroups");
+		ConsumerCalling = getconfigattrvalue(each._document_number, "select2_FirstScreen");
+		IpCheckpoints = getconfigattrvalue(each._document_number, "ZEB_noOfIPCheckPoints");
+		ProfileManagers = getconfigattrvalue(each._document_number, "profileManager_features");
+		VoiceClient = getconfigattrvalue(each._document_number, "voiceClientPBXSelection");
+		Locations = getconfigattrvalue(each._document_number, "whereAreTheProductsBeingUsed_multiselectmenu");
+		empCount = getconfigattrvalue(each._document_number, "howManyEmployeesDoYouNeedToConnect_ZS_");
+		locationCount = getconfigattrvalue(each._document_number, "howManyLocationsDoYouWantToDeployTheSolutionTo_ZS_");
+		Term = getconfigattrvalue(each._document_number, "contractTerms");
+		oCCAccountId = getconfigattrvalue(each._document_number, "oCCAccountID");
+		//start of code by Supraja Gadey for CCZC-6617
+		professionalservicesselected=getconfigattrvalue(each._document_number, "isPsSelected");
+		//print "professionalservicesselected";
+		//print professionalservicesselected;
+		//end of code by Supraja Gadey for CCZC-6617
+		if(Term == "2 Years - 25%") {
+			//Term = "2 Years - 2.5%";
+			Term = "2 Years";
+		}
+		endDate= getconfigattrvalue(each._document_number, "ZEB_contractEndDate");
+		psOfferings = getconfigattrvalue(each._document_number, "ZEB_pSOfferings");
+		TshirtSize = getconfigattrvalue(each._document_number, "ZEB_tShirtSize");
+		/*if(DDFlag == false){
+                     countryEligibility = getconfigattrvalue(each._document_number, "whereAreTheProductsBeingUsed_multiselectmenu");
+                     if(find(countryEligibility, "brazil")<> -1  OR find(countryEligibility, "china") <> -1 OR find(countryEligibility, "mexico") <> -1 OR find(countryEligibility,"argentina") <> -1 OR find(countryEligibility,"colombia") <> -1){
+                        DDFlag = true;
+                     }
+                }*/
+		//endDate_WFC = getconfigattrvalue(each._document_number, "ZEB_contractEndDate");
+		if(find(Term ,"5 Years") <> -1)
+			{
+				NoofyearsR = "60";
+				Term = "5 Years";
+			}
+			elif(find(Term ,"4 Years") <> -1)
+			{
+				NoofyearsR = "48";
+				Term = "4 Years";
+			}
+			elif(find(Term ,"3 Years") <> -1)
+			{
+				NoofyearsR = "36";
+				Term = "3 Years";
+			}
+			elif(find(Term ,"2 Years") <> -1)
+			{
+				NoofyearsR = "24";
+				Term = "2 Years";
+			}
+			elif(find(Term ,"1 Years") <> -1)
+			{
+				NoofyearsR = "12";
+				Term = "1 Year";
+			}
+			else
+			{
+				NoofyearsR = "6";
+			}
+		
+	}
+		if(startswith(each.modelName_l,"WorkForce Connect") AND each.oRCL_ABO_ActionCode_l<>"RENEW" AND each.oRCL_ABO_ActionCode_l<>"TERMINATE"  AND each.ZEB_customActionCode_l<>"RENEW") {
+			// Adding code for PBX Columns in LIG for Voice Client Premium
+			if(partnumber == "Voice Client EMC Software Premium"){
+				result = result + each._document_number + "~pBXDevices~" + substring(DeviceStr,0,len(DeviceStr)-2) + "|";
+				result = result + each._document_number + "~pBXVendorName~" + substring(VendorStr ,0,len(VendorStr)-2) + "|";
+				result = result + each._document_number + "~pBXQTY~" + substring(QtyStr,0,len(QtyStr)-2)+ "|";
+				result = result + each._document_number + "~pBXRoyaltyCost~" + substring(RoyaltyCostStr,0,len(RoyaltyCostStr)-2)+ "|";
+			}
+			// Adding code for PBX Columns PTT Pro EMC Software and Enterprise Part
+			if(partnumber == "PTT Pro EMC Software" OR partnumber == "PTT Pro EMC Software Ent")
+			{
+				result = result + each._document_number + "~pBXDevices~" + Ptt_DeviceStr + "|";
+				result = result + each._document_number + "~pBXVendorName~" + Ptt_VendorStr + "|";
+				result = result + each._document_number + "~pBXQTY~" + Ptt_QtyStr + "|";
+				result = result + each._document_number + "~pBXRoyaltyCost~" + Ptt_RoyaltyCostStr + "|";
+			}
+			result = result + each._document_number + "~billingFrequency~" + billingFreq + "|";
+			result = result + each._document_number + "~empcollaboration_l~" + EmpCollaboration + "|";
+			result = result + each._document_number + "~devicecount_l~" + NoOfDevices + "|";
+			result = result + each._document_number + "~ZEB_numberOfEndpoints~" + NoOfEndpoints + "|";
+			result = result + each._document_number + "~ZEB_noOfGroups~" + NoOfGroups + "|";
+			result = result + each._document_number + "~consumercalling_l~" + ConsumerCalling + "|";
+			result = result + each._document_number + "~ZEB_numberOfIPCheckpoints~" + IpCheckpoints + "|";
+			result = result + each._document_number + "~ZEB_listOfProfileManagers~" + ProfileManagers + "|";
+			result = result + each._document_number + "~voiceclientPBX_l~" + VoiceClient + "|";
+			result = result + each._document_number + "~useincountriy_l~" + Locations + "|";
+			result = result + each._document_number + "~empcount_l~" + empCount + "|";
+			result = result + each._document_number + "~storecount_l~" + locationCount + "|";
+			result = result + each._document_number + "~contractTermInMonths~" + NoofyearsR + "|";
+			result = result + each._document_number + "~contactTerm_l~" + Term + "|";
+			result = result + each._document_number + "~pSSize_l~" + TshirtSize + "|";
+			//result = result + each._document_number + "~contractEndDate_l~" + endDate_WFC + "|";
+			//PS Offerings
+			if(psOfferings == "No PS Required" and each._part_custom_field11 == "Shell" and each._part_custom_field2 <> "Y"){
+				result = result + each._document_number + "~ZEB_pSOfferings~" + psOfferings + "|";
+			}if(psOfferings <> "No PS Required" and each._part_custom_field11 == "Shell" and each._part_custom_field2 <> "Y") {
+				result = result + each._document_number + "~ZEB_pSOfferings~" + ""+ "|";
+			}
+			
+			if(each.oRCL_ABO_ActionCode_l<>"NO_UPDATE" AND each.oRCL_ABO_ActionCode_l<>"DELETE" AND each.oRCL_ABO_ActionCode_l<>"UPDATE"){
+			result = result + each._document_number + "~contractEndDate_l~" + endDate+ "|";
+			}
+			//start of code by Supraja Gadey for CCZC-6617
+			if(professionalservicesselected == "true" AND each._part_custom_field2 =="Y")
+			{
+			//change it to WK in next sprint
+			 result = result + each._document_number + "~billingFrequency~" + "WK" + "|";//Canged to WK  By prathyusha 
+			}
+			//end of code by Supraja Gadey for CCZC-6617
+			/*if(each._part_custom_field2 =="Y")
+			{
+			result = result + each._document_number + "~ZEB_pSOfferings~" + psOfferings + "|";
+			}	*/
+		}
+		/*if(find(each._part_number, "Professional Services") <> -1) {
+				result = result + each._document_number + "~ZEB_pSOfferings~" + psOfferings + "|";
+		}*/
+		
+		if(each._model_name == "Professional Services" AND each.oRCL_ABO_ActionCode_l<>"RENEW" AND each.oRCL_ABO_ActionCode_l<>"TERMINATE") {
+		 ProdLine = getconfigattrvalue(each._document_number, "ZEB_productLine");
+		 if(ProdLine == "Reflexis"){
+		 
+			locations= getconfigattrvalue(each._document_number, "numberOfLocationsRef");
+			emp= getconfigattrvalue(each._document_number, "empRef");
+			RetailerType = getconfigattrvalue(each._document_number, "typeOfRetailerRef");
+			LangPack = getconfigattrvalue(each._document_number, "multiLanguagePackRef");
+			countryList = getconfigattrvalue(each._document_number, "whereAreTheProductsBeingUsed_multiselectmenu");
+			NumberOfBanners  = getconfigattrvalue(each._document_number,"numberOfBannersInSameApplicationRef");
+			AddnHypercareWeeks = getconfigattrvalue(each._document_number,"additionalHypercareWeeksRef");
+			AddOnProduct = getconfigattrvalue(each._document_number,"isThisAnAddonProductForAnExistingClient");
+			Languages  = getconfigattrvalue(each._document_number,"languagesOtherThanEnglishRef");
+			TshirtSize = getconfigattrvalue(each._document_number, "tSize");
+			ProductLine  = getconfigattrvalue(each._document_number, "ZEB_productLine");
+			oCCAccountId = getconfigattrvalue(each._document_number, "oCCAccountID");
+			
+			newQuestions_pl = getconfigattrvalue(each._document_number, "newQuestions_pl");
+			noOfPacks_pl = getconfigattrvalue(each._document_number, "noOfPacks_pl");
+			noOfMaintenancePacks_pl = getconfigattrvalue(each._document_number, "noOfMaintenancePacks_pl");
+			noOfReports_pl = getconfigattrvalue(each._document_number, "noOfReports_pl");
+			storePulseRTTM_pl = getconfigattrvalue(each._document_number, "storePulseRTTM_pl");
+			storePRTTMUseCaseM_pl = getconfigattrvalue(each._document_number, "storePRTTMUseCaseM_pl");
+			configBlockHours_pl = getconfigattrvalue(each._document_number, "configBlockHours_pl");
+			tacBlockOfHours_pl = getconfigattrvalue(each._document_number, "tacBlockOfHours_pl");
+			implShadowing_pl = getconfigattrvalue(each._document_number, "implShadowing_pl");
+			//New Questions
+			if(not(isnull(newQuestions_pl)))
+			{
+				newQuestions=newQuestions_pl;
+			}
+			//Start Code for 5021 JIRA added by Pratyusha 
+			if(newQuestions=="Training")
+			{
+			result = result + each._document_number + "~billingFrequency~" + "5YR" + "|";
+			RefTraining = "Yes";
+			for line in transactionLine
+			{
+				if(line._part_number <> "")
+				{
+				result = result + line._document_number + "~renewalType_l~RENEW|";
+				result = result + line._document_number + "~billingFrequency~" + "5YR" + "|";
+				dDate = minusdays(addmonths(getdate(false),12),1);
+				strDate = datetostr(dDate,"MM/dd/yyyy HH:mm:ss");
+				result = result + line._document_number + "~contractEndDate_l~" + strDate  + "|";
+				}
+			}
+			}
+			//End Code for 5021 JIRA added by Pratyusha
+			if(newQuestions=="Yes")
+			{
+				//Number of packs
+				if(not(isnull(noOfPacks_pl)) AND noOfPacks_pl<>"Please Select")
+				{
+					noOfPacks=noOfPacks_pl;
+				}
+				//AAR Number of New Reports Maintenance 
+				if(not(isnull(noOfMaintenancePacks_pl)) AND noOfMaintenancePacks_pl<>"Please Select")
+				{
+					noOfMaintenancePacks=noOfMaintenancePacks_pl;
+				}
+				
+				//Number of reports
+				if(not(isnull(noOfReports_pl)) AND noOfReports_pl<>"Please Select")
+				{
+					noOfReports=noOfReports_pl;
+				}
+				
+				//StorePulse RTTM Use Case Creation
+				if(not(isnull(storePulseRTTM_pl)) AND storePulseRTTM_pl<>"Please Select")
+				{
+					storePulseRTTM=storePulseRTTM_pl;
+				}
+				
+				//Store Pulse RTTM Use Case Maintenance
+				if(not(isnull(storePRTTMUseCaseM_pl)) AND storePRTTMUseCaseM_pl<>"Please Select")
+				{
+					storePRTTMUseCaseM=storePRTTMUseCaseM_pl;
+				}
+				
+				//Configuration Block of Hours
+				if(not(isnull(configBlockHours_pl)) AND configBlockHours_pl<>"Please Select")
+				{
+					configBlockHours=configBlockHours_pl;
+				}
+				
+				//TAC Block of Hours
+				if(not(isnull(tacBlockOfHours_pl)) AND tacBlockOfHours_pl<>"Please Select")
+				{
+					tacBlockOfHours=tacBlockOfHours_pl;
+				}
+				
+				//Implementation Shadowing
+				if(not(isnull(implShadowing_pl)) AND implShadowing_pl<>"None")
+				{	
+					if((findinArray(split(implShadowing_pl, "~"),"Task Management Shadowing") <> -1) OR (findinArray(split(implShadowing_pl, "~"),"Workforce Management Shadowing") <> -1))
+					{
+						implShadowing=true;
+					}
+				}
+			}
+			
+		}
+		//WFC PS Attributes
+		if(ProdLine == "Workforce Connect"){
+			NoOfDevices = getconfigattrvalue(each._document_number, "howManyDevicesDoYouNeedToConnect_ZS_");
+			locationCount = getconfigattrvalue(each._document_number, "howManyLocationsDoYouWantToDeployTheSolutionTo_ZS_");
+			Locations = getconfigattrvalue(each._document_number, "whereAreTheProductsBeingUsed_multiselectmenu");
+			TshirtSize = getconfigattrvalue(each._document_number, "tSize");
+			ProductLine  = getconfigattrvalue(each._document_number, "ZEB_productLine");
+		}
+		if(ProdLine == "Prescriptive Analytics"){
+			locations= getconfigattrvalue(each._document_number, "numberOfStoresZPA");
+			countryList = getconfigattrvalue(each._document_number, "whereAreTheProductsBeingUsed_multiselectmenu");
+			ProductLine  = getconfigattrvalue(each._document_number, "ZEB_productLine");
+}
+	
+	}
+	
+	if(startswith(each.modelName_l,"Professional Services") AND each.oRCL_ABO_ActionCode_l<>"RENEW" AND each.oRCL_ABO_ActionCode_l<>"TERMINATE"  AND each.ZEB_customActionCode_l<>"RENEW") {
+		docNum = each._document_number;
+		if(ProdLine == "Reflexis"){
+			result = result + docNum  + "~storecount_l~" + locations + "|";
+			result = result + docNum  + "~empcount_l~" + emp + "|";
+			result = result + docNum  + "~typeOfRetailer_l~" + RetailerType + "|";
+			result = result + docNum  + "~multiLanguagePack_l~" + LangPack + "|";
+			result = result + docNum  + "~contractTermInMonths~" + "12"+ "|";
+			result = result + docNum  + "~useincountriy_l~" + countryList + "|";
+			result = result + docNum + "~ZEB_numberOfBannersInSameApplication~" + NumberOfBanners + "|";
+			result = result + docNum + "~ZEB_additionalHypercareWeeks~" + AddnHypercareWeeks + "|";
+			result = result + docNum + "~ZEB_isThisAnAddonProductForAnExistingClient~" + AddOnProduct + "|";
+			result = result + docNum + "~languagesOtherThanEnglish~" + Languages + "|";
+			result = result + docNum + "~pSSize_l~" + TshirtSize + "|";
+			result = result + docNum + "~ZEB_standaloneProductLine~" + ProductLine + "|";
+			result = result + docNum + "~noOfPacks_l~" + noOfPacks + "|";
+			result = result + docNum + "~noOfMaintenancePacks_l~" + noOfMaintenancePacks+ "|";
+			result = result + docNum + "~noOfReports_l~" + noOfReports + "|";
+			result = result + docNum + "~storePulseRTTM_quote~" + storePulseRTTM + "|";
+			result = result + docNum + "~storePRTTMUseCaseM_quote~" + storePRTTMUseCaseM + "|";
+			result = result + docNum + "~configBlockHours_l~" + configBlockHours + "|";
+			result = result + docNum + "~tacBlockOfHours_l~" + tacBlockOfHours + "|";
+			result = result + docNum + "~implShadowing_l~" + string(implShadowing) + "|";
+		}
+		if(ProdLine == "Workforce Connect"){
+			result = result + each._document_number + "~devicecount_l~" + NoOfDevices + "|";
+			result = result + each._document_number + "~storecount_l~" + locationCount + "|";
+			result = result + each._document_number + "~useincountriy_l~" + Locations + "|";
+			result = result + each._document_number + "~pSSize_l~" + TshirtSize + "|";
+			result = result + each._document_number + "~ZEB_standaloneProductLine~" + ProductLine + "|";
+			result = result + docNum  + "~contractTermInMonths~" + "12"+ "|";// Added by Prathyusha based on Story CCZC-7019
+		}
+		if(ProdLine == "Prescriptive Analytics"){
+			result = result + each._document_number + "~useincountriy_l~" + countryList+ "|";
+			result = result + each._document_number + "~storecount_l~" + locations+ "|";
+			result = result + each._document_number + "~ZEB_standaloneProductLine~" + ProductLine + "|";
+			result = result + docNum  + "~contractTermInMonths~" + "12"+ "|";// Added by Prathyusha based on Story CCZC-7019
+		}
+
+	}
+		//Model - workforceconnect
+		/*if(each.modelName_l == "Professional Services" and each._part_number == "") {
+			psOfferings_s = getconfigattrvalue(each._document_number, "ZEB_Offerings");
+			print psOfferings_s;
+			print each._part_number;
+		}
+		if(each._parent_line_item == "Professional Services") {
+		//print each._part_number;
+			result = result + each._document_number + "~ZEB_pSOfferings~" + psOfferings_s + "|" ;
+		}*/
+		//Model - Professional Services
+		/*if(find(each._part_number, "Professional Services") <> -1 and each._parent_line_item <> "Professional Services") {
+				result = result + each._document_number + "~ZEB_pSOfferings~" + psOfferings + "|";
+		}*///VAGARWAl2
+		if((each._part_custom_field2 =="Y" or each._model_name == "Professional Services") AND fetchSolutionType == "") // dont want to run this code for Fetch 
+		{
+		if(RefTraining <> "Yes")
+		{
+		print "non training";
+		result = result + each._document_number + "~billingFrequency~" + "WK" + "|";//Canged MON to WK  By prathyusha 
+		//start of code by Supraja Gadey for CCZC-6617
+		//result = result + each._document_number + "~billingFrequency~" + "WK" + "|";
+		//end of code by Supraja Gadey for CCZC-6617
+		}
+		}
+		
+		
+/*	if (each.oRCL_ABO_ActionCode_l=="RENEW") {
+result = result + each._document_number + "~contractStartDate_l~" + datetostr(adddays(strtodate(each.contractEndDate_l,"%m/%d/%Y %H:%M:%S"),1), "%m/%d/%Y %H:%M:%S") + "|";
+result = result + each._document_number + "~contractEndDate_l~" + datetostr(addmonths(strtodate(each.contractEndDate_l,"%m/%d/%Y %H:%M:%S"),12), "%m/%d/%Y %H:%M:%S") + "|";
+
+}	
+	*/	
+	//oCCAccountId = getconfigattrvalue(each._document_number, "oCCAccountID");
+	
+	// Adding code for PTT pro
+	/*if(partnumber == "PTT Pro EMC Software"){
+		
+	}*/
+	//Abhishek: we added code for fetch billing frequency: story  : start
+	
+		
+	if(each._model_name == "Mobile Robotics"  AND each.oRCL_ABO_ActionCode_l <> "RENEW" AND each.oRCL_ABO_ActionCode_l<>"TERMINATE" AND find(rootAssetKeyLineItems,"RENEW") == -1)
+	{
+		oCCAccountId = getconfigattrvalue(each._document_number, "oCCAccountID");
+		result  = result + "|1~oRCL_INT_ExchangeRate_t~" + getconfigattrvalue(each._document_number, "currencyConversionFactor") + "|";
+		countryList = getconfigattrvalue(each._document_number, "country");
+		result = result + each._document_number + "~useincountriy_l~" + countryList + "|";
+		if(getconfigattrvalue(each._document_number, "oCCAccountID")  <> "")
+		{
+			result  = result + "|1~resellerID~" + getconfigattrvalue(each._document_number, "fetchAccountNumber") + "|"; 
+		}
+		partner_Flag = getconfigattrvalue(each._document_number, "partnerFlag");
+		result = result + "1~partnerFlag~" + partner_Flag + "|";
+		demoFlagValue = getconfigattrvalue(each._document_number, "demo_flow");
+		capexamount = getconfigattrvalue(each._document_number, "capexAmount");
+		result = result + "1~capexAmount_t~" + capexamount + "|";
+		fetchcoreAnnualRecurring = getconfigattrvalue(each._document_number, "fetchCoreAnnualReccuringRevenue");
+		result = result + "1~fetchCoreAnnualRecurringRevenue_t~" + fetchcoreAnnualRecurring + "|";
+		contractTypeVal = getconfigattrvalue(each._document_number, "purchasingModel");
+		result = result  + "1~contractType_t~" + contractTypeVal+ "|";
+		strSolBundleType = getconfigattrvalue(each._document_number, "solBundleType");
+		result = result  + "|1~fetchSolutionBundleType~" + strSolBundleType  + "|";
+		strUseCase = getconfigattrvalue(each._document_number, "useCase");
+		result = result  + "|1~fetchUseCase~" + strUseCase + "|";
+		strContractMonth = "";
+		intContractMonth = 0;
+		//if(contractTypeVal  == "Opex")
+		//{
+		result = result + "1~demoFlag~"+ demoFlagValue+ "|";
+			strContractMonth = getconfigattrvalue(each._document_number, "contractTerm");
+			result = result  + "|1~contractTermFetch_t~" + lower(strContractMonth) + "|";// Added by Sampath for Fetch Proposal Document user story.
+			if(strContractMonth == "36 Months")
+			{
+				intContractMonth = 36;
+			}
+			elif(strContractMonth == "1 Month")
+			{
+				intContractMonth = 1;
+			}
+			elif(strContractMonth == "2 Months")
+			{
+				intContractMonth = 2;
+			}
+			elif(strContractMonth == "3 Months")
+			{
+				intContractMonth = 3;
+			}
+			elif(strContractMonth == "48 Months")
+			{
+				intContractMonth = 48;
+			}
+			elif(strContractMonth == "24 Months")
+			{
+				intContractMonth = 24;
+			}
+			elif(strContractMonth == "12 Months"){
+			intContractMonth = 12;
+			}
+			else
+			{
+				intContractMonth = 60;
+			}
+		//}
+				
+		//print getconfigattrvalue(each._document_number,"partNumberBomSC");
+		//print getconfigattrvalue(each._document_number,"billingFrequencyBomSC");
+		//print getconfigattrvalue(each._document_number,"categoryBomSC");
+		
+		acctregion = getconfigattrvalue(each._document_number, "accountRegion");
+		
+		if(acctregion == "NA" OR acctregion == "LA")
+		{
+			accreg = "Zebra NALA";
+		}
+		elif(acctregion == "EMEA")
+		{
+			accreg = "Zebra EMEA";
+		}
+		else
+		{
+			accreg = "Zebra APAC USD";
+		}
+		if(oCCAccountId <>"")
+		{
+		if(region_t =="")
+		{
+		result = result  + "|1~region_t~" + accreg + "|";
+		}
+		result = result  + "|1~ZEB_terminationForConvenienceClause~No|";
+		result = result  + "|1~ZEB_BOC_t~YES|";
+		result = result  + "|1~ZEB_PSBillType_t~Milestone|";
+		result = result  + "|1~ZEB_rnwlCustAcptn_Req_t~REQUIRED|";
+		result = result  + "|1~ZEB_PoStartDate~" + datetostr(getdate(false),"MM/dd/yyyy HH:mm:ss") + "|";
+		result = result  + "|1~ZEB_POrcvd_dt_t~" + datetostr(getdate(false),"MM/dd/yyyy HH:mm:ss") + "|";
+			if(contractTypeVal  == "Opex")
+			{
+				poDate = minusdays(addmonths(getdate(false),intContractMonth),1);
+				strpoDate = datetostr(poDate,"MM/dd/yyyy HH:mm:ss");
+				result = result  + "|1~ZEB_PoEndDate~" + strpoDate + "|";
+			}
+			if(contractTypeVal  == "Capex")
+			{
+				poDate = minusdays(addmonths(getdate(false),12),1);
+				strpoDate = datetostr(poDate,"MM/dd/yyyy HH:mm:ss");
+				result = result  + "|1~ZEB_PoEndDate~" + strpoDate + "|";
+			}
+		}
+		Typesc = split(getconfigattrvalue(each._document_number,"typeBomSC"),"$,$");
+		
+		partNumberArray1 = split(getconfigattrvalue(each._document_number,"partNumberBomSC"),"$,$");
+		billingFrequencyArray1 = split(getconfigattrvalue(each._document_number,"billingFrequencyBomSC"),"$,$");
+		categoryArray1 = split(getconfigattrvalue(each._document_number,"categoryBomSC"),"$,$");
+		// Added below line for CCZC-6881 by Triveni Start
+		BillingSKUBomSC1 = split(getconfigattrvalue(each._document_number,"bOMBillingSku"),"$,$"); 
+		
+		partNumberArray = string[];
+		billingFrequencyArray = string[];
+		categoryArray = string[];
+		// Added below line for CCZC-6881 by Triveni Start
+		BillingSKUBomSC = string[];
+		
+		recordCount = 0;
+		for record in Typesc 
+		{
+			if(record == "ADD")
+			{
+				append(partNumberArray,partNumberArray1[recordCount]);
+				append(billingFrequencyArray,billingFrequencyArray1[recordCount]);
+				append(categoryArray,categoryArray1[recordCount]);
+				// Added below line for CCZC-6881 by Triveni 
+				append(BillingSKUBomSC,BillingSKUBomSC1[recordCount]); 
+			}
+			recordCount = recordCount + 1;
+		}
+		
+		//Start: Adding code by Sampath for CCZC-4049
+		unitOfMeasureArray=String[];
+		//dicountPriceArray=String[];
+		uomStr=getconfigattrvalue(each._document_number,"unitOfMeasureBomSC");
+		discountPriceStr=getconfigattrvalue(each._document_number,"discountedPriceBomSC");
+		
+		if(not(isnull(uomStr)) AND uomStr<>"")
+		{
+			unitOfMeasureArray = split(getconfigattrvalue(each._document_number,"unitOfMeasureBomSC"),"$,$");
+		}
+		/*if(not(isnull(discountPriceStr)) AND discountPriceStr<>"")
+		{
+			dicountPriceArray = split(getconfigattrvalue(each._document_number,"discountedPriceBomSC"),"$,$");
+		}*/
+		//End: Adding code by Sampath for CCZC-4049
+		//Start of the code for CCZC 4785 by Triveni
+			strPnumber = getconfigattrvalue(each._document_number, "partNumberShoppingCart");
+			PnumberArray =string[];
+			RequiredArray =string[];
+			BundleNamearray=string[];
+			TypeArray=string[];
+			if(not(isnull(strPnumber )) AND strPnumber <>"")
+			{
+				PnumberArray = split(getconfigattrvalue(each._document_number,"partNumberShoppingCart"),"$,$");
+				RequiredArray = split(getconfigattrvalue(each._document_number,"requiredSCart"),"$,$");
+				BundleNamearray=split(getconfigattrvalue(each._document_number,"bundleName"),"$,$");
+				TypeArray=split(getconfigattrvalue(each._document_number,"typeScart"),"$,$");
+			}
+			productCount =range(sizeofarray(PnumberArray));
+			partNumberCount=range(sizeofarray(partNumberArray));//updated for bug-billingFrequency in Fetch
+			strPartNumber = string[];
+			for i in productCount
+			{
+				if(RequiredArray[i] == "false" and BundleNamearray[i] <> "Software" and BundleNamearray[i] <> "Accessories" and BundleNamearray[i] <> "Parts" and TypeArray[i] == "Hardware")
+				{
+				
+				append(strPartNumber,PnumberArray[i]);
+				}
+			}
+		//End of the code for CCZC 4785 by Triveni
+		
+		
+		for line in transactionLine
+		{
+			
+			if(line._part_number <> "")
+			{
+				
+				nCount = findinarray(partNumberArray,line._part_number);
+				result = result + line._document_number + "~useincountriy_l~" + countryList + "|";
+				if(line._part_number ==  "Accessories" OR line._part_number == "Parts" OR line._part_number == "FETCH-PS")
+				{
+					result = result + line._document_number + "~renewalType_l~DO_NOT_RENEW|";
+				}
+				elif(line._parent_line_item == "Mobile Robotics")
+				{
+					result = result + line._document_number + "~renewalType_l~RENEW|";
+				
+				}
+				//Start of the code for CCZC 4785 by Triveni
+				result = result + line._document_number + "~addOnAccessory_l~" + "N" + "|";
+				//End of the code for CCZC 4785 by Triveni
+				if(nCount <> -1)
+				{
+					//Start of the code for CCZC 4785 by Triveni
+					if(line._parent_line_item == "Accessories" OR line._parent_line_item == "Parts")
+					{
+						result = result + line._document_number + "~addOnAccessory_l~" + "Y" + "|";
+					}elif(line._parent_line_item <> "Software")
+					{
+						pCount = findinarray(strPartNumber,line._part_number);
+						if (pcount<>-1)
+						{
+						result = result + line._document_number + "~addOnAccessory_l~" + "Y" + "|";
+						}
+					}
+					else
+					{
+						result = result + line._document_number + "~addOnAccessory_l~" + "N" + "|";
+					}
+					
+					//End of the code for CCZC 4785 by Triveni
+					//result = result + line._document_number + "~billingFrequency~" + billingFrequencyArray[nCount] + "|";	
+					if((line._parent_line_item == "Accessories" OR line._parent_line_item == "Parts") AND line._part_number <> "900-00194" and line._part_number <> "900-00179")
+					{
+						result = result + line._document_number + "~billingFrequency~" + "5YR" + "|";
+					}
+					elif(line._part_number == "900-00179" or (line._part_number == "900-00180" and line._parent_line_item == "FETCH-PS")){
+					result = result + line._document_number + "~billingFrequency~" + "MON" + "|";
+					}
+					//Commented below condition for CCZC 3780 by Prathyusha
+					/*elif(line._part_number == "900-00179"){
+						result = result + line._document_number + "~billingFrequency~" + "5YR" + "|";
+					}*/
+					
+					else
+					{
+						// Added below condition for CCZC-6881 by Triveni Start
+						for i in partNumberCount
+						{
+						print partNumberArray[i];
+						print BillingSKUBomSC[i];
+						print  line._parent_line_item;
+							if (BillingSKUBomSC[i] <> "900-SOFTWARE" AND BillingSKUBomSC[i] <> "900-ACCESSORIES" AND line._part_number == partNumberArray[i] )//updated by Santhoshi for bug-billingFrequency in Fetch
+							{
+							// Added below condition for CCZC-6881 by Triveni End
+							result = result+line._document_number + "~billingFrequency~" + billingFrequencyArray[i] + "|";
+							}
+						        /*elif( line._parent_line_item == "Software" AND line._part_number == "900-00178-QTR" AND line._part_number == partNumberArray[i])//Added by Prathyusha in sprint55
+							{
+							result = result+line._document_number + "~billingFrequency~" + billingFrequencyArray[i] + "|";
+							}*/
+							if(line._parent_line_item == "Software" AND BillingSKUBomSC[i] == "900-SOFTWARE" AND line._part_number == partNumberArray[i])//Added for bug 
+							{
+							result = result+line._document_number + "~billingFrequency~" + billingFrequencyArray[i] + "|";
+							}
+							
+						}
+						
+					} 
+					
+					//Start: Adding code by Sampath for CCZC-4049
+					if(sizeofarray(unitOfMeasureArray)>0 AND unitOfMeasureArray[nCount]<>"" AND not(isnull(unitOfMeasureArray[nCount])))
+					{
+						result = result + line._document_number + "~unitOfMeasureFetch_l~" + unitOfMeasureArray[nCount] + "|";
+					}
+					else
+					{
+						result = result + line._document_number + "~unitOfMeasureFetch_l~|";
+					}		
+					/*if(sizeofarray(dicountPriceArray)>0 AND atof(dicountPriceArray[nCount])>=0.0 AND not(isnull(dicountPriceArray[nCount])))
+					{
+						result = result + line._document_number + "~discountedPriceFetch_l~" + dicountPriceArray[nCount] + "|";
+					}
+					else
+					{
+						result = result + line._document_number + "~discountedPriceFetch_l~0.0|";
+					}*/										
+					//End: Adding code by Sampath for CCZC-4049
+					
+					strCategory = categoryArray[nCount];
+					if(strCategory  == "MandatoryHardware")
+					{
+						strCategory  = "Hardware";
+					}
+					elif(strCategory  == "WARR")
+					{
+						strCategory  = "Software";
+					}elif(strCategory  =="Software" AND line._part_number == "900-00180"){
+						strCategory  = "Service";
+					}
+					result = result + line._document_number + "~category_l~" + strCategory  + "|";
+					//Added by Shalini for Renewal Type field update Start
+					if(billingFrequencyArray[nCount]=="5YR" AND (contractTypeVal=="Capex" OR contractTypeVal=="Opex")){
+						result = result + line._document_number + "~renewalType_l~DO_NOT_RENEW|";
+					}elif((strCategory == "Hardware" OR strCategory == "MandatoryHardware") AND demoFlagValue=="false"){
+						result = result + line._document_number + "~renewalType_l~DO_NOT_RENEW|";
+					}elif(demoFlagValue=="true" and contractTypeVal=="Opex"){
+						result = result + line._document_number + "~renewalType_l~RENEW|";
+					// Added parentsku = 900-ACCESSORIES condition in below line for jira story CCZC-6846 by Triveni
+					}elif((line.parentSKU_l=="Accessories" OR line.parentSKU_l=="900-ACCESSORIES") OR line._part_number == "900-00179" ){
+						result = result + line._document_number + "~renewalType_l~DO_NOT_RENEW|";
+					}elif(line._part_number == "ZR-P-F100-X-PARTONB"){
+						result = result + line._document_number + "~renewalType_l~RENEW|";
+					}				
+					//Added by Shalini for Renewal Type field update End
+					//Condition Added by Prathyusha based on JIRA 6736/Updated by Santhoshi for CZ6736
+					if(contractTypeVal == "Capex" AND (categoryArray[nCount]  == "Robot" OR strCategory == "Hardware") AND findinarray(blankProductTypeForPartsArry,line._part_number) == -1){// AND line._part_number <> "F100-SHELF-V2-USL" ){
+						result = result + line._document_number + "~fetchProductType_l~HRD|";
+					}elif(strCategory == "Hardware"){					
+						result = result + line._document_number + "~fetchProductType_l~HRD|";
+					}elif(categoryArray[nCount]  == "Software" and line._part_number <> "900-00194" and line._part_number <> "900-00180"){
+						result = result + line._document_number + "~fetchProductType_l~SFT|";
+					}elif(categoryArray[nCount]  == "Software" and line._part_number == "900-00194"){
+						result = result + line._document_number + "~fetchProductType_l~EXWARR|";
+					}elif(categoryArray[nCount]  == "WARR" OR line._part_number == "ZR-P-F100-X-PARTONB"){
+						result = result + line._document_number + "~fetchProductType_l~WARR|";
+					}elif(line._part_number == "900-00194"){
+						result = result + line._document_number + "~fetchProductType_l~EXWARR|";
+					}
+					else{
+						result = result + line._document_number + "~fetchProductType_l~|";
+					}					
+					if(contractTypeVal == "Capex" )//AND optyCategoryFlag_t <> "Existing Customer - Renewal")
+					{
+						// Added below if condition for story CCCZ - 6622
+						dDate = getdate();
+						if(line._part_number == "900-00178-QTR"){
+						dDate = minusdays(addmonths(getdate(false),3),1);
+	
+						}
+						else{
+						dDate = minusdays(addmonths(getdate(false),12),1);
+						
+						}
+						strDate = datetostr(dDate,"MM/dd/yyyy HH:mm:ss");
+						//03-May-24 VAGARWAL2 added if condition for CCZC-6844
+						if(line.oRCL_ABO_ActionCode_l<>"NO_UPDATE"){
+						result = result + line._document_number + "~contractEndDate_l~" + strDate  + "|";
+						}
+						result = result + "|" + line._document_number + "~contactTerm_l~12 Months|"+ line._document_number + "~contractTermInMonths~12|";
+						result = result + "|" + "2~contractTermInMonths~12|" + "3~contractTermInMonths~12|" ; 
+						result = result + "|" +  "2~contactTerm_l~12 Months|" + "3~contactTerm_l~12 Months|" ; 
+					}
+					/*elif(contractTypeVal == "Capex" AND optyCategoryFlag_t == "Existing Customer - Renewal")
+					{
+						dDate = minusdays(addmonths(getdate(false),intContractMonth),1);
+						strDate = datetostr(dDate,"MM/dd/yyyy HH:mm:ss");
+						result = result + line._document_number + "~contractEndDate_l~" + strDate  + "|";
+						result = result + "|" + line._document_number + "~contactTerm_l~"+ strContractMonth + "|" + line._document_number + "~contractTermInMonths~"+ string(intContractMonth) + "|";
+						result = result + "|" + "2~contractTermInMonths~" + string(intContractMonth) + "|" + "3~contractTermInMonths~" + string(intContractMonth) + "|"; 
+						result = result + "|" + "2~contactTerm_l~" + strContractMonth  + "|" + "3~contactTerm_l~" + strContractMonth  + "|"; 
+					}*/
+					elif(contractTypeVal == "Opex")
+					{
+						/*if(categoryArray[nCount]  == "Hardware")
+						{
+							dDate = minusdays(addmonths(getdate(false),12),1);
+							strDate = datetostr(dDate,"MM/dd/yyyy HH:mm:ss");
+							result = result + line._document_number + "~contractEndDate_l~" + strDate  + "|";
+						}
+						else
+						{*/
+						
+							// Added below if condition for story CCCZ - 6622
+							dDate = getdate();
+							if(line._part_number == "900-00178-QTR")
+							{
+							dDate = minusdays(addmonths(getdate(false),3),1);
+							}
+							else
+							{
+							dDate = minusdays(addmonths(strtojavadate(line.contractStartDate_l,"yyyy-MM-dd HH:mm:ss"),intContractMonth),1);
+							}
+							strDate = datetostr(dDate,"MM/dd/yyyy HH:mm:ss");
+							print strDate;
+							//03-May-24 VAGARWAL2 added if condition for CCZC-6844
+							if(line.oRCL_ABO_ActionCode_l<>"NO_UPDATE"){
+							result = result + line._document_number + "~contractEndDate_l~" + strDate  + "|";
+							}
+						//}
+						result = result + "|" + line._document_number + "~contactTerm_l~"+ strContractMonth + "|" +  line._document_number + "~contractTermInMonths~"+ string(intContractMonth) + "|"; 
+						result = result + "|" +  "2~contractTermInMonths~" + string(intContractMonth) + "|" + "3~contractTermInMonths~" + string(intContractMonth) + "|"; 
+						result = result + "|" + "2~contactTerm_l~" + strContractMonth  + "|" + "3~contactTerm_l~" + strContractMonth  + "|";
+					}
+					
+				}
+			}
+		}
+		
+	}
+	elif(each._model_name == "Mobile Robotics" AND ( each.oRCL_ABO_ActionCode_l == "RENEW" OR each.oRCL_ABO_ActionCode_l == "TERMINATE"))
+	{
+		/*if(find(each.robotTransactionType_l,"Opex") <> -1)
+		{
+			result = result + "1~contractType_t~Opex|";
+		}
+		else
+		{
+			result = result + "1~contractType_t~Capex|";
+		}*/
+		result = result + "1~contractType_t~"+each.fetchContractType+"|";
+	}
+	//Abhishek: we added code for fetch billing frequency: story  : End
+
+}
+
+/*if(DDFlag == true){
+   result = result + "1~countryEligibilityReviewCompleted~" + string(true)  + "|";
+}*/
+
+if((oCCAccountId <> "" or customerCompanyName_t == "null") OR customerCompanyName_t=="") {
+	result = result  + "1~customerCompanyName_t~" + oCCAccountId + "|";
+}
+
+if(endDate <>"")
+{
+result = result + "1~subscriptionEndDate_t~" + endDate  + "|";
+//result = result + "1~pCExpirationDate_t~" + endDate  + "|";
+}
+return result;

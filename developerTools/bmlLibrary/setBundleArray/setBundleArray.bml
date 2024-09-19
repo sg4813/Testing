@@ -1,0 +1,367 @@
+/*Changes
+
+==============================================================================================================
+Name 	    			Date	    Description 				JIRA/Incident
+==============================================================================================================
+SK4788(santhoshi)	    23-02-2024      Line 60 commented to fetch 			CCZC-6736
+			    		   the bundle header dynamically 
+
+----------------------------------------------------------------------------------------------------------------
+*/
+
+
+
+print "Set Bundle Array -- Entry";
+resultJson="";
+task = get(inputParamsDict,"Task","string");
+resultBundlesJson = json();
+strBundleHeader = "Bundle";
+//Required Paramaters
+oppty_type = get(inputParamsDict,"oppty_type","string");
+purchase_model = get(inputParamsDict,"purchase_model","string");
+solBundle = get(inputParamsDict,"solBundle","string");
+
+demoFlow = false;
+if( solBundle == "Demo" ){
+	demoFlow = true;
+}
+
+strReConfig = get(inputParamsDict,"ReConfig","string");
+strCountry = get(inputParamsDict,"Country","string");
+strCountryRegion = get(inputParamsDict,"CountryRegion","string");
+bundleName= "";
+BundlesDict=dict("string");
+resultSet = recordset();
+BundleCount = 1;
+bundleArray = string[];
+bExistingCustomer = get(inputParamsDict,"ExistingCustomer","boolean");
+arrayProduct = string[]{"900-00180"};
+
+ 
+if(strReConfig == "N")
+{
+	print "came inside this reconfig N block";
+	print "purchase_model";
+	print "["+purchase_model+"]";
+	print "solBundle";
+	print "["+solBundle+"]";
+	print "oppty_type";
+	print "["+oppty_type+"]";
+
+	resultSet1 = bmql("select * from Relavent_Bundles where Purchasing_Type=$purchase_model AND Bundle_Type=$solBundle AND Oppty_Type=$oppty_type AND Status = 'Active'");
+	print "resultSet1 from the query";
+	print resultSet1;
+	for each in resultSet1
+	{
+		print "came inside this resultSet1 loop";
+		//print "each";
+		//print each;
+		bundleHeader = get(each,"Bundle_Header");//uncommented for fetch restructuring POC CCZC-6736
+		//bundleHeader = strBundleHeader + string(BundleCount);//commented for Fetch restructuring POC CCZC-6736
+		if( demoFlow ){
+			bundleHeader = get(each,"Bundle_Header");
+		}
+		bundleName=get(each,"Bundle");
+		put(BundlesDict,bundleName,bundleHeader);
+		append(bundleArray,bundleName);
+		BundleCount = BundleCount + 1;
+	}
+	//print "bundleArray inside";
+	//print bundleArray;
+}
+else
+{
+	print "came inside this else condition -- testing";
+	quoteDateTemp = get(inputParamsDict,"QuoteCreate","string");
+	if( ISNULL(quoteDateTemp) OR (quoteDateTemp == "") ){
+		quoteDateTemp = getstrdate();
+	}
+	print "quoteDateTemp"; print quoteDateTemp;
+	quoteDate = strtojavadate(quoteDateTemp, "MM/dd/yyyy HH:mm:ss","America/New_York");
+	resultSet = bmql("select * from Relavent_Bundles where Purchasing_Type=$purchase_model AND Bundle_Type=$solBundle AND Oppty_Type=$oppty_type");
+	print resultSet;
+	for each in resultSet
+	{
+		if((get(each,"Reconfigure") == "" OR len(get(each,"Reconfigure")) == 0) AND get(each,"Status") == "Active")
+		{
+			bundleHeader=get(each,"Bundle_Header");//uncommented for fetch restructuring POC
+			//bundleHeader = strBundleHeader + string(BundleCount);//commented for fetch restructuring POC
+			if( demoFlow ){
+				bundleHeader = get(each,"Bundle_Header");
+			}
+			bundleName=get(each,"Bundle");
+			put(BundlesDict,bundleName,bundleHeader);
+			BundleCount = BundleCount + 1;
+			append(bundleArray,bundleName);
+		}
+		elif((get(each,"Reconfigure") <> "" OR len(get(each,"Reconfigure")) > 0) AND get(each,"Status") == "Inactive")
+		{
+			strDate = strtojavadate(get(each,"Reconfigure"),"MM/dd/yyyy HH:mm:ss","America/New_York");
+			
+			if(comparedates(quoteDate,strDate) <> 1)
+			{
+				bundleHeader=get(each,"Bundle_Header");//uncommented for fetch restructuring POC
+				//bundleHeader = strBundleHeader + string(BundleCount);//commented for fetch restructuring POC
+				if( demoFlow ){
+					bundleHeader = get(each,"Bundle_Header");
+				}
+				bundleName=get(each,"Bundle");
+				put(BundlesDict,bundleName,bundleHeader);
+				BundleCount = BundleCount + 1;
+				append(bundleArray,bundleName);
+			}
+		}
+	}
+}
+//print "BundlesDict==="; print BundlesDict;
+print "bundleArray outside";
+print bundleArray;
+BundlesDictKeysArray = keys(BundlesDict);
+for eachKey in bundleArray
+{
+	skuArray=String[];
+	ProductCodeArray=String[];
+	requiredArray=String[];
+	quantityArray=String[];
+	priceArray = String[];
+	categoryArray = String[];
+	isQuantityEditatbleArray = String[];
+	showProductArray = string[];
+	currentBundleResultJson=json();
+	currentBundle = eachKey;	
+	resultSet  = recordset();
+	if(bExistingCustomer)
+	{	
+		resultSet = bmql("SELECT * FROM BundleSKU_Relation WHERE Bundle = $currentBundle AND Show_Product = 'Y'  AND (Active ='Y' OR Active = 'y' OR Active IS NULL) ORDER BY Part_SEQ");
+	}
+	else
+	{
+		resultSet = bmql("SELECT * FROM BundleSKU_Relation WHERE Bundle = $currentBundle AND Show_Product = 'Y'  AND (Active ='Y' OR Active = 'y' OR Active IS NULL) AND ProductCode NOT IN $arrayProduct ORDER BY Part_SEQ");
+	}
+	print "resultSet from BundleSKU_Relation";
+	print resultSet;
+	//in case of opex
+	requiredChargedoc = string[];
+	if(purchase_model == "Opex" OR demoFlow)
+	{
+		print "came inside this Opex special block";
+		for each in resultSet 
+		{
+			if(get(each,"Region") <> "")
+			{
+				arrayRegion = split(get(each,"Region"),"|");
+				arrayExcludeCountry = string[];
+				tempSku = currentBundle + "-" +  get(each,"ProductCode");
+				if(get(each,"ExcludeCountry") <> "")
+				{
+					arrayExcludeCountry = split(get(each,"ExcludeCountry"),"|");
+				}
+				if(findinarray(arrayRegion,strCountry) <> -1)
+				{
+					
+					append(requiredChargedoc,tempSku );
+				}
+				elif(findinarray(arrayRegion,strCountryRegion) <> -1 AND findinarray(arrayExcludeCountry,strCountry) == -1 )
+				{
+					append(requiredChargedoc,tempSku);
+				}
+			}
+		}
+	}//end of opex rules
+	print "end of Opex rules";
+	print "requiredChargedoc";
+	print requiredChargedoc;
+	for each in resultSet
+	{
+		SKU = get(each,"SKU");
+		productCode = get(each,"ProductCode");
+		tempSku = currentBundle + "-" +  productCode ;
+		if(findinarray(requiredChargedoc,tempSku) == -1)
+		{
+			
+			
+			required = get(each,"Mandatory");
+			showProduct=get(each,"Show_Product");
+			
+			if(get(each,"Region") <> "")
+			{
+				arrayRegion = split(get(each,"Region"),"|");
+				arrayExcludeCountry = string[];
+				if(get(each,"ExcludeCountry") <> "")
+				{
+					arrayExcludeCountry = split(get(each,"ExcludeCountry"),"|");
+				}
+				if(findinarray(arrayRegion,strCountry) <> -1)
+				{	
+					required = "Y" ;
+					if(purchase_model == "Opex" OR demoFlow)
+					{
+						showProduct = "N";
+					}
+				}
+				elif(findinarray(arrayRegion,strCountryRegion) <> -1 AND findinarray(arrayExcludeCountry,strCountry) == -1 )
+				{
+					required = "Y" ;
+					if(purchase_model == "Opex" OR demoFlow)
+					{
+						showProduct = "N";
+					}
+				}
+				else
+				{
+					required = "N" ;
+				}
+			}
+			
+			
+			quantity=get(each,"Multiplier");
+			category=get(each,"Category");
+			isQuantityEditatble=get(each,"Qty_Editable");
+			
+					
+			//Description
+			if(not(isnull(SKU)) AND SKU<>"")
+			{
+				append(skuArray,SKU);
+			}
+			else
+			{
+				append(skuArray,"");
+			}
+			
+			//Part Number
+			if(not(isnull(productCode)) AND productCode<>"")
+			{
+				append(ProductCodeArray,productCode);
+			}
+			else
+			{
+				append(ProductCodeArray,"");
+			}
+			
+			//Required
+			if(not(isnull(required)) AND required<>"" AND (upper(required)=="YES" OR upper(required)=="Y"))
+			{
+				append(requiredArray,required);
+			}
+			else
+			{
+				append(requiredArray,"N");
+			}
+			
+			//Quantity
+			if(not(isnull(quantity)) AND quantity<>"" AND isnumber(quantity)  AND quantity<> "0")
+			{
+				append(quantityArray,quantity);
+			}
+			else
+			{
+				append(quantityArray,"0");
+			}
+			
+			//Category
+			if(not(isnull(category)) AND category<>"")
+			{
+				append(categoryArray,category);
+			}
+			else
+			{
+				append(categoryArray,"");
+			}
+			
+			//isQuantityEditatble
+			if(not(isnull(isQuantityEditatble)) AND isQuantityEditatble<>"" AND (upper(isQuantityEditatble)=="YES" OR upper(isQuantityEditatble)=="Y"))
+			{
+				append(isQuantityEditatbleArray,isQuantityEditatble);
+			}
+			else
+			{
+				append(isQuantityEditatbleArray,"N");
+			}
+			
+			//Show Product
+			if(not(isnull(showProduct)) AND showProduct<>"" AND (upper(showProduct)=="YES" OR upper(showProduct)=="Y"))
+			{
+				append(showProductArray,showProduct);
+			}
+			else
+			{
+				append(showProductArray,"N");
+			}
+			
+			//Finding List Price
+			/*skuResultSet = bmql("SELECT * from Bundle_Listprice where Bundled_SKU=$SKU and Bundle=$currentBundle");
+			
+			flag = true;
+			for eachRow in skuResultSet
+			{
+				Listprice = get(eachRow,"List_price");
+				if(not(isnull(Listprice)) and Listprice<>"")
+				{
+					append(priceArray,Listprice);
+				}
+				else
+				{
+					append(priceArray,"0.0");
+				}	
+				flag = false;	
+			}
+			if(flag ){
+				append(priceArray,"0.0");		
+			}*/
+		}//end of requiredchargedoc
+	}//end of for loop
+	//added code for 6309 - start
+	if(currentBundle == "RollerTop" OR currentBundle == "RollerTop - RaaS"){
+		if (strCountry <> "JP" AND (strCountryRegion == "EMEA" OR strCountryRegion == "APAC")){
+			append(skuArray,"SICK TDC GATEWAY KIT");
+			append(ProductCodeArray,"900-00208");
+			append(requiredArray,"N");
+			append(quantityArray,"1");
+			append(categoryArray,"Hardware");
+			append(isQuantityEditatbleArray,"Y");
+			append(showProductArray,"Y");
+		}
+		if (strCountry == "JP" OR (strCountryRegion == "NA" OR strCountryRegion == "LATAM")){
+			append(skuArray,"SICK TDC GATEWAY KIT, FETCH CONFIGURED, WITH MOUNTING RAIL AND CABLE");
+			append(ProductCodeArray,"900-00172");
+			append(requiredArray,"N");
+			append(quantityArray,"1");
+			append(categoryArray,"Hardware");
+			append(isQuantityEditatbleArray,"Y");
+			append(showProductArray,"Y");
+		}
+	
+	}
+	//added code for 6309 - end
+	print "end of for loop";
+		//Converting arrays to string with delimter $$
+		descStr=join(skuArray,"$$");
+		partNumStr=join(ProductCodeArray,"$$");
+		requiredStr=join(requiredArray,"$$");
+		quantityStr=join(quantityArray,"$$");
+		//priceStr=join(priceArray,"$$");
+		categoryStr=join(categoryArray,"$$");
+		isQuantityEditatbleStr=join(isQuantityEditatbleArray,"$$");
+		showProductStr=join(showProductArray,"$$");		
+				
+		//Adding Current Bundle Array Details String to currentBundleResultJson
+		jsonput(currentBundleResultJson,"Array_Size",string(sizeofarray(skuArray)));
+		jsonput(currentBundleResultJson,"DescArrayStr",descStr);
+		jsonput(currentBundleResultJson,"PartNumArrayStr",partNumStr);
+		jsonput(currentBundleResultJson,"RequiredArrayStr",requiredStr);
+		jsonput(currentBundleResultJson,"QuantityArrayStr",quantityStr);
+		//jsonput(currentBundleResultJson,"PriceArrayStr",priceStr);
+		jsonput(currentBundleResultJson,"BundleName",currentBundle);
+		jsonput(currentBundleResultJson,"Category",categoryStr);
+		jsonput(currentBundleResultJson,"isQuantityEditatbleStr",isQuantityEditatbleStr);
+		jsonput(currentBundleResultJson,"showProductStr",showProductStr);
+		
+		jsonput(resultBundlesJson,get(BundlesDict, currentBundle),currentBundleResultJson);
+		print get(BundlesDict, currentBundle);
+	}
+jsonput(resultBundlesJson,"Bundle Count",sizeofarray(bundleArray));
+resultJson=jsontostr(resultBundlesJson);
+
+print "Set Bundle Array -- Exit";
+return resultJson;

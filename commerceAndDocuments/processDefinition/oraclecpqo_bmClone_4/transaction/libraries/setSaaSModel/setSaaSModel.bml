@@ -1,0 +1,48 @@
+retVal="";
+modelname="";
+for line in transactionLine {
+	if (line._parent_doc_number =="" and line._model_name <> ""){
+	modelname =line._model_name;
+	}
+	elif(line._parent_doc_number <> ""){
+		for each in transactionLine {
+			if (line._parent_doc_number == each._document_number){
+			modelname = each.modelName_l;
+			break;
+			}
+		}
+	}
+if(line._part_custom_field2=="Y"){
+setattributevalue(line._document_number, "modelName_l", modelname+" PS");
+}
+else {
+setattributevalue(line._document_number, "modelName_l", modelname );
+}
+print "part number :" + line._part_number;
+print "modelname ;" + line.modelName_l;
+}
+
+return retVal;
+
+/*retVal="";
+modelname="";
+grandparLine = "";
+
+for line in transactionLine {
+if ( line._model_name <> "") {
+modelname =line._model_name;
+grandparLine =line._document_number;
+}
+print modelname ;//2 previous 
+print line._document_number;
+if(line._part_custom_field2=="Y"){
+setattributevalue(line._document_number, "modelName_l", modelname+" PS");
+}
+else {
+setattributevalue(line._document_number, "modelName_l", modelname );
+}
+}
+
+return retVal;*/
+//for line1 in transactionLine {
+//		if ( line1._parent_doc_number ==grandparLine){

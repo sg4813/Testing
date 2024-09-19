@@ -1,0 +1,62 @@
+instance="";
+ret = "";
+if(_company_name=="devzebra")
+{
+	instance="devzebra.bigmachines.com";
+}
+elif(_company_name=="testzebra")
+{
+	instance="test-cpq.zebra.com";
+}
+elif(_company_name=="stagezebra")
+{
+	instance="stagezebra.bigmachines.com";
+}
+elif(_company_name=="zebra")
+{
+	instance="cpq.zebra.com";
+}
+
+//print instance;
+headers = dict("string");
+put(headers, "Content-Type", "application/json");
+strUrl1 = "https://"+instance+ "/rest/v12/companies/_host/users/" + Approvername;
+//print "strUrl1 ";
+//print strUrl1 ;
+response = urldata(strUrl1,"Get",headers);
+//print response;
+/*response1=string[];
+val="";
+for each in response1
+{
+val= get (response ,"login");
+print "val";
+print val;
+}*/
+
+
+messageBody = get(response ,"Message-Body");//contains response for API Call
+ 
+messageBodyJson= json(messageBody);
+
+firstName = jsonget(messageBodyJson,"firstName"); 
+lastName = jsonget(messageBodyJson,"lastName");
+
+print firstName; print lastName;
+//print messageBodyJson;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+return "";

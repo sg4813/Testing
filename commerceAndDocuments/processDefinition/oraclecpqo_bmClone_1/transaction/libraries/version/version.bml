@@ -1,0 +1,5 @@
+if(version_number_versionTransaction_t <> "") {
+	return atoi(version_number_versionTransaction_t);
+	} else {
+	return 1;
+}

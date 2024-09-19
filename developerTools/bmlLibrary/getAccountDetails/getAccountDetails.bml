@@ -1,0 +1,115 @@
+ret = dict("string");
+strAccountType = "";
+strDirectMembership = "";
+sbDirectMembership = stringbuilder();
+dCurrentDate = getdate();
+strIndirectMembership = "";
+sbIndirectMembership = stringbuilder();
+bEndUser = true;
+nIndirectCount = 0;
+nDirectCount = 0;
+strCustomerGrp = "";
+bRecord = true;
+rs = bmql("Select ACCOUNTNAME, ORGANIZATION, PRICELISTNAME,FIN_CUSTOMERSTATUS,ACCOUNTTYPE,PRIMARYTERRITORY,CUSTOMERGROUP From Account where ACCOUNTNUMBER = $AccountID AND ORGANIZATION IS NOT NULL AND PRICELISTNAME IS NOT NULL AND ACCOUNTTYPE IS NOT NULL");
+
+for each in rs
+{
+	put(ret, "Account Name", get(each,"ACCOUNTNAME"));
+	put(ret, "Organization", get(each,"ORGANIZATION"));
+	put(ret, "Price List", get(each,"PRICELISTNAME"));
+	put(ret, "Financial Customer Status", get(each,"FIN_CUSTOMERSTATUS"));
+	put(ret, "Account Type", get(each,"ACCOUNTTYPE"));
+	strAccountType = get(each,"ACCOUNTTYPE");
+	put(ret,"Territory",get(each,"PRIMARYTERRITORY"));
+	put(ret,"Customer Group", get(each,"CUSTOMERGROUP"));
+	put(ret,"Account Number",AccountID);
+	bRecord = false;
+}
+if(bRecord)
+{
+	put(ret,"No Account","Yes");
+}
+//if condition added by Prathyusha based on JIRA CCZC-6758
+if(strAccountType == "Partner"){
+print "if";
+rs = bmql("Select Memberships,PurchaseMethod,ExpirationDate,ActivationDate from Account_Memberships where AccountNumber = $AccountID");
+
+for each in rs
+{
+	
+	bEndUser = false;
+	dStartDate = strtojavadate(get(each,"ActivationDate"), "MM/dd/yyyy HH:mm:ss","America/New_York");
+	dEndDate = getdate();
+	strEndDate = get(each,"ExpirationDate");
+	if(strEndDate <> "")
+	{
+		dEndDate = strtojavadate(strEndDate, "MM/dd/yyyy HH:mm:ss","America/New_York");
+	}
+	if(comparedates(dCurrentDate,dStartDate ) <> -1 AND (strEndDate == "" OR comparedates(dEndDate,dCurrentDate ) <> -1))
+	{
+	
+		if(get(each,"PurchaseMethod") == "Indirect")
+		{
+			nIndirectCount = nIndirectCount + 1;
+		//strIndirectMembership = strIndirectMembership + "|^|"+ get(each,"Memberships");
+			sbappend(sbIndirectMembership,"|^|", get(each,"Memberships"));
+		}
+		else
+		{
+			nDirectCount = nDirectCount + 1;
+		//strDirectMembership = strDirectMembership + "|^|"+ get(each,"Memberships");
+			sbappend(sbDirectMembership,"|^|", get(each,"Memberships"));
+		}
+	}
+}
+}
+
+if(nIndirectCount > 0 AND nDirectCount ==  0)
+{
+	put(ret, "Purchasing Method", "Indirect");
+	strIndirectMembership = sbtostring(sbIndirectMembership);
+	strIndirectMembership = substring(strIndirectMembership,3,len(strIndirectMembership));
+}
+elif(nIndirectCount == 0 AND nDirectCount >  0)
+{
+	put(ret, "Purchasing Method", "Direct");
+	strDirectMembership = sbtostring(sbDirectMembership);
+	strDirectMembership = substring(strDirectMembership,3,len(strDirectMembership));
+}
+elif(bEndUser)
+{
+	if(strAccountType == "Internal")
+	{
+		put(ret, "Purchasing Method", "Internal User");
+	}
+	else
+	{
+		put(ret, "Purchasing Method", "End User");
+	}
+}
+else
+{
+	put(ret,"Purchasing Method","Both");
+	
+	strIndirectMembership = sbtostring(sbIndirectMembership);
+	strIndirectMembership = substring(strIndirectMembership,3,len(strIndirectMembership));
+	
+	strDirectMembership = sbtostring(sbDirectMembership);
+	strDirectMembership = substring(strDirectMembership,3,len(strDirectMembership));
+}
+
+/*if(startswith(strDirectMembership, "|^|") AND len(strDirectMembership) > 0)
+{
+	strDirectMembership = substring(strDirectMembership,3,len(strDirectMembership));
+}
+
+if(startswith(strIndirectMembership, "|^|") AND len(strIndirectMembership) > 0)
+{
+	strIndirectMembership = substring(strIndirectMembership,3,len(strIndirectMembership));
+}
+*/
+put(ret,"Direct Membership", strDirectMembership);
+put(ret,"Indirect Membership",strIndirectMembership);
+put(ret,"No Account","No");
+
+return ret;

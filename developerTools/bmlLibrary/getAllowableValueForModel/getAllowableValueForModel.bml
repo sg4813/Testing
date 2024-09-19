@@ -1,0 +1,99 @@
+strFunction = get(Inputs,"Function");
+tempJson = json(get(Inputs,"Input"));
+setJson = jsonarray(jsonget(tempJson,"ConfigJson"));
+print setJson;
+arraySize = range(jsonarraysize(setJson));
+ColumnSequence = jsonget(tempJson,"columnSequence");
+print "***";
+print ColumnSequence ;
+jsonPrecedent = json(jsonget(tempJson,"PrecedentValue"));
+print "***";
+print jsonPrecedent ;
+AttibuteName = get(Inputs,"AttributeName");
+retArray = string[];
+ret = "";
+
+arrayColumnSequence = split(ColumnSequence,"$,$");
+arrayColumn = string[];
+for each in arrayColumnSequence 
+{
+	if(each == AttibuteName OR each == "")
+	{
+		break;
+	}
+	else
+	{
+		append(arrayColumn,each);
+		jsonput(jsonPrecedent,each,get(Inputs,each));
+	}
+}
+//calling constrains rule logic
+for each in arraySize
+{
+	localJson = jsonarrayget(setJson, each);
+	localJsonObj = json(localJson);
+	localCount = 0;
+	for column1 in arrayColumn
+	{
+		
+		if( jsonget(localJsonObj,column1) == jsonget(jsonPrecedent,column1))			
+		{
+		    //print jsonget(localJsonObj,column1);
+		    localCount = localCount + 1;
+		    
+		}
+		else
+		{
+			break;
+		}		
+	}
+	if(localCount == sizeofarray(arrayColumn))
+	{
+		if(findinarray(retArray,jsonget(localJsonObj,AttibuteName)) == -1)
+		{
+			append(retArray,jsonget(localJsonObj,AttibuteName));
+		}
+	}
+}
+nCount = range(sizeofarray(retArray));
+for each in nCount
+{
+	ret = ret + retArray[each] +  "|^|";
+}
+if(endswith(ret, "|^|")){
+	ret = substring(ret, 0, len(ret) - 3);
+}
+
+strAttributeName = jsonget(jsonPrecedent ,AttibuteName);
+if(findinarray(retArray,strAttributeName) <> -1)
+{
+	return strAttributeName;
+}
+ret = "";
+
+arraySize = range(jsonarraysize(setJson));
+for each in arraySize
+{
+	localJson = jsonarrayget(setJson, each);
+	localJsonObj = json(localJson);
+	localCount = 0;
+	for column1 in arrayColumn
+	{
+		
+		if ( jsonget(localJsonObj,column1) == jsonget(jsonPrecedent,column1))
+		{
+		    //print jsonget(localJsonObj,column1);
+		    localCount = localCount + 1;
+		}
+		else
+		{
+			break;
+		}		
+	}
+	if(localCount == sizeofarray(arrayColumn))
+	{
+		ret = jsonget(localJsonObj,AttibuteName);
+		break;
+	}
+}
+return ret;

@@ -1,0 +1,27 @@
+{
+  "name" : "Update Data Table",
+  "variableName" : "updateDataTable",
+  "description" : "Created by Shalini",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "setClause",
+    "type" : "String"
+  }, {
+    "name" : "whereClause",
+    "type" : "String"
+  }, {
+    "name" : "fields",
+    "type" : "String Dictionary"
+  }, {
+    "name" : "param1",
+    "type" : "String"
+  }, {
+    "name" : "param2",
+    "type" : "String Dictionary"
+  }, {
+    "name" : "tableName",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

@@ -1,0 +1,21 @@
+{
+  "name" : "Get PS Total Hours",
+  "variableName" : "getPSTotalHours",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "EmployeType",
+    "type" : "String"
+  }, {
+    "name" : "ServiceProduct",
+    "type" : "String"
+  }, {
+    "name" : "size",
+    "type" : "String"
+  }, {
+    "name" : "Type",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

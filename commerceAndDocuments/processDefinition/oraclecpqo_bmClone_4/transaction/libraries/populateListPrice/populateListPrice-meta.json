@@ -1,0 +1,11 @@
+{
+  "name" : "Populate List Price",
+  "variableName" : "populateListPrice",
+  "description" : "This is required for DR Calculation",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_part_number", "_document_number", "_config_attr_info" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

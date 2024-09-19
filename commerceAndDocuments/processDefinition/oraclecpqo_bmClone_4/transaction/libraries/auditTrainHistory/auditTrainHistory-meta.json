@@ -1,0 +1,14 @@
+{
+  "name" : "Audit Train History",
+  "variableName" : "auditTrainHistory",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "JsonArray",
+  "parameters" : [ {
+    "name" : "Input",
+    "type" : "Json"
+  } ],
+  "subDocAttributes" : [ ],
+  "mainDocAttributes" : [ "auditTrailJson", "auditTrailFinalJson" ],
+  "systemAttributes" : [ "_system_user_name" ]
+}

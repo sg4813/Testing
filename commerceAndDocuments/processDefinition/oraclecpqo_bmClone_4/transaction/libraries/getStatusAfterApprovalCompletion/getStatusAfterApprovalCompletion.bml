@@ -1,0 +1,200 @@
+ret = "" ;
+if(isThisCustomerAMultiNationalOrGlobalAccount_t== "Yes" AND approvalCount ==0 AND remainingTCV >=0 AND contractType_t == "" AND fetchSolutionType == "" AND isRebooking_c == false) // Condition added by Prathyusha based on JIRA CCZC7075 
+{
+ret = "Y";
+return ret;
+}
+//added isThisCustomerAMultiNationalOrGlobalAccount_t =="" for Jira CCZC- 6876 by triveni
+elif((isThisCustomerAMultiNationalOrGlobalAccount_t== "No" OR isThisCustomerAMultiNationalOrGlobalAccount_t== "") AND approvalCount ==1 AND approvalFlow_t =="pCRevalidation"  AND remainingTCV >=0 AND contractType_t == "" AND fetchSolutionType == "" AND isRebooking_c == false) // Condition added by Prathyusha based on JIRA CCZC7075 
+{
+ret = "Y";
+return ret;
+}
+elif((isThisCustomerAMultiNationalOrGlobalAccount_t== "No" OR isThisCustomerAMultiNationalOrGlobalAccount_t== "") AND approvalCount ==2 AND (approvalFlow_t =="pC1" OR approvalFlow_t =="pCRevalidation") AND remainingTCV >=0 AND contractType_t == "" AND fetchSolutionType == "" AND isRebooking_c == false) //Condition added by Prathyusha based on JIRA CCZC7075 
+{
+//return "Pending Legal Approval";
+ret = "Y";
+return ret;
+}
+//Commented condition for story CCZC - 7059 By Prathyusha
+/**elif((isThisCustomerAMultiNationalOrGlobalAccount_t== "No" OR isThisCustomerAMultiNationalOrGlobalAccount_t== "") AND approvalCount ==3 AND (approvalFlow_t =="pC2" OR approvalFlow_t =="pCRevalidation") AND remainingTCV >=0 AND contractType_t == "" AND fetchSolutionType == "")
+{
+ret = "Y";
+return ret;
+}**/
+//Added condition for story CCZC-7059 By Prathyusha : started
+elif((isThisCustomerAMultiNationalOrGlobalAccount_t== "No" OR isThisCustomerAMultiNationalOrGlobalAccount_t== "") AND approvalCount ==4 AND (approvalFlow_t =="pC2" OR approvalFlow_t =="pCRevalidation") AND remainingTCV >=0 AND contractType_t == "" AND fetchSolutionType == "" AND isRebooking_c == false) // Condition added by Prathyusha based on JIRA CCZC7075 
+{
+ret = "Y";
+return ret;
+}
+//Ended
+elif((isThisCustomerAMultiNationalOrGlobalAccount_t== "No" OR isThisCustomerAMultiNationalOrGlobalAccount_t== "") AND approvalCount ==5 AND (approvalFlow_t =="pC3" OR approvalFlow_t =="pCRevalidation") AND remainingTCV >=0 AND contractType_t == "" AND fetchSolutionType == "" AND isRebooking_c == false) // Condition added by Prathyusha based on JIRA CCZC7075 
+{
+ret = "Y";
+return ret;
+}
+elif((isThisCustomerAMultiNationalOrGlobalAccount_t== "No" OR isThisCustomerAMultiNationalOrGlobalAccount_t== "") AND approvalCount ==7 AND (approvalFlow_t =="pC4" OR approvalFlow_t =="pCRevalidation") AND remainingTCV >=0 AND contractType_t == "" AND fetchSolutionType == "" AND isRebooking_c == false) // Condition added by Prathyusha based on JIRA CCZC7075 
+{
+ret = "Y";
+return ret;
+}
+//Fetch Flow Start
+elif(fetchPrerelease == "Yes" AND discountFlag == "Yes" AND (contractType_t <> "" OR fetchSolutionType <> "") AND serviceSKUQuote == "Yes" AND approvalFlow_t <>"pCRevalidation")// AND fetchAccountType == "Partner")
+{
+	if(approvalCount == 5 AND approvalFlow_t =="pC1")
+	{
+	ret = "Y";
+	return ret;
+	}
+	elif(approvalCount == 7 AND approvalFlow_t =="pC2")
+	{
+	ret = "Y";
+	return ret;
+	}
+	elif(approvalCount == 8 AND approvalFlow_t =="pC3")
+	{
+	ret = "Y";
+	return ret;
+	}
+	elif(approvalCount == 10 AND approvalFlow_t =="pC4")
+	{
+	ret = "Y";
+	return ret;
+	}
+}
+elif(fetchPrerelease <> "Yes" AND discountFlag == "Yes" AND (contractType_t <> "" OR fetchSolutionType <> "") AND serviceSKUQuote == "Yes" AND approvalFlow_t <> "pCRevalidation")
+{
+	if(approvalCount == 3 AND approvalFlow_t =="pC1")
+	{
+	ret = "Y";
+	return ret;
+	}
+	elif(approvalCount == 5 AND approvalFlow_t =="pC2")
+	{
+	ret = "Y";
+	return ret;
+	}
+	elif(approvalCount == 6 AND approvalFlow_t =="pC3")
+	{
+	ret = "Y";
+	return ret;
+	}
+	elif(approvalCount == 8 AND approvalFlow_t =="pC4")
+	{
+	ret = "Y";
+	return ret;
+	}
+}
+elif(fetchPrerelease == "Yes" AND discountFlag == "Yes" AND (contractType_t <> "" OR fetchSolutionType <> "") AND serviceSKUQuote == "No" AND approvalFlow_t <> "pCRevalidation")// AND fetchAccountType == "Partner")
+{
+	if(approvalCount == 4 AND approvalFlow_t =="pC1")
+	{
+	ret = "Y";
+	return ret;
+	}
+	elif(approvalCount == 5 AND approvalFlow_t =="pC2")
+	{
+	ret = "Y";
+	return ret;
+	}
+	elif(approvalCount == 6 AND approvalFlow_t =="pC3")
+	{
+	ret = "Y";
+	return ret;
+	}
+	elif(approvalCount == 8 AND approvalFlow_t =="pC4")
+	{
+	ret = "Y";
+	return ret;
+	}
+}
+elif(fetchPrerelease <> "Yes" AND discountFlag == "Yes" AND (contractType_t <> "" OR fetchSolutionType <> "") AND serviceSKUQuote == "No" AND approvalFlow_t <>"pCRevalidation")
+{
+	if(approvalCount == 2 AND approvalFlow_t =="pC1")
+	{
+	ret = "Y";
+	return ret;
+	}
+	elif(approvalCount == 3 AND approvalFlow_t =="pC2")
+	{
+	ret = "Y";
+	return ret;
+	}
+	elif(approvalCount == 4 AND approvalFlow_t =="pC3")
+	{
+	ret = "Y";
+	return ret;
+	}
+	elif(approvalCount == 6 AND approvalFlow_t =="pC4")
+	{
+	ret = "Y";
+	return ret;
+	}
+}
+elif(fetchPrerelease == "Yes" AND discountFlag <> "Yes" AND (contractType_t <> "" OR fetchSolutionType <> ""))// AND fetchAccountType == "Partner")
+{
+	if(approvalCount == 1)
+	{
+	ret = "Y";
+	return ret;
+	}
+}
+elif(fetchPrerelease <> "Yes" AND discountFlag == "Yes" AND (contractType_t <> "" OR fetchSolutionType <> ""))
+{
+	if(approvalCount == 1  AND approvalFlow_t =="pCRevalidation")
+	{
+	ret = "Y";
+	return ret;
+	}
+}
+elif(fetchPrerelease == "Yes" AND discountFlag == "Yes" AND (contractType_t <> "" OR fetchSolutionType <> ""))
+{
+	if(approvalCount == 3 AND approvalFlow_t =="pCRevalidation")
+	{
+	ret = "Y";
+	return ret;
+	}
+}
+elif(fetchPrerelease <> "Yes" AND discountFlag <> "Yes" AND (contractType_t <> "" OR fetchSolutionType <> ""))
+{
+	ret = "Y";
+	return ret;
+}
+//Fetch Flow End
+elif(approvalCount ==0 AND remainingTCV <0 AND remainingTCV >= -500000  AND contractType_t == "" AND fetchSolutionType == "")
+{
+ret = "Y";
+return ret;
+}
+/*elif(approvalCount ==1 AND remainingTCV <-100000 AND remainingTCV >= -500000  AND contractType_t == "" AND fetchSolutionType == "")
+{
+ret = "Y";
+return ret;
+}*/
+elif(approvalCount ==1 AND remainingTCV <-500000 AND remainingTCV >= -2000000  AND contractType_t == "" AND fetchSolutionType == "")
+{
+ret = "Y";
+return ret;
+}
+elif(approvalCount ==2 AND remainingTCV <-2000000 AND remainingTCV >= -3000000 AND contractType_t == "" AND fetchSolutionType == "" )
+{
+ret = "Y";
+return ret;
+}
+elif(approvalCount ==3 AND remainingTCV <-3000000 AND remainingTCV >= -5000000  AND contractType_t == "" AND fetchSolutionType == "")
+{
+ret = "Y";
+return ret;
+}
+elif(approvalCount ==4 AND remainingTCV <-5000000 AND contractType_t == "" AND fetchSolutionType == "" )
+{
+ret = "Y";
+return ret;
+}
+else
+{
+ret = "N";
+}
+
+return ret;

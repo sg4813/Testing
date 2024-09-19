@@ -1,0 +1,12 @@
+{
+  "name" : "Get Table Id",
+  "variableName" : "getTableId",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String Dictionary",
+  "parameters" : [ {
+    "name" : "ModelName",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

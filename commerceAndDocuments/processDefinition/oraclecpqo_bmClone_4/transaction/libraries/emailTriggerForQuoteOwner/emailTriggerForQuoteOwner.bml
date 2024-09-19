@@ -1,0 +1,241 @@
+/*=====================================================================================================
+Author				: Arun Bojan
+Date  				: 24th Nov 2023
+JIRA Reference			: CCZC-6226
+Description			: This requirement is to trigger email to quote owner during every approval flow
+
+Input Parameters		:
+actionCode = Action_Code;  // This action code to be passed from trigger point i.e. SUBMIT or APPROVE action
+
+
+Business Ask:
+=============
+What system can do right now. 
+After the CSE/Salesperson submits quote, an email would be sent to the CSE/Salesperson stating CPQ# 123456789 is pending ACB 987 approval. 
+After the quote was approved by John Doe, an email would be sent to the CSE/Salesperson stating CPQ# 123456789 has been approved by John Doe and is now pending approval from CXY457.
+
+What is requested. 
+After the CSE/Salesperson submits quote, an email would be sent to the CSE/Salesperson stating CPQ# 123456789 is pending John Doe's approval. 
+After the quote was approved by John Doe, an email would be sent to the CSE/Salesperson stating CPQ# 123456789 has been approved by John Doe and is now pending approval from Sam Smith.
+
+Change Revision:
+=====================================================================================================
+Date 		Name			Description 					Incident/JIRA Reference			
+29/11/2023	Arun			Passing the credentials from 	
+					INT_SYSTEM_DETAILS data table 
+					for Fetch-Approval
+
+6/12/2023	Arun/Triveni		Included Fetch prerelease condition Line 61
+21/12/2023	Supraja			Included logic to change owner email from 	CCZC-6607
+					createdByEmail to optyLogin 
+
+=====================================================================================================*/
+
+
+/* ========== Variable declaration Start ============= */
+
+returnVal = "";
+siteName = _system_supplier_company_name;
+instance = "";
+quoteId = bs_id;
+owner = ownerLogin_t;
+//ownerEmail = createdByEmail; // Quote Owner email // commented by Supraja
+ownerEmail = "";
+actionCode = Action_Code; // SUBMIT or APPROVE
+quoteApprovers = testAttributeForApprovalUser; // Approval pending with. If more than one approvers its seperated by comma
+previousApprovers = approval_history_submit_t; 
+approvalStatus = approval_status_submit_t;
+lastApprover = "";
+lastApproverFlag = false;
+
+if(status_t == "Awaiting Customer Signatures")
+{return "";} // Exit when there is no pending approvals
+
+for each in approvalStatus
+{
+	for e in each
+	{if(ISNULL(e)){return "";}} // Exit when there is no pending approvals
+}
+
+if(quoteApprovers == "" AND actionCode == "SUBMIT")
+{
+rs = bmql("Select * from ApprovalMatrix where OptyOwner= $region_t AND Active ='Y'");
+for each in rs
+	{// Assigning the approver for quote submission approval request. triggered only during submit
+		if(fetchPrerelease == "Yes")
+		{
+		quoteApprovers = get(each,"DirectorCM");
+		quoteApprovers = quoteApprovers + "," +  get(each,"SeniorCM");
+		}
+		elif(fetchPrerelease == "No")
+		{
+		quoteApprovers = get(each,"Level_1_Manager");
+		}
+	}
+	
+	if((quoteApprovers == "") or ISNULL(quoteApprovers))
+	{
+	return "";// Exit when there is no pending approvals
+	}
+	
+}
+
+//print quoteApprovers;
+splitQuoteApprovers = split(quoteApprovers, ","); // Split logic for more than one approvers
+
+if(NOT ISNULL(previousApprovers))
+{
+	for each in previousApprovers
+	{
+		if(NOT ISNULL(each))
+		{
+			for e in each
+			{
+				if(NOT ISNULL(e))
+				{
+				splitE = split(e,"~");
+				lastApprover = splitE[0]; // Getting the previous approver here 
+				lastApproverFlag = true;
+				}
+			}
+		}
+	}
+}
+
+approversList = "";
+subjectApproversList = "";
+firstName = ""; 
+lastName = "";
+firstNamePreviousApprover = ""; 
+lastNamePreviousApprover = "";
+approvalEmailBody = "";
+
+
+
+if(siteName=="devzebra"){instance="devzebra.bigmachines.com";}
+elif(siteName=="testzebra"){instance="test-cpq.zebra.com";}
+elif(siteName=="stagezebra"){instance="stagezebra.bigmachines.com";}
+elif(siteName=="zebra"){instance="cpq.zebra.com";}
+
+//modified code to get Opportunity owner email id by Supraja Gadey on 21/12/2023
+// Start : Supraja Gadey on 21/12/2023
+requestUrlforemail="https://"+instance+ "/rest/v14/companies/_host/users/" + optyLogin;
+headers = dict("string");
+// Fetching the credentials form data table
+recordSet = bmql("select * from INT_SYSTEM_DETAILS where System = 'Fetch-Approval'"); 
+strPassword ="";
+strUserName ="";
+for each in recordSet 
+	{strUserName = get(each, "Username"); strPassword = get(each, "Password");}
+strUserDetails = strUserName  + ":" + strPassword;	
+encodecredential = encodebase64(strUserDetails);	
+authstring = "Basic "+ encodecredential;
+
+put(headers, "Authorization", authstring);
+put(headers, "content-type", "application/json");
+userDetailsResponse = urldata(requestUrlforemail,"GET");
+messageBody = get(userDetailsResponse,"Message-Body");
+	if(NOT ISNULL(messageBody))
+	{
+	messageBodyJson= json(messageBody);
+	ownerEmail=jsonget(messageBodyJson,"email"); //print "Owner Email: " + ownerEmail;
+	}
+	// Arun: if the owner email is empty or the API response is null, exit the function
+	if((ISNULL(messageBody)) OR (ownerEmail == "") OR (ISNULL(ownerEmail)))
+	{ //print "return for null";
+	return "";
+	}
+
+// end : Supraja Gadey on 21/12/2023
+
+emailUrl = "https://"+instance+"/rest/v14/commerceDocumentsOraclecpqo_bmClone_4Transaction/"+quoteId+"/actions/_send_email";
+
+/* ========== Variable declaration End ============= */
+
+
+if((NOT ISNULL(ownerEmail)) OR (ownerEmail<>""))
+{
+// API Call to fetch Current Approver(s) First Name & Last Name
+for eachApprover in splitQuoteApprovers 
+{
+getUserNameUrlForCurrentApprover  = "https://"+instance+ "/rest/v14/companies/_host/users/" + eachApprover;
+userDetailsResponse = urldata(getUserNameUrlForCurrentApprover,"GET",headers);
+messageBody = get(userDetailsResponse,"Message-Body");
+	if(NOT ISNULL(messageBody))
+	{
+		messageBodyJson= json(messageBody);
+		firstName = jsonget(messageBodyJson,"firstName"); 
+		lastName = jsonget(messageBodyJson,"lastName");
+		if(ISNULL(firstName)){firstName = "";}
+		if(ISNULL(lastName)){lastName = "";}
+		//Constructing Quote approvers list with their full name
+		if(lastName<>"")
+		{
+		approversList = approversList + firstName + " " + lastName + "'s" + ", ";
+		subjectApproversList = subjectApproversList + firstName + " " + lastName + ", ";
+		}
+		else
+		{
+		approversList = approversList + firstName + "'s" + ", ";
+		subjectApproversList = subjectApproversList + firstName + ", ";
+		}
+	}
+}
+
+approversList = substring(approversList,0,len(approversList)-2); // removing the comma at last
+subjectApproversList = substring(subjectApproversList,0,len(subjectApproversList)-2); // removing the comma at last
+
+
+// API Call to fetch Previous Approver First Name & Last Name
+if(lastApproverFlag)
+{
+getUserNameUrlForPreviousApprover = "https://"+instance+ "/rest/v14/companies/_host/users/" + lastApprover;
+userDetailsResponse = urldata(getUserNameUrlForPreviousApprover,"GET",headers);
+messageBody = get(userDetailsResponse,"Message-Body");
+	if(NOT ISNULL(messageBody))
+	{
+	messageBodyJson= json(messageBody);
+	firstNamePreviousApprover = jsonget(messageBodyJson,"firstName"); 
+	lastNamePreviousApprover  = jsonget(messageBodyJson,"lastName");
+	if(ISNULL(firstNamePreviousApprover)){firstNamePreviousApprover = "";}
+	if(ISNULL(lastNamePreviousApprover)){lastNamePreviousApprover = "";}
+	}
+	
+}
+
+emailSubject = "CPQ Quote# " + quoteId + " is waiting for Approval from " + subjectApproversList;
+submitEmailBody = "CPQ Quote# " + quoteId +" is pending " + approversList + " approval."; 
+
+if(lastApproverFlag)
+{
+	if(lastNamePreviousApprover<>"")
+	{approvalEmailBody = "CPQ Quote# " + quoteId + " has been approved by " + firstNamePreviousApprover + " " + lastNamePreviousApprover + " and is now pending approval from " + subjectApproversList + ".";}
+	else
+	{approvalEmailBody = "CPQ Quote# " + quoteId + " has been approved by " + firstNamePreviousApprover + " and is now pending approval from " + subjectApproversList + ".";}
+}
+
+// Email Trigger
+requestJson = json();
+jsonput(requestJson,"actionVariableName","approvalUpdates");
+jsonput(requestJson,"toName","Sales Team");
+jsonput(requestJson,"subject",emailSubject);
+jsonput(requestJson,"toEmail",ownerEmail);
+//jsonput(requestJson,"toEmail","ab3728@zebra.com");
+
+if(actionCode == "SUBMIT") // dynamically adding the email body based on action code
+{jsonput(requestJson,"comments",submitEmailBody);}
+else
+{jsonput(requestJson,"comments",approvalEmailBody);}
+
+
+response = urldata(emailUrl,"POST",headers,jsontostr(requestJson));
+if(NOT ISNULL(messageBody))
+{
+Message = json(get(response,"Message-Body"));
+returnVal = "1~quoteApprovalEmailResponse~"+jsontostr(Message)+ "|";
+}
+
+}
+
+
+return returnVal;

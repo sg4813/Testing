@@ -1,0 +1,11 @@
+{
+  "name" : "Pro Rated days",
+  "variableName" : "proRatedDays",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "contractEndDate_l", "contractStartDate_l", "actualMonths", "proRatedDays", "lastMonthDays", "_document_number", "alignBillingFromDate", "alignMonth", "alignProRatedDays", "alignMonthDays", "oRCL_ABO_ActionCode_l" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

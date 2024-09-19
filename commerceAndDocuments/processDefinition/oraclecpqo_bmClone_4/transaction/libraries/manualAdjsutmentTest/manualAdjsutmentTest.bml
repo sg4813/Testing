@@ -1,0 +1,9 @@
+inputDict = dict("string");
+put(inputDict, "BasePrice","100");
+for each in transactionLine {
+	if(NOT isNull(each.oRCL_manualAdjustments)) {
+		print "abc";
+		//util.manualAdjustmentCalculations(each.oRCL_manualAdjustments, inputDict);
+	}
+}
+return "";

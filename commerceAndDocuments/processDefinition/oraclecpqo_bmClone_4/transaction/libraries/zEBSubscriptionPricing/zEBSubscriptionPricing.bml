@@ -1,0 +1,279 @@
+//Name : zEBSubscriptionPricing
+//Variable Name : zEBSubscriptionPricing
+//Description:This BML is used for populating root asset Key, auto adjustments and charges for lines. 
+//Invoked from sub doc ->Advanced Default->After formula
+//Imported Sub doc attributes : _part_number, _document_number
+// Output: String
+// Dependency : None
+
+returnString = "";
+
+for line in transactionLine {
+chargeJson= json();
+charges = jsonarray();
+chargeNameValue ="";
+enablePeriodicRevRecog ="";
+periodicity ="";
+chargeType ="";
+unitPrice =0.0;
+unitListPrice  =0.0;
+unitcost =0.0;
+anuualprice =line.annualCloudPriceInclHosting_l;
+annualcost =line.unitCost_l;
+if(line._part_custom_field11 == "Shell" OR line._part_custom_field11 == "Custom") {
+    if((line._part_custom_field11 == "Shell" OR line._part_custom_field11 == "Custom") AND (line._part_custom_field2 == "" OR line._part_custom_field2 == "N")) {
+
+	print line._document_number;
+	print line._part_number;
+	print anuualprice ;
+	//print line.annualCloudPriceInclHosting_l;
+		if(line.billingFrequency =="YR"){
+		chargeNameValue ="Yearly Fee";
+		periodicity ="YR";
+		unitListPrice = line.annualCloudPriceInclHosting_l/line.requestedQuantity_l;
+		unitcost = line.unitCost_l/line.requestedQuantity_l;
+		chargeType ="ORA_RECURRING";
+		}
+		elif(line.billingFrequency =="MON")
+		{
+		print "Vinay1";
+		print line._document_number;
+		chargeNameValue ="Monthly Fee";
+		periodicity ="MON";
+		unitListPrice = line.annualCloudPriceInclHosting_l/(line.requestedQuantity_l*12);
+		unitcost = line.unitCost_l/(line.requestedQuantity_l*12);
+		chargeType ="ORA_RECURRING";
+		}
+		/*elif(line.billingFrequency =="MON" AND conversionFlag_t== true)
+		{
+		print "Vinay1";
+		print line._document_number;
+		chargeNameValue ="Monthly Fee";
+		periodicity ="MON";
+		unitListPrice = line.annualCloudPriceInclHosting_l/12;
+		unitcost = line.unitCost_l/(line.requestedQuantity_l*12);
+		chargeType ="ORA_RECURRING";
+		}*/
+		elif(line.billingFrequency =="QRT")
+		{
+		chargeNameValue ="Quarterly Fee";
+		periodicity ="QRT";
+		// Added below if condition for story CCZC-6622 
+		if(line._part_number == "900-00178-QTR"){
+		unitListPrice = line.annualCloudPriceInclHosting_l/(line.requestedQuantity_l);
+		unitcost = line.unitCost_l/(line.requestedQuantity_l);
+		}
+		else{
+		unitListPrice = line.annualCloudPriceInclHosting_l/(line.requestedQuantity_l*4);
+		unitcost = line.unitCost_l/(line.requestedQuantity_l*4);
+		}
+		chargeType ="ORA_RECURRING";
+		}
+		elif(line.billingFrequency =="HYR")
+		{
+		chargeNameValue ="Half Yearly Fee";
+		periodicity ="HYR";
+		unitListPrice = line.annualCloudPriceInclHosting_l/(line.requestedQuantity_l*2);
+		unitcost = line.unitCost_l/(line.requestedQuantity_l*2);
+		chargeType ="ORA_RECURRING";
+		}
+		else
+		{
+		chargeNameValue ="Upfront Payment";
+		
+		if(contractType_t =="Opex" OR contractType_t =="Opex - Lease" OR contractType_t =="Capex")
+		{
+			if(fetchSolutionType=="POC" AND line.category_l=="Robot")
+			{
+			unitListPrice = (line.annualCloudPriceInclHosting_l*line.contractTermInMonths)/(line.requestedQuantity_l*12);
+			}
+			else
+			{
+			unitListPrice = line.annualCloudPriceInclHosting_l/line.requestedQuantity_l;
+			}
+		//unitListPrice = ((line.annualCloudPriceInclHosting_l*10/line.requestedQuantity_l)*12)/line.contractTermInMonths;
+		
+		chargeType ="ORA_ONE_TIME";
+		//if(contractType_t =="Capex")  OR (contractType_t == "Opex - Lease" AND find(line.parentSKU_l,"-R")<>-1)) {
+		if((contractType_t =="Capex")  OR ((contractType_t =="Opex" OR contractType_t =="Opex - Lease") AND line.category_l=="Robot")) {
+		enablePeriodicRevRecog = "Y";
+		}
+		}
+		elif(line.fixedPrice =="Y") //Added for CCZC-6407: VAGARWAL2 7-Nov-2023
+		{
+			unitListPrice = line.annualCloudPriceInclHosting_l/line.requestedQuantity_l;
+			chargeType ="ORA_ONE_TIME";
+		}
+		else {
+		print "Vinay3";
+		unitListPrice = line.annualCloudPriceInclHosting_l*10/line.requestedQuantity_l;
+		chargeType ="ORA_RECURRING";
+		periodicity ="5YR";
+		}
+		unitcost = line.unitCost_l*10/line.requestedQuantity_l;
+		}
+	}
+	
+	if(line._part_custom_field2 == "Y" AND (line.billingFrequency =="MON" OR line.billingFrequency =="WK")) {
+	
+		print "Vinay4";
+		chargeNameValue ="PS Charges";
+		chargeType ="ORA_RECURRING_USAGE";
+		
+		if(line.requestedQuantity_l <> 0 AND line.contractTermInMonths <> 0 AND line.billingFrequency =="MON"){
+			
+			unitListPrice = line.annualCloudPriceInclHosting_l/(line.requestedQuantity_l*line.contractTermInMonths);
+			unitcost = line.unitCost_l/(line.requestedQuantity_l*line.contractTermInMonths);
+					periodicity ="MON";
+		}
+		elif(line.requestedQuantity_l <> 0 AND line.contractTermInMonths <> 0 AND line.billingFrequency =="WK"){
+			
+			unitListPrice = line.annualCloudPriceInclHosting_l/(line.requestedQuantity_l*52.15);
+			unitcost = line.unitCost_l/(line.requestedQuantity_l*line.contractTermInMonths);
+					periodicity ="WK";
+					//periodicity ="MON";
+		}
+		else{
+			
+			unitListPrice = line.annualCloudPriceInclHosting_l;
+			unitcost = line.unitCost_l;
+			
+		}
+				
+	}
+	if(line._part_custom_field2 == "Y" AND conversionFlag_t== true) {
+	if(line.billingFrequency =="5YR")
+		{
+		print "Vinay6";
+		/*chargeNameValue ="Upfront Payment";
+		periodicity ="5YR";
+		unitListPrice = line.annualCloudPriceInclHosting_l/line.requestedQuantity_l;
+		unitcost = line.unitCost_l*10/line.requestedQuantity_l;
+		chargeType ="ORA_RECURRING";
+		*/
+		chargeNameValue ="PS Charges";
+		unitListPrice = line.annualCloudPriceInclHosting_l/line.requestedQuantity_l;
+		chargeType ="ORA_ONE_TIME";
+		//if(contractType_t =="Capex") {
+		enablePeriodicRevRecog = "Y";
+		//}
+		}
+	}
+		
+	// Preparing the charge details
+	jsonput(chargeJson, "chargeName", chargeNameValue);		
+	//jsonput(chargeJson, "unitPrice", unitPrice); 
+	//jsonput(chargeJson, "listPrice", listPrice);
+	jsonput(chargeJson, "unitListPrice",unitListPrice);
+	jsonput(chargeJson, "chargesUnitCost",unitcost);
+	jsonput(chargeJson, "chargeType", chargeType);
+	jsonput(chargeJson, "periodicity", periodicity);
+	jsonput(chargeJson, "enablePeriodicRevRecog", enablePeriodicRevRecog);
+	//Added by VAGARWAL2 on 7-Dec-23 for rounding issue in OSMC
+	jsonput(chargeJson, "billTotalChargeAmount", round(line.grossCloudNetPrice_l,2));
+	//jsonput(chargeJson, "unitPrice", unitListPrice);
+	
+	jsonarrayappend(charges , chargeJson);	
+
+	// Preparing the consumption charge details
+
+
+	//calcInfo = jsonarrayget(jsonarray(line._price_calculation_info),0,"json");
+	//charges = jsonget(calcInfo,"charges", "jsonArray");
+	
+	if((line._part_custom_field2 <> "Y" OR isnull(line._part_custom_field2)) AND line.customDiscountValue_l >= 0 AND line.customDiscountType_l <> "" AND NOT(line.enableMultiYearPricing_l))
+	//if(1==1)
+	{
+	adjtype ="";
+	adjname="";
+	print "Vinay7";
+	adj = line.customDiscountValue_l;
+	if(line.customDiscountType_l =="Markup")
+	{
+	adjtype ="ORA_MARKUP_PERCENT";
+	adjname = "Recurring Markup%";
+	}
+	elif(line.customDiscountType_l =="Price Override" OR line.customDiscountType_l =="Custom Price"  OR line.customDiscountType_l =="Renewal Price")
+	{
+	adjtype ="ORA_PRICE_OVERRIDE";
+	adjname = "Recurring Price Override";
+		if(line.billingFrequency =="YR"){
+		adj = adj/line.requestedQuantity_l;
+		}
+		elif(line.billingFrequency =="MON")
+		{
+		adj = adj/(12*line.requestedQuantity_l);
+		}
+		elif(line.billingFrequency =="QRT")
+		{
+			// Added below if condition for story CCZC-6622
+			if(line._part_number == "900-00178-QTR")
+			{
+			adj = adj/(line.requestedQuantity_l);
+			}
+			else
+			{
+			adj = adj/(4*line.requestedQuantity_l);
+			}
+		}
+		elif(line.billingFrequency =="HYR")
+		{
+		adj = adj/(2*line.requestedQuantity_l);
+		}
+		elif((contractType_t =="Opex" OR contractType_t =="Opex - Lease" OR contractType_t =="Capex") AND line.billingFrequency =="5YR")
+		{
+		print "Vinay8";
+		adj = adj/line.requestedQuantity_l;
+		}
+		elif(line.fixedPrice =="Y" AND line.billingFrequency =="5YR") //Added for CCZC-6407: VAGARWAL2 7-Nov-2023
+		{
+		adj = adj/line.requestedQuantity_l;
+		}	
+		else
+		{
+		print "Vinay9";
+		adj = adj*10/line.requestedQuantity_l;
+		}
+	}
+	else{
+	print "Vinay10";
+	adjtype ="ORA_DISCOUNT_PERCENT";
+	adjname = "Recurring Discount%";
+	}
+	
+	Adjustments = jsonArray();
+	adjustmentJson = json();
+		jsonput(adjustmentJson,"oRCL_auto_adjustmentSequence_l",1);
+		jsonput(adjustmentJson,"oRCL_auto_adjustmentName_l","Full Term Discount");
+		jsonput(adjustmentJson,"oRCL_auto_adjustmentChargeName_l",chargeNameValue);
+		jsonput(adjustmentJson,"oRCL_auto_adjustmentType_l",adjtype);
+		jsonput(adjustmentJson,"oRCL_auto_adjustmentBasis_l","ORA_LIST_PRICE");
+		jsonput(adjustmentJson,"oRCL_auto_adjustmentEffectivity_l","ORA_ALL_TERM");
+		jsonput(adjustmentJson,"oRCL_auto_adjustmentValue_l",adj);
+	  
+		jsonarrayappend(Adjustments, adjustmentJson);	
+				
+		returnString = returnString +"|"+ line._document_number + "~oRCL_autoAdjustments~" + jsonarraytostr(Adjustments);
+	}
+	
+	if(line.enableMultiYearPricing_l) {
+	returnString = returnString +"|"+ line._document_number + "~oRCL_autoAdjustments~" + "";
+	}
+	
+	if((line._part_custom_field11 == "Shell" OR line._part_custom_field11 == "Custom") AND (line._part_custom_field2 == "" OR line._part_custom_field2 == "N") AND contractType_t=="" AND enableConsumptionBilling_t == true AND line.perStorePerMonthNet_l>0.0000  AND line.billingFrequency <> "5YR") {
+	// Preparing consumption charge details
+	print "AA";
+	jsonput(chargeJson, "chargeName", "Consumption Based");		
+	jsonput(chargeJson, "unitListPrice",0);
+	jsonput(chargeJson, "chargesUnitCost",0);
+	jsonput(chargeJson, "chargeType", "ORA_RECURRING_USAGE");
+	jsonput(chargeJson, "periodicity", line.billingFrequency);
+	
+	jsonarrayappend(charges , chargeJson);	
+	
+	}
+		returnString = returnString + "|"+commerce.zEBCharges(charges, line._document_number) + "|";
+  }  
+	
+ }   
+return returnString ;

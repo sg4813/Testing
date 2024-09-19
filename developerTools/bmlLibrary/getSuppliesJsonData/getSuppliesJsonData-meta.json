@@ -1,0 +1,12 @@
+{
+  "name" : "Get Supplies Json Data",
+  "variableName" : "getSuppliesJsonData",
+  "description" : "Created by: Jayaram\nDescription: To form the Supplies json data",
+  "libraryFunctions" : [ "util.zebraExternalPricing" ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "printerID",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

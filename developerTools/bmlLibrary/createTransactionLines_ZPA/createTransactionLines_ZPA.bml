@@ -1,0 +1,474 @@
+//Tejasvi
+
+headers = dict("string");
+put(headers, "content-type", "application/json");
+updated = "";
+response=dict("string");
+jsonBody = json();
+responsemessage="";
+tempJson = json();
+transactionData = jsonArray();
+transData = json();
+docDict = dict("string");
+datatableData = json();
+datatableDat = json();
+transLinejsonArr = jsonarray();
+datatableJsonArrayData = jsonarray();
+testArr = string[];
+//modelName = "WorkForceConnect";
+modelName = "ZPA";
+lineDict = dict("integer");
+quoteLineTableData = json();
+quoteLineItems = json();
+quoteLinejsonBody = json();
+quoteLineJsonArray = jsonarray();
+eachModelDict = dict("string[]");
+transLinejsonBody = json();
+
+bsIdDict = dict("string");
+modelLineDict = dict("string");
+
+/*prodFamVarName = 
+prodLineVarName =
+modelVarName =*/
+dataJson = json();
+quoteDataJson = json();
+resultSet = bmql("select * from ZPA_QuoteLines where Model= $modelName");
+//print resultSet;
+
+//print resultSet;
+exeArray = 0;
+exArrayCount = 5;
+EXCFlag = false; 
+
+systemUrl = "";
+if(find(_company_name,"dev")<> -1){ 
+systemUrl = "https://devzebra.bigmachines.com";
+}
+elif(find(_company_name,"test")<> -1){
+systemUrl = "https://test-cpq.zebra.com";
+}
+else {
+systemUrl = "https://cpq.zebra.com";
+}
+print systemUrl;
+aallPartNumbers = "";
+
+for each in resultset {
+	jsonBody = json();
+	responsemessage="";
+	tempJson = json();
+	transactionData = jsonArray();
+	transData = json();
+	tableJsonArrayData = jsonarray();
+	tableDat = json();
+	tableDataFinal = json();
+	tableDataFinal = json();
+	tableDataFina2 = json();
+	tableDataFinalpl =json();
+	tableDataFinalpm = json();
+	tempJson = json();
+	tempJsonArray = jsonArray();
+	tempJson1 = json();
+	tempJsonemp = json();
+	tempJsonD = json();
+	tempJsonArrayD = jsonarray();
+	tempJsonDevices = json();
+	tempJsonDA = json();
+	tempJsonDNames = json();
+	tempJsonArrayDA = jsonarray();
+	tempJsonDevicesArray = json();
+	tempJsonDevicesArrayQ = json();
+	finalArrayset = json();
+	q1Json = json();
+	q2Json = json();
+	q3Json = json();
+	q4Json = json();
+	q5Json = json();
+	q6Json = json();
+	q7Json = json();
+	q8Json = json();
+	paymentTerms = json();
+	
+	tempJsonQ = json();
+	tempJsonDNamesQ = json();
+	tempJsonArrayQ = jsonarray();
+	
+	tempJsonRI = json();
+	tempJsonDNamesRI = json();
+	tempJsonArrayRI = jsonarray();
+	tempJsonDevicesArrayRI = json();
+	
+	tempJsonRA = json();
+	tempJsonDNamesRA = json();
+	tempJsonArrayRA = jsonarray();
+	tempJsonDevicesArrayRA = json();
+	rum = json();
+	monthlhos = json();
+	history = json();
+	tempJsonClocks = json();
+	tempJsonDNamesClocks = json();
+	tempJsonArrayClocks = jsonarray();
+	tempJsonDevicesArrayClocks = json();
+	
+	tempJsonWS = json();
+	tempJsonDNamesWS = json();
+	tempJsonArrayWS = jsonarray();
+	tempJsonDevicesArrayWS = json();
+	applyJosn = json();
+	wfmSchMessage = "";
+	
+	count = 0;
+	counter = 0;
+	count1 = 0;
+	transId = get(each, "QuoteNumber");
+	quote = get(each, "Quote");
+	bsId = get(each, "BSID");
+	//print bsId;
+	val = atoi(bsId);
+	//val = 120295416;
+	stores = atoi(get(each, "store"));
+	countryName = get(each, "CountryName");
+	//countryName = "Unitedstates~Mexico";
+	//empCount = atoi(get(each, "emp"));
+	ContractTerms = get(each, "contractTerminMonths");
+	BillingFrequency = get(each, "BillingFrequency");
+	rUMZPA = atof(get(each, "rUMZPA"));
+	monthlyHostingZPA = atof(get(each, "monthlyHostingZPA"));
+	hostingForMoreHis = atof(get(each, "hostingForMoreHis"));
+	SaasSKU = get(each, "SaasSKU");
+	modelLine = get(each, "ModelLine");
+	jsonput(applyJosn, "value", true);
+	jsonput(applyJosn, "locked", true);
+	jsonput(jsonBody, "applyRefZPA", applyJosn);
+	//Country Selection
+	if(find(countryName,"~")<>-1) {
+		countryNames = split(countryName, "~");
+		for countries in countryNames {
+		
+			jsonput(tempJson, "value", countryNames[count]);
+			jsonput(tempJson, "displayValue", countryNames[count]);
+			jsonarrayappend(tempJsonArray, tempJson);
+			count = count + 1;
+		}
+		
+		jsonput(tempJson1, "items", tempJsonArray);
+		//print tempJson1;
+	}
+	else {
+			jsonput(tempJson, "value", countryName);
+			jsonput(tempJson, "displayValue", countryName);
+			jsonarrayappend(tempJsonArray, tempJson);
+			jsonput(tempJson1, "items", tempJsonArray);
+			//print tempJson1;
+	}
+	jsonput(jsonBody, "whereAreTheProductsBeingUsed_multiselectmenu", tempJson1);
+	jsonput(paymentTerms, "value", BillingFrequency);
+	jsonput(jsonBody, "paymentTermscommon", paymentTerms);
+	jsonput(jsonBody, "contractTerminMonthsddummy", ContractTerms);
+	rum = json();
+	monthlhos = json();
+	history = json();
+	jsonput(rum , "value",rUMZPA);
+	jsonput(monthlhos, "value",monthlyHostingZPA);
+	jsonput(history, "value",hostingForMoreHis);
+	jsonput(jsonBody, "rumDummyZPA", rum);
+	jsonput(jsonBody, "monthlyHostingdummy", monthlhos);
+	jsonput(jsonBody, "hostingForMoreHistorydummy", history);
+	jsonput(jsonBody, "selectProductZPA", true);
+	//jsonput(jsonBody, "ZEB_convertedFlag", true);
+	if(SaasSKU <> "") {
+		totalSize1 = range(16);
+		for each1 in totalSize1 {
+			jsonput(tempJsonDA, "_index", each1);
+			jsonput(tempJsonDNames, "value", false);
+			jsonput(tempJsonDNames, "locked", true);
+			jsonput(tempJsonDA, "addZPAarray", tempJsonDNames);
+			jsonarrayappend(tempJsonArrayDA, tempJsonDA);
+		}
+		if(find(SaasSKU,"~")<>-1) {
+			devices1 = split(SaasSKU, "~");
+			for deviceNames1 in devices1 {
+				if(deviceNames1 == "ZPA-LIC-SALES") {
+					exeArray = 0;
+				}
+				if(deviceNames1 == "ZPA-LIC-INV") {
+					exeArray = 1;
+				}
+				if(deviceNames1 == "ZPA-LIC-LOGISTICS") {
+					exeArray = 2;
+				}
+				if(deviceNames1 == "PLANNING-AND-BUYING") {
+					exeArray = 3;
+				}
+				if(deviceNames1 == "ZPA-LIC-MARKETING") {
+					exeArray = 4;
+				}
+				if(deviceNames1 == "ZPA-LIC-MFA") {
+					exeArray = 5;
+				}
+				if(deviceNames1 == "ZPA-LIC-DC-OPS") {
+					exeArray = 6;
+				}
+				if(deviceNames1 == "ZPA-PS") {
+					exeArray = 7;
+				}
+				if(deviceNames1 == "ZPA-HOST-SALES") {
+					exeArray = 8;
+				}
+				if(deviceNames1 == "ZPA-HOST-INV") {
+					exeArray = 9;
+				}
+				if(deviceNames1 == "ZPA-HOST-MFA") {
+					exeArray = 10;
+				}
+				if(deviceNames1 == "ZPA-HOST-DC-OPS") {
+					exeArray = 11;
+				}
+				if(deviceNames1 == "ZPA-HOST-LOGISTICS") {
+					exeArray = 12;
+				}
+				if(deviceNames1 == "ZPA-HOST-MARKETING") {
+					exeArray = 13;
+				}
+				if(deviceNames1 == "ZPA-MAINT-SALES") {
+					exeArray = 14;
+				}
+				if(deviceNames1 == "ZPA-MAINT-INV") {
+					exeArray = 15;
+				}
+				if(deviceNames1 <> "ZPA-LIC-MFA" AND deviceNames1 <> "ZPA-HOST-SALES" AND deviceNames1 <> "ZPA-MAINT-INV" AND deviceNames1 <> "ZPA-MAINT-SALES" AND deviceNames1 <> "ZPA-HOST-MARKETING" AND deviceNames1 <> "ZPA-HOST-LOGISTICS" AND deviceNames1 <> "ZPA-HOST-DC-OPS" AND deviceNames1 <> "ZPA-HOST-MFA" AND deviceNames1 <> "ZPA-HOST-INV" AND deviceNames1 <> "ZPA-HOST-INV" AND deviceNames1 <> "ZPA-PS" AND deviceNames1 <> "ZPA-LIC-DC-OPS" AND deviceNames1 <> "ZPA-LIC-MARKETING" AND deviceNames1 <> "ZPA-LIC-SALES" AND deviceNames1 <> "ZPA-LIC-INV" AND deviceNames1 <> "ZPA-LIC-LOGISTICS" AND deviceNames1 <> "PLANNING-AND-BUYING") {
+				print "SaasSKU  column Inavlid Values - Start";
+						print quote;
+						wfmSchMessage     =  wfmSchMessage   + deviceNames1 + "is not a avalid value in column  SaasSKU  in" + quote;
+						print wfmSchMessage;
+					print " SaasSKU  column Inavlid Values - End";
+				}
+				recordSetq = bmql("select * from  _parts where part_display_number =$deviceNames1");
+				for record in recordSetq {
+					aallPartNumbers = aallPartNumbers + "," + get(record, "part_number")+quote;
+				}
+				jsonput(tempJsonDA, "_index", exeArray);
+				jsonput(tempJsonDNames, "value", true);
+				jsonput(tempJsonDNames, "locked", true);
+				jsonput(tempJsonDA, "addZPAarray", tempJsonDNames);
+				jsonarrayappend(tempJsonArrayDA, tempJsonDA);
+				count1 = count1 + 1;
+			}
+		} else {
+			if(SaasSKU == "ZPA-LIC-SALES") {
+					exeArray = 0;
+				}
+				if(SaasSKU == "ZPA-LIC-INV") {
+					exeArray = 1;
+				}
+				if(SaasSKU == "ZPA-LIC-LOGISTICS") {
+					exeArray = 2;
+				}
+				if(SaasSKU == "PLANNING-AND-BUYING") {
+					exeArray = 3;
+				}
+				if(SaasSKU == "ZPA-LIC-MARKETING") {
+					exeArray = 4;
+				}
+				if(SaasSKU == "ZPA-LIC-MFA") {
+					exeArray = 5;
+				}
+				if(SaasSKU == "ZPA-LIC-DC-OPS") {
+					exeArray = 6;
+				}
+				if(SaasSKU == "ZPA-PS") {
+					exeArray = 7;
+				}
+				if(SaasSKU == "ZPA-HOST-SALES") {
+					exeArray = 8;
+				}
+				if(SaasSKU == "ZPA-HOST-INV") {
+					exeArray = 9;
+				}
+				if(SaasSKU == "ZPA-HOST-MFA") {
+					exeArray = 10;
+				}
+				if(SaasSKU == "ZPA-HOST-DC-OPS") {
+					exeArray = 11;
+				}
+				if(SaasSKU == "ZPA-HOST-LOGISTICS") {
+					exeArray = 12;
+				}
+				if(SaasSKU == "ZPA-HOST-MARKETING") {
+					exeArray = 13;
+				}
+				if(SaasSKU == "ZPA-MAINT-SALES") {
+					exeArray = 14;
+				}
+				if(SaasSKU == "ZPA-MAINT-INV") {
+					exeArray = 15;
+				}
+				if(SaasSKU <>"ZPA-LIC-MFA" AND SaasSKU <> "ZPA-MAINT-INV" AND SaasSKU <> "ZPA-MAINT-SALES" AND SaasSKU <> "ZPA-HOST-MARKETING" AND SaasSKU <> "ZPA-HOST-LOGISTICS" AND SaasSKU <> "ZPA-HOST-DC-OPS" AND SaasSKU <> "ZPA-HOST-MFA" AND SaasSKU <> "ZPA-HOST-INV" AND SaasSKU <> "ZPA-HOST-INV" AND SaasSKU <> "ZPA-PS" AND SaasSKU <> "ZPA-LIC-DC-OPS" AND SaasSKU <> "ZPA-LIC-MARKETING" AND SaasSKU <> "ZPA-LIC-SALES" AND SaasSKU <> "ZPA-LIC-INV" AND SaasSKU <> "ZPA-LIC-LOGISTICS" AND SaasSKU <> "PLANNING-AND-BUYING") {
+
+				print "SaasSKU  column Inavlid Values - Start";
+						print quote;
+						wfmSchMessage     =  wfmSchMessage   + SaasSKU + "is not a avalid value in column  SaasSKU  in" + quote;
+						print wfmSchMessage;
+					print " SaasSKU  column Inavlid Values - End";
+				}
+				recordSetq = bmql("select * from  _parts where part_display_number =$SaasSKU");
+				for record in recordSetq {
+					aallPartNumbers = aallPartNumbers + "," + get(record, "part_number")+quote;
+				}
+				jsonput(tempJsonDA, "_index", exeArray);
+				jsonput(tempJsonDNames, "value", true);
+				jsonput(tempJsonDNames, "locked", true);
+				jsonput(tempJsonDA, "addZPAarray", tempJsonDNames);
+				jsonarrayappend(tempJsonArrayDA, tempJsonDA);
+				count1 = count1 + 1;
+			}
+			jsonput(tempJsonDevicesArray, "items", tempJsonArrayDA);
+			jsonput(jsonBody, "_setzebraPrescriptiveAnalyticsArrayZPA", tempJsonDevicesArray); 
+	}
+	
+	jsonput(tableDataFinal, "productFamily","zebraSaaS_ZS");
+	jsonput(tableDataFinal, "productLine" , "saasProducts_SP");
+	jsonput(tableDataFinal, "model", "prescriptiveAnalytics");
+	jsonput(tableDataFinal, "configData", jsonBody);
+	jsonarrayappend(tableJsonArrayData, tableDataFinal);
+	jsonput(tableDat, "bsId", val);
+	jsonput(tableDat, "documentId", 337957606);
+	jsonput(tableDat, "items", tableJsonArrayData);
+	
+	
+	//print tableDat;
+	
+    	addModel = systemUrl + "/rest/v12/config/actions/_bulkAddToTxn";
+	results = urldata(addModel, "POST", headers, jsontostr(tableDat));
+	print results;
+	/*print "response-start";
+	print results;
+	print "response-end";*/
+	put(bsIdDict, bsId,quote);
+	tempArr = string[];
+	if(containskey(eachModelDict, bsId)){
+		tempArr = get(eachModelDict, bsId);
+		append(tempArr, modelLine);
+		put(eachModelDict, bsId,tempArr);
+	}else{
+		append(tempArr, modelLine);
+		put(eachModelDict, bsId, tempArr);
+	}
+	put(modelLineDict, modelLine + "###" + transId, bsId);
+	//print results;
+	/*linelevelurl = systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/"+ string(val) + "/transactionLine";
+	//saveUrl = systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/" + string(val) + "/actions/cleanSave_t";
+	results = urldata(linelevelurl, "GET", headers);
+	docNoArr = jsonpathgetmultiple(json(get(results,"Message-Body")), "$.items[?(@._model_segment_name == 'Zebra SaaS')]._document_number");
+	loop = range(jsonarraysize(docNoArr));
+	print "docNoArr-->";
+	print docNoArr;
+	for i in loop {
+		print docDict;
+			if(NOT(containskey(docDict, quote + jsonarrayget(docNoArr, i, "string")))){// AND findinarray(get(docDict, quote), modelLine) == -1){
+			append(testArr,modelLine);
+			put(docDict, quote + jsonarrayget(docNoArr, i, "string"), modelLine);
+			jsonput(transLinejsonBody, "Quote", get(each, "Quote"));
+			jsonput(transLinejsonBody, "ModelLine", modelLine);
+			jsonput(transLinejsonBody, "ModelDoc", jsonarrayget(docNoArr, i, "integer"));
+			jsonput(transLinejsonBody , "_sync_action","update");
+			jsonarrayappend(transLinejsonArr, transLinejsonBody);
+		}
+	}*/
+}
+			/*jsonput(datatableDat, "items", transLinejsonArr);
+			jsonput(datatableData, "documents", datatableDat);
+			responseData1  = urldata(systemUrl + "/rest/v9/adminCustom" + "TransactionLineData" + "/actions/synchronize","POST",headers,jsontostr(datatableData),5000);
+print "tableData-->";
+print datatableData;*/
+
+allQuotes = keys(bsIdDict);
+print allQuotes;
+for eachId in allQuotes {
+	linelevelurl = systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/"+ eachId + "/transactionLine";
+	results = urldata(linelevelurl, "GET", headers);
+	//print results;
+	parentdocNoArr = jsonpathgetmultiple(json(get(results,"Message-Body")), "$.items[?(@._model_segment_name == 'Zebra SaaS')]._document_number");
+	//print parentdocNoArr;
+	loop = range(jsonarraysize(parentdocNoArr));
+	//print loop;
+	tempArr = get(eachModelDict, eachId);
+	for i in loop{
+		quote = get(bsIdDict, eachId);
+		sublinedocNoArr = jsonpathgetmultiple(json(get(results,"Message-Body")), "$.items[?(@._parent_doc_number == " + jsonarrayget(parentdocNoArr, i, "string") + ")]._document_number");
+		print sublinedocNoArr;
+		lineloop = range(jsonarraysize(sublinedocNoArr));
+		//print lineloop;
+		//for j in lineloop{
+			linedocNoArr = jsonpathgetmultiple(json(get(results,"Message-Body")), "$.items[?(@._parent_doc_number == " + jsonarrayget(parentdocNoArr, i, "string") + ")]._document_number");
+			linepartNoArr = jsonpathgetmultiple(json(get(results,"Message-Body")), "$.items[?(@._parent_doc_number == " + jsonarrayget(parentdocNoArr, i, "string") + ")]._part_number");
+			//print jsonarrayget(sublinedocNoArr, i, "string");
+			
+			print i;
+			print linepartNoArr;
+			doclineloop = range(jsonarraysize(linedocNoArr));
+			//print doclineloop;
+			for linedoc in doclineloop{
+				put(lineDict, quote + jsonarrayget(parentdocNoArr, i, "string"), jsonarrayget(linedocNoArr, linedoc, "integer"));
+				jsonput(quoteLinejsonBody, "Quote", quote);
+				jsonput(quoteLinejsonBody, "Model", tempArr[i]);
+				jsonput(quoteLinejsonBody, "SKU", jsonarrayget(linepartNoArr, linedoc, "string"));
+				//jsonput(quoteLinejsonBody, "ModelName", "WorkForceConnect");
+				jsonput(quoteLinejsonBody, "ModelDoc", jsonarrayget(parentdocNoArr, i, "integer"));
+				jsonput(quoteLinejsonBody, "LineDoc", jsonarrayget(linedocNoArr, linedoc, "integer"));
+				
+				jsonput(quoteLinejsonBody , "_sync_action","update");
+				jsonarrayappend(quoteLineJsonArray, quoteLinejsonBody);
+				/*print "tejasvi";
+				print quoteLineJsonArray;
+				print "tejasvi*******";*/
+			}
+		//}
+		jsonput(transLinejsonBody, "Quote", quote);
+		jsonput(transLinejsonBody, "ModelLine", tempArr[i]);
+		jsonput(transLinejsonBody, "ModelDoc", jsonarrayget(parentdocNoArr, i, "integer"));
+		jsonput(transLinejsonBody , "_sync_action","update");
+		jsonarrayappend(transLinejsonArr, transLinejsonBody);
+	}	
+}
+jsonput(datatableDat, "items", transLinejsonArr);
+jsonput(datatableData, "documents", datatableDat);
+responseData1  = urldata(systemUrl + "/rest/v9/adminCustom" + "ZPA_QuoteLines" + "/actions/synchronize","POST",headers,jsontostr(datatableData),5000);
+
+jsonput(quoteLineItems, "items", quoteLineJsonArray);
+jsonput(quoteLineTableData, "documents", quoteLineItems);
+
+responseData2  = urldata(systemUrl + "/rest/v9/adminCustom" + "QuotePricngZPA" + "/actions/synchronize","POST",headers,jsontostr(quoteLineTableData),5000);
+print lineDict;
+
+print "MainDOc-->";
+//print datatableData;
+//print responseData1;
+
+print "LineDoc-->";
+print quoteLineTableData;
+print responseData2;
+//sizeArray = range(jsonarraysize(quoteLineJsonArray));
+displaynum = "";
+print aallPartNumbers ;
+reSet = bmql("select * from QuotePricngZPA");
+for each in reSet {
+	//localJson = jsonarrayget(quoteLineJsonArray, each, "json");
+	//SKU = jsonget(localJson ,"SKU");
+	//quote1 = jsonget(localJson ,"Quote");
+	SKU = get(each, "SKU");
+	quote1  = get(each, "Quote");
+	quote2 = SKU + quote1;
+	if(find(aallPartNumbers , quote2) == -1) {
+	//print quote2;
+		recordSet = bmql("select * from  _parts where part_number =$SKU");
+		for record in recordSet{
+			displaynum = displaynum + "," + get(record, "part_display_number");
+		}
+		message = quote2 + "is not valid Part/not exist in Quote Pricing Table";
+		print "Please check data for quote in tables ZPA_QuoteLines/QuotePricngZPA and can ignore Travel Expense parts if already added in QuotePricngZPA " + quote1;
+		print message;
+	}
+}
+return "";

@@ -1,0 +1,18 @@
+company = _system_company_name;
+transactionzId  = transactionID_t;
+for each in transactionLine {
+	if(each.ZEB_pSOfferings == "Custom Quote Required") {
+		if(isnumber(getoldvalue("annualCloudNetPrice_l"))) {
+			if(each.annualCloudNetPrice_l <> atof(getoldvalue("annualCloudNetPrice_l"))){
+				url = "https://" + company + ".bigmachines.com/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/"+ transactionzId +"/actions/ZEB_customQuotePricing";
+				print url;
+				header = dict("string");
+				put(header, "content-type", "application/json");
+				response = urldata(url, "POST", header);
+				print response;
+			}
+		}
+	}
+}
+
+return "";

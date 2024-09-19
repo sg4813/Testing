@@ -1,0 +1,76 @@
+ret = "";
+retArray = string[];
+//Get Column Sequence
+
+arrayColumnSequence = split(ColumnSequence,"~");
+arrayColumn = string[];
+
+for each in arrayColumnSequence 
+{
+	
+	if(each == AttibuteName OR each == "")
+	{
+		break;
+	}
+	else
+	{
+		append(arrayColumn,each);
+	}
+}
+
+
+
+print arrayColumn;
+
+jsonPrecedent = json(PrecedentValue);
+
+setJson = jsonarray(ConfigurationJson);
+arraySize = range(jsonarraysize(setJson));
+for each in arraySize
+{
+	localJson = jsonarrayget(setJson, each);
+	localJsonObj = json(localJson);
+	localCount = 0;
+	for column1 in arrayColumn
+	{
+		
+		if ( jsonget(localJsonObj,column1) == jsonget(jsonPrecedent,column1))
+		{
+		    //print jsonget(localJsonObj,column1);
+		    localCount = localCount + 1;
+		    
+		}
+		else
+		{
+			break;
+		}		
+	}
+	if(localCount == sizeofarray(arrayColumn))
+	{
+		if(findinarray(retArray,jsonget(localJsonObj,AttibuteName)) == -1)
+		{
+			append(retArray,jsonget(localJsonObj,AttibuteName));
+		}
+	}
+	
+	
+}
+
+nCount = range(sizeofarray(retArray));
+/*
+for each in nCount
+{
+	ret = ret +  "|^|" + retArray[each] ;
+}
+if(startswith(ret, "|^|")){
+ret = substring(ret, 3, len(ret));
+}*/
+for each in nCount
+{
+	ret = ret + retArray[each] +  "|^|";
+}
+if(endswith(ret, "|^|")){
+ret = substring(ret, 0, len(ret) - 3);
+}
+
+return ret;

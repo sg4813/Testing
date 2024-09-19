@@ -1,0 +1,84 @@
+ret =  jsonArray();
+dictAccountData = dict("string");
+dictConfigurationData  = dict("string");
+arraySku = string[];
+dictAccountData = util.getAccountDetails(AccountId);
+if(get(dictAccountData,"No Account") == "Yes")
+{
+	
+	return ret;
+}
+strPriceList = get(dictAccountData,"Price List");
+strPurchasingMethod = get(dictAccountData,"Purchasing Method");
+strOrganization = get(dictAccountData,"Organization");
+strAccountType = get(dictAccountData,"Account Type");
+arrayConstrainsRule = util.getEligibilityConstrainRule("OCC");
+dictretEligilbleItem = dict("string");
+dictProductFamily = dict("string");
+dictretEligilbleItem = util.getEligibleItemsnew(strPriceList, SkuId, arrayConstrainsRule,strOrganization,strAccountType,AccountId,"OCC");
+if(get(dictretEligilbleItem,"isEligibleItems") == "N")
+{	
+		return ret;
+}
+dictSiebelId = dict("string");
+dictFulfillment = dict("string");
+dictPG = dict("string");
+JsonArraySiebelId = jsonarray(get(dictretEligilbleItem,"Item/Sku Id"));
+nCount = range(jsonarraysize(JsonArraySiebelId));
+for each in nCount
+{
+	jsonTemp = json(jsonarrayget(jsonArraySiebelId,each));
+	put(dictSiebelId,jsonget(jsonTemp,"Item ID"),jsonget(jsonTemp,"Sku Number"));
+	put(dictProductFamily,jsonget(jsonTemp,"Sku Number"),jsonget(jsonTemp,"ProductFamily"));
+	put(dictPG ,jsonget(jsonTemp,"Sku Number"),jsonget(jsonTemp,"Price Group"));
+	put(dictFulfillment,jsonget(jsonTemp,"Sku Number"),jsonget(jsonTemp,"Fulfillmenttype"));
+}
+print "ad";
+print JsonArraySiebelId ;
+strMemebership = "";
+strDirectMembership = get(dictAccountData,"Direct Membership");
+strIndirectMembership = get(dictAccountData,"Indirect Membership");
+
+if(len(strDirectMembership) > 0)
+{
+	strMemebership  = strDirectMembership;
+	if(len(strIndirectMembership) > 0)
+	{
+		strMemebership = strMemebership + "|^|" + strIndirectMembership;		
+	}
+}
+elif(len(strIndirectMembership) > 0)
+{
+	print "insider";
+	strMemebership  = strIndirectMembership;
+}
+
+dictCheckPartnerProgramEligibility = util.checkPartnerProgramEligibility(dictAccountData,dictretEligilbleItem);
+for each in SkuId
+{
+	strSKUId = get(dictSiebelId,each);
+	if(containskey(dictCheckPartnerProgramEligibility,strSKUId))
+	{
+		tempJson = json();
+		jsonput(tempJson,"SKU",strSKUId);
+		jsonput(tempJson,"SiebelProductId",each);
+		tempDict = get(dictCheckPartnerProgramEligibility,strSKUId);
+		jsonput(tempJson,"Purchase Method",get(tempDict,"Purchase Method"));
+		jsonput(tempJson,"Eligible Flag",get(tempDict,"Eligible Flag"));
+		jsonput(tempJson,"Price", get(tempDict,"PriceList"));
+		jsonput(tempJson,"Error Code",get(tempDict,"ErrorCode"));
+		jsonput(tempJson,"List Price",get(tempDict,"List Price"));
+		jsonput(tempJson,"Eligibility","");
+		jsonput(tempJson,"Membership",strMemebership);
+		jsonput(tempJson,"ProductFamily",get(dictProductFamily,strSKUId));
+		jsonput(tempJson,"Organization",strOrganization);
+		jsonput(tempJson,"Price Group",get(dictPG,strSKUId));
+		jsonput(tempJson,"Fulfillmenttype",get(dictFulfillment,strSKUId));
+		if(get(dictFulfillment,strSKUId)  == "M2M")
+		{
+			jsonput(tempJson,"Error Code","CPQ-Err-MatroxProduct");
+		}
+		jsonarrayappend(ret,tempJson);
+	}
+}
+return ret;

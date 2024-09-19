@@ -1,0 +1,92 @@
+ret = "";
+temp = dict("date");
+for line in transactionLine
+{
+	if(line._parent_doc_number == "")
+	{
+		strParent = line._document_number;
+		strDate = getdate();
+		//print strDate;
+		
+		//print strParent;
+		for line1 in transactionLine
+		{
+			iCount = 0;
+			if(line1._parent_doc_number == strParent)
+			{
+				strChildParent = line1._document_number;
+				print strChildParent;
+				for line2 in transactionLine
+				{
+					if(line2._parent_doc_number == strChildParent)
+					{
+						print line2._document_number;
+						if(iCount == 0)
+						{
+							splitDate = split(line2.contractStartDate_l," ");
+							strDate = strtojavadate(splitDate[0],"yyyy-MM-dd");
+							print line2.contractStartDate_l;
+							iCount = 1;
+						}
+						else
+						{
+							splitDate = split(line2.contractStartDate_l," ");
+							tempdate = strtojavadate(splitDate[0],"yyyy-MM-dd");
+							//print comparedates(strDate,tempdate);
+							if(comparedates(strDate,tempdate) == 1)
+							{
+								strDate = tempdate;
+							}
+							
+						}
+					}
+				}			
+			
+			ret = ret  + strChildParent + "~contractStartDate_l~"+ datetostr(strDate,"MM/dd/yyyy HH:mm:ss") + "|";
+			put(temp,strChildParent,strDate);
+		}
+		}
+	}
+}
+for line in transactionLine
+{
+	strParent = line._document_number;
+	temp1 = string[];
+	if(line._parent_doc_number == "")
+	{
+		
+		for line1 in transactionLine
+		{
+			if(line1._parent_doc_number == strParent)
+			{
+				append(temp1,line1._document_number);
+			}
+		}
+	
+		icount = 0;
+		strDate = getdate();
+		for each in temp1
+		{
+			
+			if(iCount == 0)
+			{
+				strDate = get(temp,each);
+				iCount = 1;
+			}
+			else
+			{
+				tempdate = get(temp,each);
+				if(comparedates(strDate,tempdate) == 1)
+				{
+					strDate = tempdate;
+				}
+				
+			}
+		}
+		ret = ret + "|" + strParent + "~contractStartDate_l~" + datetostr(strDate,"MM/dd/yyyy HH:mm:ss") + "|";
+	}
+
+}
+//print ret;
+//print temp;
+return ret;

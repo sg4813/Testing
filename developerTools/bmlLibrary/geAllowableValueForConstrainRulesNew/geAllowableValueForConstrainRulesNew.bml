@@ -1,0 +1,76 @@
+strAttributName = get(InputDict,"AttributeName");
+
+tempJson = json(get(InputDict,"Input"));
+strConfigJson = jsonget(tempJson,"ConfigJson");
+strColumnSequence = jsonget(tempJson,"columnSequence");
+strPrecedentValue = jsonget(tempJson,"PrecedentValue");
+ret = "";
+retArray = string[];
+//Get Column Sequence
+jsonPrecedent = json(strPrecedentValue);
+arrayColumnSequence = split(strColumnSequence ,"$,$");
+arrayColumn = string[];
+
+for each in arrayColumnSequence 
+{
+	
+	if(each == strAttributName OR each == "")
+	{
+		break;
+	}
+	else
+	{
+		append(arrayColumn,each);
+		jsonput(jsonPrecedent,each,get(InputDict,each));
+	}
+}
+
+
+
+print arrayColumn;
+
+
+
+setJson = jsonarray(strConfigJson );
+arraySize = range(jsonarraysize(setJson));
+for each in arraySize
+{
+	localJson = jsonarrayget(setJson, each);
+	localJsonObj = json(localJson);
+	localCount = 0;
+	for column1 in arrayColumn
+	{
+		
+		if ( jsonget(localJsonObj,column1) == jsonget(jsonPrecedent,column1))
+		{
+		    //print jsonget(localJsonObj,column1);
+		    localCount = localCount + 1;
+		    
+		}
+		else
+		{
+			break;
+		}		
+	}
+	if(localCount == sizeofarray(arrayColumn))
+	{
+		if(findinarray(retArray,jsonget(localJsonObj,strAttributName )) == -1)
+		{
+			append(retArray,jsonget(localJsonObj,strAttributName));
+		}
+	}
+	
+	
+}
+
+nCount = range(sizeofarray(retArray));
+
+for each in nCount
+{
+	ret = ret + retArray[each] +  "|^|";
+}
+if(endswith(ret, "|^|")){
+ret = substring(ret, 0, len(ret) - 3);
+}
+
+return ret;

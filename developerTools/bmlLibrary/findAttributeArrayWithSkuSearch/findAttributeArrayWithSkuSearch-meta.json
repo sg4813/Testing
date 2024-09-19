@@ -1,0 +1,24 @@
+{
+  "name" : "Find Attribute Array With Sku Search",
+  "variableName" : "findAttributeArrayWithSkuSearch",
+  "description" : "Created by: Abhishek 07/02/19: Function will provide Part array based on input.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String[]",
+  "parameters" : [ {
+    "name" : "AttributeName",
+    "type" : "String"
+  }, {
+    "name" : "JsonStr",
+    "type" : "String"
+  }, {
+    "name" : "Model",
+    "type" : "String"
+  }, {
+    "name" : "Sku",
+    "type" : "String"
+  }, {
+    "name" : "Search",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

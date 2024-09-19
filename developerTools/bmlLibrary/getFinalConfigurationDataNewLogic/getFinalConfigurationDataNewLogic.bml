@@ -1,0 +1,203 @@
+ret = json();
+
+strModelConfig = "";
+
+strBundleModelConfig = "";
+
+strColumnSequence = "";
+
+strBundleColumnSequence = "";
+
+dictDescription = dict("string");
+
+dictSiebelProductId = dict("string");
+
+dictProductFamilyId = dict("string");
+
+
+
+strJsonModel = get(ConfigurationData,"ModelSku");
+
+print "strJsonModel******************";
+
+print strJsonModel;
+
+jsonArrayModel = jsonarray(strJsonModel);
+
+jsonArrayModelOutput = Jsonarray();
+
+nCount = range(jsonarraysize(jsonArrayModel));
+
+arraySku = string[];
+
+for each in nCount
+
+{
+
+	jsonTemp = json(jsonarrayget(jsonArrayModel,each));	
+
+	print jsonTemp;
+
+	strSku = jsonget(jsonTemp,"Sku Number");
+
+	jsonTemp1 = json();
+
+	print strSku;
+
+	
+
+	if(containskey(ItemData,strSku))
+
+	{
+
+		append(arraySku,strSku);
+
+	}
+
+}
+
+
+
+strJsonDetails = "";
+
+strJsonDetails = get(Description,"Sku Details");
+
+jsonArrayModelDetails = jsonarray(strJsonDetails);
+
+jsonArrayModelOutput = Jsonarray();
+
+nCount = range(jsonarraysize(jsonArrayModelDetails));
+
+for each in nCount
+
+{
+
+	jsonTemp = json(jsonarrayget(jsonArrayModelDetails,each));	
+
+	strSku = jsonget(jsonTemp,"Sku Number");
+
+	strDescription = jsonget(jsonTemp,"Description");
+
+	strSiebelProductId = jsonget(jsonTemp,"SiebelProductId");
+
+	put(dictDescription,strSku,strDescription);
+
+	put(dictSiebelProductId,strSku,strSiebelProductId);
+
+	put(dictProductFamilyId,strSku,jsonget(jsonTemp,"ProductFamily"));
+
+}
+
+jsonput(ret,"Bundle Model Config","");
+
+jsonput(ret,"Bundle Column Sequence", "");
+
+jsonput(ret,"BundledKit","No");
+
+//print "dictDescription";
+
+//print dictDescription;
+
+
+
+rs = bmql("Select BundledKit from ModelsTableRelation where Model = $ModelName");
+
+
+
+for each in rs
+
+{
+
+	
+
+	bBundleKit  = get(each,"BundledKit");
+
+	print arraySku;
+
+	tempdict  = dict("string");
+
+	
+
+	tempdict = util.getModelDetailsNewLogic(ModelName,arraySku,Language,bBundleKit,ItemData,dictDescription,dictSiebelProductId,dictProductFamilyId);
+
+	print tempdict;	
+
+	
+
+	tempJson = json();
+
+	
+
+	if(get(each,"BundledKit") == "Yes")
+
+	{
+
+		//print "BBB";
+
+		strBundleModelConfig = get(tempdict,"Model Json");
+
+		strBundleColumnSequence = get(tempdict,"Cloumn Sequence");
+
+		jsonput(ret,"Bundle Model Config",strBundleModelConfig);
+
+		jsonput(ret,"Bundle Column Sequence", strBundleColumnSequence);
+
+		jsonput(ret,"BundledKit","Yes");
+
+		//jsonarrayappend(ret,tempJson);
+
+		
+
+	}
+
+	else
+
+	{
+
+		strModelConfig = get(tempdict,"Model Json");
+
+		
+
+		if(ModelName == "Imaging Library")
+
+		{
+
+		strColumnSequence = "softwareTitle$,$softwareVersion$,$package$,$Identity$,$SR$,$Codec$,$GPU$,$GMF$,$EF$,$Interface$,$DMIL$,$Registration$,$ThreeD$,$Metrology$,$Color$,$IndustrialComm$,$Classification$,$Dongle";
+
+		}
+
+		else
+
+		{
+
+		strColumnSequence = get(tempdict,"Cloumn Sequence");
+
+		}
+
+		
+
+		strColumnSequence = get(tempdict,"Cloumn Sequence");
+
+		jsonput(ret,"Model Config",strModelConfig);
+
+		jsonput(ret,"Column Sequence", strColumnSequence);
+
+		jsonput(ret,"ModelConfig","Yes");
+
+		//jsonarrayappend(ret,tempJson);
+
+	}
+
+}
+
+
+
+
+
+
+
+
+
+//rs = bmql("Select $strWhere from $strTable where $strWhere");
+
+return ret;

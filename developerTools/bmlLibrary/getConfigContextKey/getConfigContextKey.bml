@@ -1,0 +1,52 @@
+ret = "";
+rs = bmql("Select * from SF_Int_Details");
+strUrl = "";
+strUserName = "";
+strPassword = "";
+for each in rs
+{
+	if(get(each,"Type") == "CPQ_Reconfigure")
+	{
+	
+		strUrl = get(each,"URL");
+		strUrl = replace(strUrl,"{{BS_ID}}",BS_Id);
+	}
+	elif(get(each,"Type") == "CPQ User Info")
+	{
+		strUserName = get(each,"User_Name");
+		strPassword = get(each,"User_Password");
+	}
+}
+//print strUrl;	
+requestJson = json();
+jsonTemp = json();
+jsonput(jsonTemp,"bs_id",BS_Id);
+jsonTemp1 = json();
+
+//jsonput(requestJson,"documents",jsonTemp);
+jsonput(requestJson,"selections","transactionLine/2");
+
+str1 = "{\"selections\":[\"transactionLine/2\"]}";
+requestJson = json(str1);
+jsonput(requestJson,"documents",jsonTemp);
+headers = dict("string");
+put(headers, "content-type", "application/json");
+strUserDetails = strUserName  + ":" + strPassword;	
+encodecredential = encodebase64(strUserDetails);	
+authstring = "Basic "+ encodecredential;
+put(headers, "Authorization", authstring);
+response = urldata(strUrl,"Post",headers,jsontostr(requestJson));
+//print response;
+output = json(get(response,"Message-Body"));
+strdestinationURL = jsonget(output,"destinationURL");
+arrayDestination = split(strdestinationURL,"&");
+print strdestinationURL;
+for each in arrayDestination 
+{
+	if(find(each,"configContextKey") <> -1)
+	{
+		arrayDestionation1 = split(each,"configContextKey=");
+		ret = arrayDestionation1[1];
+	}
+}
+return ret;

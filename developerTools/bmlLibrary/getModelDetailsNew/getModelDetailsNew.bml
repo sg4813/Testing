@@ -1,0 +1,57 @@
+ret = "";
+ModelJsonArray = jsonarray();
+key1=jsonarray();
+key2=jsonarray();
+key=json();
+sequencearray=integer[];
+size=integer[];
+i=0;
+arrayColumnSequence = split(valuesequence,"~");
+arrayColumn = string[];
+
+for each in arrayColumnSequence 
+{
+	
+	if(each == Attribute OR each == "")
+	{
+		break;
+	}
+	else
+	{
+		append(arrayColumn,each);
+	}
+}
+
+rec = bmql("Select Sku,Sequence,Attribute,Value from ModSkuAttRelation where Model = $Model");
+for each in rec
+{
+  sequence=atoi(get(each,"Sequence"));
+  append(sequencearray,sequence); 
+}
+
+size=range(sizeofarray(sequencearray));
+for each_new in size
+{
+recSet = bmql("Select Model,Sku,Attribute,Value from ModSkuAttRelation where Model = $Model  AND Status='Active'");
+for each in recSet
+{
+	localColumn1 = get(each, "Attribute");
+	localColumn2 = get(each, "Value");
+	jsonput(key,localColumn1,localColumn2);
+	print "key";
+	print key;
+	
+	i=i+1;
+   for each2 in arrayColumn 
+   {	
+	if(jsonget(key,localColumn1) == each2)
+        {
+            sku=get(each,"Sku");
+            ret=sku;
+
+        }
+    }
+}
+}
+
+return ret;

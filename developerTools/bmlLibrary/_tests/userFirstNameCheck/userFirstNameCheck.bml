@@ -1,0 +1,13 @@
+setattribute("_user_first_name", "SUBHRA123");
+
+actual = util.userFirstNameCheck();
+ 
+expected = "SUBHRA123";
+ 
+if(expected <> actual){
+    print "Error: " + actual;
+    return false;
+}
+ 
+print "Success: " + actual;
+return true;

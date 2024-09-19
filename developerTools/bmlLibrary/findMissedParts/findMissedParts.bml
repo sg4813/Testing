@@ -1,0 +1,19 @@
+newParts=String[]{"900-00015","900-00050","900-00019","900-00054","900-00055","900-00119","900-00060","900-00149","900-00134","900-00141","900-00142","900-00143","900-00137","900-00058","900-00168","900-00133","900-00163","900-00005","900-00046","900-00031","900-00045","900-00001","900-00004","900-00135","900-00159","122515","51413","95767","900-00136","900-00158","900-00061","900-00155","900-00064","900-00065","900-00114","900-00113","900-00063","900-00154","900-00131"};
+existingParts=String[];
+missingParts=String[];
+
+resultSet  = recordset();	
+resultSet = bmql("SELECT DISTINCT ProductCode FROM BundleSKU_Relation");
+for each in resultSet
+{	
+	productCode = get(each,"ProductCode");
+	append(existingParts,productCode);
+}
+for eachPart in newParts
+{
+	if(findinarray(existingParts,eachPart)==-1)
+	{
+		append(missingParts,eachPart);
+	}
+}
+return missingParts;

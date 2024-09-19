@@ -1,0 +1,136 @@
+/*==========================================================================================
+
+Date_Modified     	Name      	Description      	 Incident/JIRA Reference      
+
+20th Nov 2023		Arun		Fetch - Partner Deal 	 CCZC-6400
+					Registration discount 
+					calculation update
+==========================================================================================*/
+
+ret = "";
+
+if(dRNumber == "" OR len(dRNumber) == 0)
+{
+ret = ret + "|1~dRError~|";
+	for line in transactionLine
+	{
+		if(line._part_number <> "" AND line.syncWithSFDC_l==  "Y" AND line.customDiscountType_l <>"")
+		{
+					
+				ret = ret + "|" + line._document_number + "~customDiscountValue_l~|";
+				ret = ret + "|" + line._document_number + "~fetchDiscount_l~|";
+				ret = ret + line._document_number + "~customDiscountType_l~|" ;			
+		}
+	}
+	return ret;
+}
+
+strPartNumber = "";
+tempJsonArray = jsonarray();
+InputJson = json();
+LineNumber = string[];
+arrayParentLine = string[]{"Mobile Robotics","Accessories","Parts","FETCH-PS","Software"};
+
+for line in transactionLine
+{ 
+	if(line._part_number <> "" AND findinarray(arrayParentLine,line._parent_line_item) == -1 AND line.syncWithSFDC_l==  "Y")
+	{		
+		jsonarrayappend(tempJsonArray,line._part_number);
+		//Arun: CCZC-6400 - Appending the list price & discountedPriceFetch from the lineitem grid
+		append(LineNumber,line._document_number + "&&" + string(line.listPriceForDrPercentageCalculation_l) + "&&" + string(line.discountedPriceFetch_l));	
+	}
+}
+
+
+jsonput(InputJson,"skuValue",tempJsonArray);
+jsonput(InputJson,"DRNumber",dRNumber);
+jsonput(InputJson,"enduserAccountNumber",endUserNum_t);
+jsonput(InputJson,"partnerAccountNumber",resellerID);
+rs = bmql("Select ORGANIZATION from Account where ACCOUNTNUMBER = $resellerID");
+for each in rs
+{
+	jsonput(InputJson,"skuOrg",get(each,"ORGANIZATION"));
+}
+
+
+
+jsonput(InputJson,"skuValue",tempJsonArray);
+
+requestJson = json();
+jsonput(requestJson,"req",InputJson);
+print requestJson;
+strAccessToken = util.salesforceAuthenticationAccessToken();
+sfUrl = "";
+strAuthorization = "Bearer "+ strAccessToken;
+print strAuthorization ;
+rs = bmql("Select * from SF_Int_Details where Type = 'DR Validation'");
+for each in rs
+{
+	sfUrl = get(each,"URL");
+}
+
+headers = dict("string");
+print sfUrl;
+put(headers,"Content-Type","application/json");
+put(headers,"Authorization",strAuthorization);
+Responsedict = urldata(sfUrl,"Post",headers,jsontostr(requestJson));
+ret = ret + "|1~dRRequestJson~" + jsontostr(requestJson) + "|";
+response = "";
+strError  = "";
+
+if(get(Responsedict,"Status-Code") == "200")
+{
+	response =  get(Responsedict,"Message-Body");
+	ret = ret + "|1~dRResponseJson~" + response + "|";
+	tempJson = json(get(Responsedict,"Message-Body"));
+	print response;
+	if(isjsonnull(tempJson,"error"))
+	{
+		if(jsonget(tempJson,"drValidity") == "true")
+		{
+			JsonArrayDiscount = jsonget(tempJson,"drSkuDiscount","jsonarray");
+			jsonDiscount = jsonarrayget(JsonArrayDiscount,0,"json");
+			strDiscount = jsonget(jsonDiscount,"discountPercentage");
+			for eachLine in LineNumber
+			{
+				//Arun: CCZC-6400 - Splitting document number , list price & discountedPriceFetch;
+				splittedValues = split(eachLine,"&&");
+				docNum = splittedValues[0];
+				listPrice = splittedValues[1];
+				discountedPriceFetch = splittedValues[2];
+				finalDiscountedPrice = (atof(listPrice)*atof(strDiscount))/100; // Percentage calculation
+				finalDiscountedPrice = atof(discountedPriceFetch) - finalDiscountedPrice;
+				
+				//ret = ret + "|" + docNum + "~customDiscountValue_l~" + string(finalDiscountedPrice) + "|";
+				ret = ret + "|" + docNum + "~fetchDiscount_l~" + string(finalDiscountedPrice) + "|";
+				ret = ret + docNum + "~customDiscountType_l~Price Override|" ; // this need to be validated
+				
+				/*
+				ret = ret + "|" + eachLine + "~customDiscountValue_l~" + strDiscount + "|";
+				ret = ret + "|" + eachLine + "~fetchDiscount_l~" + strDiscount + "|";
+				ret = ret + eachLine + "~customDiscountType_l~Discount|" ;	
+				*/			
+			}
+			ret = ret + "|1~dRError~" + " |";
+			
+		}
+		else
+		{
+			ret = ret + "|1~dRError~" + "DR Validity is failed|";
+		}
+	}
+	else
+	{
+		strError = jsonget(tempJson,"error");
+		ret = ret + "|1~dRError~" + strError + "|";
+	
+	}
+}
+else
+{
+	strError = "Error in DR Integration, Please contact with Support Team.";
+	ret = ret + "|1~dRError~" + strError + "|";
+}
+
+
+return ret;

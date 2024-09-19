@@ -1,0 +1,14 @@
+{
+  "name" : "getUserAttributes",
+  "variableName" : "getUserAttributes",
+  "description" : "Queries UserName,Password from DataTable INT_SYSTEM_DETAILS and adds it in the payload.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String Dictionary",
+  "parameters" : [ {
+    "name" : "system",
+    "type" : "String"
+  } ],
+  "subDocAttributes" : [ ],
+  "mainDocAttributes" : [ "orderId" ],
+  "systemAttributes" : [ "_system_user_first_name" ]
+}

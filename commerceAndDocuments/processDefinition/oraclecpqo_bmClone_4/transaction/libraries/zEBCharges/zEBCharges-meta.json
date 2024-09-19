@@ -1,0 +1,17 @@
+{
+  "name" : "ZEB Charges",
+  "variableName" : "zEBCharges",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "charges",
+    "type" : "JsonArray"
+  }, {
+    "name" : "documentNumber",
+    "type" : "String"
+  } ],
+  "subDocAttributes" : [ ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

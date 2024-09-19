@@ -1,0 +1,33 @@
+{
+  "name" : "Get Model Details New Logic",
+  "variableName" : "getModelDetailsNewLogic",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String Dictionary",
+  "parameters" : [ {
+    "name" : "Model",
+    "type" : "String"
+  }, {
+    "name" : "SkuNumber",
+    "type" : "String[]"
+  }, {
+    "name" : "Language",
+    "type" : "String"
+  }, {
+    "name" : "BundledKit",
+    "type" : "String"
+  }, {
+    "name" : "ItemData",
+    "type" : "Dictionary of String Dictionaries"
+  }, {
+    "name" : "Description",
+    "type" : "String Dictionary"
+  }, {
+    "name" : "SiebelProductId",
+    "type" : "String Dictionary"
+  }, {
+    "name" : "ProductFamilyId",
+    "type" : "String Dictionary"
+  } ],
+  "attributes" : [ ]
+}

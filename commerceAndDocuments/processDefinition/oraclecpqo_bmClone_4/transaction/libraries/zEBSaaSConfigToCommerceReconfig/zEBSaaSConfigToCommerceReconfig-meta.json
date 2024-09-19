@@ -1,0 +1,11 @@
+{
+  "name" : "ZEB SaaS Config To Commerce reconfig",
+  "variableName" : "zEBSaaSConfigToCommerceReconfig",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_part_number", "_model_name", "_document_number", "_config_attr_info", "modelName_l", "contractStartDate_l", "oRCL_ABO_ActionCode_l", "childInfo_l", "_parent_doc_number", "_parent_line_item", "_part_custom_field2", "contractEndDate_l", "_part_custom_field11", "parentSKU_l", "rootAssetKey_l" ],
+  "mainDocAttributes" : [ "subscriptionEndDate_t", "customerCompanyName_t", "fetchSolutionType", "contractType_t", "optyCategoryFlag_t" ],
+  "systemAttributes" : [ "_system_selected_document_number" ]
+}

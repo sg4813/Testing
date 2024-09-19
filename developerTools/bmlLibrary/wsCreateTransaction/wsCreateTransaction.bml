@@ -1,0 +1,100 @@
+/*
+company 		(string)
+sessionID 		(string)
+processName 	(string)
+segmentName 	(string)
+productLineName (string)
+modelName 		(string)
+partNumber 		(string[])
+partQuantity	(string[])
+*/
+
+result = "";
+
+bmiURL = "https://" + company + ".bigmachines.com/v1_0/receiver";
+
+wsCreateTransactionXML = "";
+wsCreateTransactionXML = wsCreateTransactionXML + "<?xml version=\"1.0\" encoding=\"UTF-8\"?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">";
+wsCreateTransactionXML = wsCreateTransactionXML + "<soapenv:Header>";
+wsCreateTransactionXML = wsCreateTransactionXML + "<bm:userInfo xmlns:bm=\"urn:soap.bigmachines.com\">";
+wsCreateTransactionXML = wsCreateTransactionXML + "<bm:sessionId>" + sessionID + "</bm:sessionId>";
+wsCreateTransactionXML = wsCreateTransactionXML + "</bm:userInfo>";
+wsCreateTransactionXML = wsCreateTransactionXML + "<bm:category xmlns:bm=\"urn:soap.bigmachines.com\">Commerce</bm:category>";
+wsCreateTransactionXML = wsCreateTransactionXML + "<bm:xsdInfo xmlns:bm=\"urn:soap.bigmachines.com\">";
+wsCreateTransactionXML = wsCreateTransactionXML + "<bm:schemaLocation>https://" + company + ".bigmachines.com/bmfsweb/" + company + "/schema/v1_0/commerce/" + processName + ".xsd</bm:schemaLocation>";
+wsCreateTransactionXML = wsCreateTransactionXML + "</bm:xsdInfo>";
+wsCreateTransactionXML = wsCreateTransactionXML + "</soapenv:Header>";
+wsCreateTransactionXML = wsCreateTransactionXML + "<soapenv:Body>";
+wsCreateTransactionXML = wsCreateTransactionXML + "<bm:createTransaction xmlns:bm=\"urn:soap.bigmachines.com\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
+wsCreateTransactionXML = wsCreateTransactionXML + "<bm:items>";
+
+if(len(segmentName) > 0 AND len(productLineName) > 0 AND len(modelName) > 0){
+	wsCreateTransactionXML = wsCreateTransactionXML + "<bm:catalogItem>";
+	wsCreateTransactionXML = wsCreateTransactionXML + "<bm:segment>" + segmentName + "</bm:segment>";
+	wsCreateTransactionXML = wsCreateTransactionXML + "<bm:product_line>" + productLineName + "</bm:product_line>";
+	wsCreateTransactionXML = wsCreateTransactionXML + "<bm:model/>" + modelName + "<bm:model/>";
+	wsCreateTransactionXML = wsCreateTransactionXML + "</bm:catalogItem>";
+}
+
+index = 0;
+if(sizeofarray(partNumber) > 0){
+	for eachPart in partNumber{
+		wsCreateTransactionXML = wsCreateTransactionXML + "<bm:partItem>";
+		wsCreateTransactionXML = wsCreateTransactionXML + "<bm:part>" + partNumber[index] + "</bm:part>";
+		wsCreateTransactionXML = wsCreateTransactionXML + "<bm:quantity>" + partQuantity[index] + "</bm:quantity>";
+		wsCreateTransactionXML = wsCreateTransactionXML + "<bm:price_book_var_name/>";
+		wsCreateTransactionXML = wsCreateTransactionXML + "</bm:partItem>";
+		
+		index = index + 1;
+	}
+}
+
+wsCreateTransactionXML = wsCreateTransactionXML + "</bm:items>";
+wsCreateTransactionXML = wsCreateTransactionXML + "<bm:transaction>";
+wsCreateTransactionXML = wsCreateTransactionXML + "<bm:process_var_name>" + processName + "</bm:process_var_name>";
+wsCreateTransactionXML = wsCreateTransactionXML + "<bm:_bm_cm_new_transaction_currency/>";
+
+//wsCreateTransactionXML = wsCreateTransactionXML + "<bm:stringAttribute1_t>" + "HELLO" + "</bm:stringAttribute1_t>";
+//wsCreateTransactionXML = wsCreateTransactionXML + "<bm:floatAttribute1_t>" + "123.45" + "</bm:floatAttribute1_t>";
+//wsCreateTransactionXML = wsCreateTransactionXML + "<bm:integerAttribute1_tintegerAttribute1_t>" + "177" + "</bm:integerAttribute1_t>";
+
+/*
+wsCreateTransactionXML = wsCreateTransactionXML + "<bm:return_specific_attributes>";
+wsCreateTransactionXML = wsCreateTransactionXML + "<bm:documents>";
+wsCreateTransactionXML = wsCreateTransactionXML + "<bm:document>";
+wsCreateTransactionXML = wsCreateTransactionXML + "<bm:var_name>" + transactionName + "</bm:var_name>";
+wsCreateTransactionXML = wsCreateTransactionXML + "<bm:attributes>";
+wsCreateTransactionXML = wsCreateTransactionXML + "<bm:attribute>_document_number</bm:attribute>";
+wsCreateTransactionXML = wsCreateTransactionXML + "</bm:attributes>";
+wsCreateTransactionXML = wsCreateTransactionXML + "</bm:document>";
+wsCreateTransactionXML = wsCreateTransactionXML + "</bm:documents>";
+wsCreateTransactionXML = wsCreateTransactionXML + "</bm:return_specific_attributes>";
+*/
+
+wsCreateTransactionXML = wsCreateTransactionXML + "</bm:transaction>";
+wsCreateTransactionXML = wsCreateTransactionXML + "</bm:createTransaction>";
+wsCreateTransactionXML = wsCreateTransactionXML + "</soapenv:Body>";
+wsCreateTransactionXML = wsCreateTransactionXML + "</soapenv:Envelope>";
+
+triggerCreateTransactionWS = urldatabypost(bmiURL, wsCreateTransactionXML, "Failed to create transaction");
+
+print "wsCreateTransactionXML";
+print wsCreateTransactionXML;
+
+print "createTransaction WS response";
+print triggerCreateTransactionWS;
+
+//<bm:success>true</bm:success>
+//<bm:id>38350089</bm:id>
+successStatus = util.getXMLSingleTag(triggerCreateTransactionWS, "bm:success");
+
+if(successStatus == "true"){
+	getBSID = util.getXMLSingleTag(triggerCreateTransactionWS, "bm:id");
+	result = getBSID;
+	
+	print "getBSID";
+	print result;
+}
+
+
+return result;

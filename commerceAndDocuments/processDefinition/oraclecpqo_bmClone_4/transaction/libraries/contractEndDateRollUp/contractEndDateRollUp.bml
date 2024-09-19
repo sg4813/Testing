@@ -1,0 +1,93 @@
+retstring = "";
+temp = dict("date");
+shellDateDict = dict("date");
+billingDateDict = dict("string");
+quoteDate = getdate();
+flagEndDate = false;
+
+
+for line in transactionLine {
+	docNum = line._document_number;
+	parentDocNum = line._parent_doc_number;
+	if(line._part_custom_field11 == "Billing" AND line.oRCL_ABO_ActionCode_l <> "DELETE") {
+		put(billingDateDict, docNum, parentDocNum);
+	}
+	if(line._part_custom_field11 == "Shell" AND line.oRCL_ABO_ActionCode_l <> "DELETE") {
+		//print line.contractStartDate_l;
+		currentLineDate = strtojavadate(line.contractEndDate_l, "yyyy-MM-dd");
+		//print currentLineDate;
+		//print parentDocNum;
+		if(containskey(shellDateDict, parentDocNum)) {
+			tempDate = get(shellDateDict, parentDocNum);
+			//print tempDate;
+			//print currentLineDate;
+			if(comparedates(tempDate, currentLineDate) == 1 ) {
+				currentLineDate = tempDate; 
+			}
+			put(shellDateDict, parentDocNum, currentLineDate);
+		} else {
+			put(shellDateDict, parentDocNum, currentLineDate);
+		}
+	}
+	//Start: Added By Prathyusha based on Story CCZC-7019
+	if(line._model_name == "Professional Services" ) {
+  		 ProdLine = getconfigattrvalue(line._document_number, "ZEB_productLine");
+  		 print ProdLine ; 
+  		 	if(ProdLine == "Prescriptive Analytics"){
+  		 	
+  		 		flagEndDate = true;  		
+  		 	 }
+       }
+       //END: Added By Prathyusha based on Story CCZC-7019
+}
+print shellDateDict;
+keys = keys(shellDateDict);
+for each in keys {
+	retstring = retstring + each + "~contractEndDate_l~" + datetostr(get(shellDateDict, each)) + "|";
+}
+//Start: Added By Prathyusha based on Story CCZC-7019
+if(flagEndDate){
+for each in keys {
+
+  		 tempDate = get(shellDateDict, each);
+  			 if(comparedates(tempDate, quoteDate) == 1 ) {
+  		 		quoteDate = tempDate;
+			}
+	//retstring = retstring + "1~contractEndDate~" + datetostr(quoteDate)  + "|";
+		
+   		retstring = retstring + "1~subscriptionEndDate_t~" + datetostr(quoteDate)  + "|";
+   	
+  	}
+ }	
+//END: Added By Prathyusha based on Story CCZC-7019
+billingModelKeys = keys(billingDateDict);
+modelDateDict = dict("date");
+for each in billingModelKeys {
+	modelKey = get(billingDateDict, each);
+	currentDate = get(shellDateDict, each);
+	if(containskey(modelDateDict, modelKey)) {
+		previousDate = get(modelDateDict, modelKey);
+		
+		if(comparedates(previousDate, currentDate) == 1 ) {
+			currentDate = previousDate; 
+		}
+		put(modelDateDict, modelKey, currentDate);
+	} else {
+		put(modelDateDict, modelKey, currentDate);
+	}
+}
+print modelDateDict;
+keys = keys(modelDateDict);
+for each in keys {
+	retstring = retstring + each + "~contractEndDate_l~" + datetostr(get(modelDateDict, each)) + "|";
+}
+for each in keys {
+	tempDate = get(modelDateDict, each);
+	if(comparedates(tempDate, quoteDate) == 1 ) {
+		quoteDate = tempDate;
+	}
+	//retstring = retstring + "1~contractEndDate~" + datetostr(quoteDate)  + "|";
+	retstring = retstring + "1~subscriptionEndDate_t~" + datetostr(quoteDate)  + "|";
+}
+
+return retstring;

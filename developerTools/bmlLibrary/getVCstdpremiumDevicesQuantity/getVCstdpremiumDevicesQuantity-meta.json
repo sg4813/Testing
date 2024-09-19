@@ -1,0 +1,18 @@
+{
+  "name" : "Get VCstd/premium devices Quantity",
+  "variableName" : "getVCstdpremiumDevicesQuantity",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "Integer",
+  "parameters" : [ {
+    "name" : "Type",
+    "type" : "String"
+  }, {
+    "name" : "devices",
+    "type" : "String[]"
+  }, {
+    "name" : "Number",
+    "type" : "Integer[]"
+  } ],
+  "attributes" : [ ]
+}

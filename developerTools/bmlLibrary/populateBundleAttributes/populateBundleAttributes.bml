@@ -1,0 +1,77 @@
+retDict = dict("anytype");
+priceArray = float[];
+skuArray= string[];
+ProductCodeArray = string[];
+requiredArray = string[];
+quantityArray = integer[];
+categoryArray  = string[];
+isQuantityEditatbleArray = String[];
+showProductArray = String[];
+bundle = "";
+bundlesJson = json(Param);
+currentBundlesJson = json();
+if(not(isjsonnull(bundlesJson, "Bundle"+String(bundleNumber)))){
+	currentBundlesJson = jsonget(bundlesJson, "Bundle"+String(bundleNumber),"json" );
+	bundle = jsonget(currentBundlesJson, "BundleName", "string" );
+	skuArray =  split(jsonget(currentBundlesJson, "DescArrayStr", "string" ),"$$");
+	ProductCodeArray=  split(jsonget(currentBundlesJson, "PartNumArrayStr", "string" ),"$$");
+	requiredArray =  split(jsonget(currentBundlesJson, "RequiredArrayStr", "string" ),"$$");
+	quantityStrArray=  split(jsonget(currentBundlesJson, "QuantityArrayStr", "string" ),"$$");
+	//priceStrArray  =  split(jsonget(currentBundlesJson, "PriceArrayStr", "string" ),"$$");
+	categoryArray  =  split(jsonget(currentBundlesJson, "Category", "string" ),"$$");
+	isQuantityEditatbleArray  =  split(jsonget(currentBundlesJson, "isQuantityEditatbleStr", "string" ),"$$");
+	showProductArray=  split(jsonget(currentBundlesJson, "showProductStr", "string" ),"$$");	
+	
+	loopArray = range(sizeofarray(skuArray ));
+	for index in loopArray  {
+		if(index < sizeofarray(quantityStrArray) and isnumber(quantityStrArray[index])){
+			append(quantityArray , atoi(quantityStrArray[index]));			
+		}else{
+			append(quantityArray , 0);					
+		}
+	//	if(index < sizeofarray(quantityStrArray) and  isnumber(priceStrArray[index])){
+	//		append(priceArray , atof(priceStrArray[index]));
+	//	}else{
+	//		append(priceArray, 0.0);					
+	//	}
+		
+	}
+	
+}
+
+if(retType == "bundleName"){
+	put(retDict, "bundleName", bundle   );
+	return retDict;
+}elif(retType == "controlAttribute"){
+	put(retDict, retType, sizeofarray(skuArray));
+	return retDict;
+}
+elif(retType == "Description"){
+	put(retDict, retType, skuArray);
+	return retDict;
+}elif( retType == "PartNumber"){
+	put(retDict, retType, ProductCodeArray );
+	return retDict;
+}elif( retType == "required"){
+	put(retDict, retType, requiredArray);
+	return retDict;
+}elif( retType == "quantity"){
+	put(retDict, retType, quantityArray);
+	return retDict;
+}elif( retType == "Category"){
+	put(retDict, retType, categoryArray  );
+	return retDict;
+}elif( retType == "isQuantityEditatble"){
+	put(retDict, retType, isQuantityEditatbleArray  );
+	return retDict;
+}elif( retType == "showProduct"){
+	put(retDict, retType, showProductArray  );
+	return retDict;
+}
+
+
+
+
+put(retDict, retType, priceArray);
+
+return retDict ;

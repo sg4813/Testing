@@ -1,0 +1,7 @@
+RetVal = "|1~shellSKUString~";
+for each in transactionline{
+	if(each._part_custom_field11 == "Shell"){
+		RetVal = Retval + each._part_number + "#####";
+	}
+}
+return RetVal + "|";

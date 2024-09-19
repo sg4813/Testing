@@ -1,0 +1,11 @@
+{
+  "name" : "Price Within Policy",
+  "variableName" : "priceWithinPolicy",
+  "description" : "Determines if the transaction's pricing falls within the allowable guidelines defined for discounting.",
+  "libraryFunctions" : [ ],
+  "returnType" : "Boolean",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "priceWithinPolicy_l" ],
+  "mainDocAttributes" : [ "priceWithinPolicy_t" ],
+  "systemAttributes" : [ ]
+}

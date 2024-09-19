@@ -1,0 +1,11 @@
+{
+  "name" : "CustomActionCode",
+  "variableName" : "customActionCode",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "oRCL_ABO_ActionCode_l", "_document_number", "_part_custom_field11", "ZEB_customActionCode_l", "_model_variable_name", "_parent_doc_number", "_model_name" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

@@ -1,0 +1,73 @@
+/*
+
+Author: Arun 
+https://sitename.oracle.com/rest/v16/allProductFamilySetups/_allProductFamilies/productFamilies/testbed/productLines/samplePL/attributes/aVPSSMDropdown1/menuItems
+
+{
+  "orderNumber": 3,
+  "itemValue": "thirdValue",
+  "itemText": "Three."
+}
+
+*/
+
+siteName = "stagezebra.bigmachines.com"; 
+instance = "";
+
+headers = dict("string");
+put(headers, "Content-Type", "application/json");
+
+
+// Fetching the credentials form data table
+recordSet = bmql("select * from INT_SYSTEM_DETAILS where System = 'Fetch-Approval'"); 
+strPassword ="";
+strUserName ="";
+for each in recordSet 
+	{strUserName = get(each, "Username"); strPassword = get(each, "Password");}
+strUserDetails = strUserName  + ":" + strPassword;	print strUserDetails;
+
+encodecredential = encodebase64(strUserDetails);	
+authstring = "Basic "+ encodecredential;
+
+put(headers, "Authorization", authstring);
+
+
+if(siteName=="devzebra"){instance="devzebra.bigmachines.com";}
+elif(siteName=="testzebra"){instance="test-cpq.zebra.com";}
+elif(siteName=="stagezebra"){instance="stagezebra.bigmachines.com";}
+elif(siteName=="zebra"){instance="cpq.zebra.com";}
+
+url = "https://" +  siteName + "/rest/v15/allProductFamilySetups/_allProductFamilies/productFamilies/zebraPOC/productLines/barcodeScanners/attributes/testMenu/menuItems";
+//url = "https://" +  siteName + "/rest/v15/allProductFamilySetups/_allProductFamilies/productFamilies/zebraPOC/productLines/barcodeScanners/attributes/testMenu/menuItems";
+//url = "https://stagezebra.bigmachines.com/rest/v15/lookupValues/123333657";
+//url = "https://" +  siteName + "/rest/v15/productFamilies/zebraPOC/productLines/barcodeScanners/attributes/testMenu/menuItems";
+
+requestJson = json();
+jsonput(requestJson,"orderNumber","3");
+jsonput(requestJson,"itemValue","Three");
+jsonput(requestJson,"itemText","Three");
+
+
+response = urldatabypost(url, jsontostr(requestJson), "ERROR", headers, true); print response;
+
+
+/*
+response = urldata(url, "Get", headers);
+messageBody = get(response,"Message-Body");
+messageBodyJson= json(messageBody);
+print messageBodyJson;
+*/
+
+/*
+if(startswith(response, "ERROR") )
+{
+print response;
+}
+else
+{
+print response;
+}
+
+*/
+
+return "";

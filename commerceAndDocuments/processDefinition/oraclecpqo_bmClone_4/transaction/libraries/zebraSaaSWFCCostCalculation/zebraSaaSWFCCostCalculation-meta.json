@@ -1,0 +1,11 @@
+{
+  "name" : "Zebra SaaS WFC Cost Calculation",
+  "variableName" : "zebraSaaSWFCCostCalculation",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_config_attr_info", "_part_number", "_document_number", "_model_name", "license", "_part_custom_field11", "contractTermInMonths", "modelName_l", "_part_custom_field2", "oRCL_ABO_ActionCode_l" ],
+  "mainDocAttributes" : [ "currency_t" ],
+  "systemAttributes" : [ ]
+}

@@ -1,0 +1,132 @@
+bFlag = true;
+retStr = "";
+//constraint
+retArray = string[];
+//Get Column Sequence
+arrayColumnSequence = split(ColumnSequence,"~");
+arrayColumn = string[];
+
+for each in arrayColumnSequence 
+{
+	
+	if(each == AttributeName OR each == "")
+	{
+		break;
+	}
+	else
+	{
+		append(arrayColumn,each);
+	}
+}
+
+jsonPrecedent = json(PrecedentValue);
+
+setJson = jsonarray(ConfigurationJson);
+arraySize = range(jsonarraysize(setJson));
+for each in arraySize
+{
+	localJson = jsonarrayget(setJson, each);
+	localJsonObj = json(localJson);
+	localCount = 0;
+	for column1 in arrayColumn
+	{
+		
+		if ( jsonget(localJsonObj,column1) == jsonget(jsonPrecedent,column1))
+		{
+		    localCount = localCount + 1;
+		    
+		}
+		else
+		{
+			break;
+		}		
+	}
+	if(localCount == sizeofarray(arrayColumn))
+	{
+		if(findinarray(retArray,jsonget(localJsonObj,AttributeName)) == -1)
+		{
+			append(retArray,jsonget(localJsonObj,AttributeName));
+		}
+	}
+	
+	
+}
+
+nCount = range(sizeofarray(retArray));
+for each in nCount
+{
+	retStr = retStr + retArray[each] +  "|^|";
+}
+
+if(endswith(retStr, "|^|")){
+retStr = substring(retStr, 0, len(retStr) - 3);
+}
+
+if(retStr <> "")
+{
+	retStrArray = split(retStr,"|^|");
+	
+	for each in retStrArray
+	{
+		if(each == ConfigAttribute)
+		{
+			bFlag = false;
+		}
+	}
+	
+}
+if(bFlag)
+{
+	retStr = "";
+	//Get Column Sequence
+	arrayColumnSequence = split(ColumnSequence,"~");
+	arrayColumn = string[];
+	
+	for each in arrayColumnSequence 
+	{
+		
+		if(each == AttributeName OR each == "")
+		{
+			break;
+		}
+		else
+		{
+			append(arrayColumn,each);
+		}
+	}
+	
+	jsonPrecedent = json(PrecedentValue);
+	setJson = jsonarray(ConfigurationJson);
+	arraySize = range(jsonarraysize(setJson));
+	
+	for each in arraySize
+	{
+		localJson = jsonarrayget(setJson, each);
+		localJsonObj = json(localJson);
+		localCount = 0;
+		for column1 in arrayColumn
+		{
+			
+			if ( jsonget(localJsonObj,column1) == jsonget(jsonPrecedent,column1))
+			{
+			    localCount = localCount + 1;
+			}
+			else
+			{
+				break;
+			}		
+		}
+		if(localCount == sizeofarray(arrayColumn))
+		{
+			retStr = jsonget(localJsonObj,AttributeName);
+			break;
+		}
+		
+	}
+return retStr;
+}
+else
+{
+	retStr = ConfigAttribute;
+}
+return retStr;

@@ -1,0 +1,11 @@
+Totalhours="";
+
+
+ results=bmql("select Bill_Hours from PS_HOURS where Package= $Type and Size= $size and SKU= $ServiceProduct and Role_Type= $EmployeType");
+ 
+ for result in results {
+        Totalhours= get(result, "Bill_Hours");
+    }
+ 
+ 
+ return Totalhours;

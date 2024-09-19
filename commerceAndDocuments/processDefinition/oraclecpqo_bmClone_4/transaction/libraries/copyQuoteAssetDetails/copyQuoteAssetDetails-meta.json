@@ -1,0 +1,11 @@
+{
+  "name" : "Copy Quote Asset Details",
+  "variableName" : "copyQuoteAssetDetails",
+  "description" : "Description: This function is to handle the clone or copy quote scenario where Asset Ids are also copied. \nAdded logic to retain asset ids for Renewal Quotes but not for New Quotes based on the action code attribute at line level\n\nAction Code Line Attribute: oRCL_ABO_ActionCode_l",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "oRCL_ABO_ActionCode_l", "itemInstanceId_l", "rootAssetKey_l", "_document_number", "fulfillmentStatus_l" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

@@ -1,0 +1,44 @@
+strWhere = string[];
+arrayColumn = string[];
+
+rs = bmql("Select ColumnName, ColumnValue from Item_Eligibility Order by ColumnName");
+
+for each in rs
+{
+	strColumnName = get(each,"ColumnName");
+	if(findinarray(arrayColumn,strColumnName) == -1)
+	{
+		if(strColumnName == "Status" OR strColumnName == "AgileLifeCycle" OR strColumnName == "PublishToOCC" OR strColumnName == "Orderable"){
+		continue;
+		}else{
+		append(arrayColumn,strColumnName);
+		}
+	}
+	
+}
+
+
+
+for each in arrayColumn
+{
+	sbTemp = stringbuilder();
+	for each1 in rs
+	{
+		strColumnName = get(each1,"ColumnName");
+		if(each == strColumnName)
+		{
+			if(sbtostring(sbTemp) == "")
+			{
+				sbappend(sbTemp,each," = '" ,get(each1,"ColumnValue"),"'");
+			}
+			else
+			{
+				sbappend(sbTemp," OR ",each," = '" ,get(each1,"ColumnValue"),"'");
+			}
+		}
+	}
+	strTemp = "(" + sbtostring(sbTemp) + ")";
+	append(strWhere,strTemp);
+}
+
+return strWhere;

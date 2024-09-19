@@ -1,0 +1,303 @@
+ret = jsonarray();
+return ret;
+/*
+
+strAccountId = AccountNumber;
+dictAccountData = dict("string");
+dictAccountPricingData = dict("dict<string>");
+arraySkuEligible = string[];
+dictSiebelId = dict("string");
+strCustomerGrp = "";
+dictAccountData = util.getAccountDetails(strAccountId);
+strPriceList = get(dictAccountData,"Price List");
+strPurchasingMethod = get(dictAccountData,"Purchasing Method");
+strOrganization = get(dictAccountData,"Organization");
+strAccountType = get(dictAccountData,"Account Type");
+strCustomerGrp = get(dictAccountData,"Customer Group");
+strMemebership = "";
+strDirectMembership = get(dictAccountData,"Direct Membership");
+strIndirectMembership = get(dictAccountData,"Indirect Membership");
+
+if(len(strDirectMembership) > 0)
+{
+	strMemebership  = strDirectMembership;
+	if(len(strIndirectMembership) > 0)
+	{
+		strMemebership = strMemebership + "|^|" + strIndirectMembership;		
+	}
+}
+elif(len(strIndirectMembership) > 0)
+{
+	print "insider";
+	strMemebership  = strIndirectMembership;
+}
+
+//arrayConstrainsRule = util.getEligibilityConstrainRule();
+arrayConstrainsRule = util.checkEligibilityForOCC();
+
+dictretEligilbleItem = dict("string");
+dictretEligilbleItem = util.getOccEligibleItems(strPriceList, SkuId, arrayConstrainsRule,strOrganization);
+
+if(get(dictretEligilbleItem,"isEligibleItems") == "N")
+{
+	return ret;
+}
+strCMPrice = jsonarray(get(dictretEligilbleItem,"CM Price"));
+print "CM Price";
+print strCMPrice;
+dictEligibility = dict("string");
+arrayEligibility = string[];
+
+if(strAccountType == "Internal")
+{
+	JsonarrayInternal = jsonarray(get(dictretEligilbleItem,"Sku Details"));
+	//dictAccountPricingData = dict("dict<string>");
+	nCount = range(jsonarraysize(JsonarrayInternal));
+	
+	for each in nCount
+	{
+		jsonTemp = json(jsonarrayget(JsonarrayInternal,each));
+		strSkuNumber = jsonget(jsonTemp,"Sku Number");
+		strListPrice = jsonget(jsonTemp,"List Price");
+		strDescription = jsonget(jsonTemp,"Description");
+		strSiebel = jsonget(jsonTemp,"SiebelProductId");
+		tempJson = json();
+		jsonput(tempJson,"Purchase Method","");
+		jsonput(tempJson,"Price", strListPrice);
+		jsonput(tempJson,"Error Code","");
+		jsonput(tempJson,"Description",strDescription);
+		jsonput(tempJson,"Eligible Flag","");
+		jsonput(tempJson,"Eligibility","");
+		jsonput(tempJson,"CM Price",strCMPrice);
+		jsonput(tempJson,"Membership",strMemebership);
+		jsonarrayappend(ret,tempJson);
+	}
+	
+
+	return ret;
+}
+if(strAccountType == "End User" OR strAccountType == "Non Classified Reseller")
+{
+	print "End User";
+	print dictretEligilbleItem;
+	strArraySkuJson = get(dictretEligilbleItem,"Sku Details");
+	print strArraySkuJson;
+	if(strArraySkuJson <> "")
+	{
+		arraySkuJsonArray = jsonarray(strArraySkuJson);
+		nCount = range(jsonarraysize(arraySkuJsonArray));
+		jsonArrayAccessCode = jsonarray();
+		for each in nCount		
+		{
+			jsonTemp1 = json();
+			append(arraySkuEligible,jsonget(json(jsonarrayget(arraySkuJsonArray,each)),"Sku Number"));
+			strSku = jsonget(json(jsonarrayget(arraySkuJsonArray,each)),"Sku Number");
+			strPrice = jsonget(json(jsonarrayget(arraySkuJsonArray,each)),"List Price");
+			jsonput(jsonTemp1,"Sku Number", strSku);
+			jsonput(jsonTemp1,"List Price", strPrice);
+			jsonarrayappend(jsonArrayAccessCode,jsonTemp1);
+		}
+		print jsonArrayAccessCode;
+		strArraySkuJson = jsonarraytostr(jsonArrayAccessCode);
+		//get Price from Account Catalog
+		dictAccountPricingData = util.getPriceForEndUser(strAccountId, arraySkuEligible,strArraySkuJson);
+		JsonDescription = jsonarray(get(dictretEligilbleItem,"Sku Details"));
+		dictDescription =  dict("string");
+		nCount = range(jsonarraysize(JsonDescription ));
+		for each in nCount
+		{
+			TempJson = json(jsonarrayget(JsonDescription,each));
+			put(dictDescription,jsonget(TempJson,"Sku Number"),jsonget(TempJson,"Description"));
+			put(dictSiebelId,jsonget(TempJson,"SiebelProductId"),jsonget(TempJson,"Sku Number"));
+		}
+		for each in SkuId
+		{
+			strSKUId = get(dictSiebelId,each);
+			if(containskey(dictAccountPricingData,strSKUId))
+			{
+				tempJson = json();
+				jsonput(tempJson,"SKU",strSKUId);
+				tempDict = get(dictAccountPricingData,strSKUId);
+				jsonput(tempJson,"Purchase Method",get(tempDict,"Purchase Method"));
+				jsonput(tempJson,"Price", get(tempDict,"PriceList"));
+				jsonput(tempJson,"Eligible Flag",get(tempDict,"Eligible Flag"));
+				jsonput(tempJson,"Error Code",get(tempDict,"ErrorCode"));
+				jsonput(tempJson,"Description",get(dictDescription,strSKUId));
+				jsonput(tempJson,"Eligibility","");
+				jsonput(tempJson,"CM Price",strCMPrice);
+				jsonput(tempJson,"Membership",strMemebership);
+				jsonarrayappend(ret,tempJson);
+			}
+		}
+	}////if(strArraySkuJson <> "")	
+	return ret;
+}
+if(len(strCustomerGrp) > 0)
+{
+	strArraySkuJson = get(dictretEligilbleItem,"Sku Details");
+	if(strArraySkuJson <> "")
+	{
+		arraySkuJsonArray = jsonarray(strArraySkuJson);
+		nCount = range(jsonarraysize(arraySkuJsonArray));
+		jsonArrayAccessCode = jsonarray();
+		for each in nCount		
+		{
+			jsonTemp1 = json();
+			append(arraySkuEligible,jsonget(json(jsonarrayget(arraySkuJsonArray,each)),"Sku Number"));
+			strSku = jsonget(json(jsonarrayget(arraySkuJsonArray,each)),"Sku Number");
+			strPrice = jsonget(json(jsonarrayget(arraySkuJsonArray,each)),"List Price");
+			strAccessCode = jsonget(json(jsonarrayget(arraySkuJsonArray,each)),"Access Code");
+			jsonput(jsonTemp1,"Sku Number", strSku);
+			jsonput(jsonTemp1,"List Price", strPrice);
+			jsonput(jsonTemp1,"Access Code",strAccessCode);
+			jsonarrayappend(jsonArrayAccessCode,jsonTemp1);
+		}
+		//print jsonArrayAccessCode;
+		strArraySkuJson = jsonarraytostr(jsonArrayAccessCode);
+		//get Price from Account Catalog
+		dictAccountPricingData = util.getPriceForSpecialAccount(strAccountId, arraySkuEligible,strArraySkuJson);
+		JsonDescription = jsonarray(get(dictretEligilbleItem,"Sku Details"));
+		dictDescription =  dict("string");
+		nCount = range(jsonarraysize(JsonDescription ));
+		for each in nCount
+		{
+			TempJson = json(jsonarrayget(JsonDescription,each));
+			put(dictDescription,jsonget(TempJson,"Sku Number"),jsonget(TempJson,"Description"));
+			put(dictSiebelId,jsonget(TempJson,"SiebelProductId"),jsonget(TempJson,"Sku Number"));
+		}
+		for each in SkuId
+		{
+			strSKUId = get(dictSiebelId,each);
+			if(containskey(dictAccountPricingData,strSKUId))
+			{
+				tempJson = json();
+				jsonput(tempJson,"SKU",strSKUId);
+				tempDict = get(dictAccountPricingData,strSKUId);
+				jsonput(tempJson,"Purchase Method",get(tempDict,"Purchase Method"));
+				jsonput(tempJson,"Eligible Flag",get(tempDict,"Eligible Flag"));
+				jsonput(tempJson,"Price", get(tempDict,"PriceList"));
+				jsonput(tempJson,"Error Code",get(tempDict,"ErrorCode"));
+				jsonput(tempJson,"Description",get(dictDescription,strSKUId));
+				jsonput(tempJson,"Eligibility","");
+				jsonput(tempJson,"CM Price",strCMPrice);
+				jsonput(tempJson,"Membership",strMemebership);
+				jsonarrayappend(ret,tempJson);
+			}
+		}
+
+	}////if(strArraySkuJson <> "")	
+        return ret;
+	
+	
+}
+
+strArraySkuJson = get(dictretEligilbleItem,"Account Sku");
+
+if(strArraySkuJson <> "")
+{
+	arraySkuJsonArray = jsonarray(strArraySkuJson);
+	nCount = range(jsonarraysize(arraySkuJsonArray));
+
+	for each in nCount		
+	{
+		append(arraySkuEligible,jsonget(json(jsonarrayget(arraySkuJsonArray,each)),"Sku Number"));
+	}
+	
+	//get Price from Account Catalog
+	dictAccountPricingData = util.getPricingFromAccountCatalog(strAccountId, arraySkuEligible,strArraySkuJson );
+}//if(strArraySkuJson <> "")
+strPriceGroupJson = get(dictretEligilbleItem,"Price Group");
+JsonDescription = jsonarray(get(dictretEligilbleItem,"Sku Details"));
+dictDescription =  dict("string");
+nCount = range(jsonarraysize(JsonDescription ));
+bQuery = false;
+for each in nCount
+{
+	TempJson = json(jsonarrayget(JsonDescription,each));
+	put(dictDescription,jsonget(TempJson,"Sku Number"),jsonget(TempJson,"Description"));
+	put(dictSiebelId,jsonget(TempJson,"SiebelProductId"),jsonget(TempJson,"Sku Number"));
+	//Abhishek
+	if(jsonget(TempJson,"Eligibility") == "Y")
+	{
+		append(arrayEligibility,jsonget(TempJson,"SiebelProductId"));
+		bQuery = true;
+	}
+}
+if(bQuery)
+{
+	rs = bmql("Select AccountNumber, SiebelProductId from CustomEligibility where SiebelProductId IN $arrayEligibility");
+	for each in rs
+	{
+		if(get(each,"AccountNumber") == AccountNumber)
+		{
+			put(dictEligibility,get(each,"SiebelProductId"),"Y");
+		}
+		elif(NOT(containskey(dictEligibility,get(each,"SiebelProductId"))))
+		{
+			put(dictEligibility,get(each,"SiebelProductId"),"N");
+		}
+	}
+}
+
+if(strPriceGroupJson <> "")
+{
+	jsonArrayPriceGroup = jsonarray(strPriceGroupJson);
+	nPriceGrpCount = range(jsonarraysize(jsonArrayPriceGroup));
+	if(strPurchasingMethod == "Indirect-Inactive")
+	{
+		for price in nPriceGrpCount 
+		{
+			jsonTemp = json(jsonarrayget(jsonArrayPriceGroup,Price));
+			strSkuNumber = jsonget(jsonTemp,"Sku Number");
+			strListPrice = jsonget(jsonTemp,"List Price");
+			strErrorCode = "";
+			dictTemp = dict("string");
+			put(dictTemp,"PriceList",strListPrice );
+			put(dictTemp,"ErrorCode","CPQ-Indirect");
+			put(dictTemp,"Purchase Method","Indirect");
+			put(dictAccountPricingData,strSkuNumber,dictTemp);
+		}
+	}
+	else
+	{
+		dictPricing = util.getPriceFromDiscountedMatrix(strPriceGroupJson,dictAccountData);
+		for each in SkuId
+		{
+			strSKUId = get(dictSiebelId,each);
+			if(containskey(dictPricing,strSKUId))
+			{
+				dictTemp = get(dictPricing,strSKUId);
+				put(dictAccountPricingData,strSKUId,dictTemp);
+			}
+		}
+	}
+}
+
+for each in SkuId
+{
+	strSKUId = get(dictSiebelId,each);
+	if(containskey(dictAccountPricingData,strSKUId))
+	{
+		tempJson = json();
+		jsonput(tempJson,"SKU",strSKUId);
+		tempDict = get(dictAccountPricingData,strSKUId);
+		jsonput(tempJson,"Purchase Method",get(tempDict,"Purchase Method"));
+		jsonput(tempJson,"Price", get(tempDict,"PriceList"));
+		jsonput(tempJson,"Error Code",get(tempDict,"ErrorCode"));
+		jsonput(tempJson,"Description",get(dictDescription,strSKUId));
+		jsonput(tempJson,"Eligible Flag",get(tempDict,"Eligible Flag"));
+		if(containskey(dictEligibility,strSKUId))
+		{
+			jsonput(tempJson,"Eligibility",get(dictEligibility,strSKUId));
+		}
+		else
+		{
+			jsonput(tempJson,"Eligibility","");
+		}
+		jsonput(tempJson,"CM Price",strCMPrice);
+		jsonput(tempJson,"Membership",strMemebership);
+		jsonarrayappend(ret,tempJson);
+	}
+}
+
+return ret;*/

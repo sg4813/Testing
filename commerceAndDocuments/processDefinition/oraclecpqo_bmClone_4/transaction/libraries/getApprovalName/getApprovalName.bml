@@ -1,0 +1,95 @@
+retArray = string[];
+approver = "";
+owner1 = LOWER(ownerLogin_t);
+owner2 = UPPER(ownerLogin_t);
+rs = bmql("Select Level_1_Manager from ApprovalMatrix where OptyOwner= $owner1 OR OptyOwner= $owner2 AND Active ='Y'");
+for each in rs
+{
+		approver = get(each,"Level_1_Manager");
+}
+print approver ;
+if(approver == "" AND contractType_t == "" AND fetchSolutionType == "" )
+{
+	return retArray;
+}
+print remainingTCV ;
+print isThisCustomerAMultiNationalOrGlobalAccount_t;
+if(isThisCustomerAMultiNationalOrGlobalAccount_t== "Yes" AND  opportunityID_t<> "" AND remainingTCV >= 0 AND contractType_t == "" AND fetchSolutionType == "")
+{
+	rs = bmql("Select Approver, IsGroup from GlobalApproval where AccountName= $multinationalAccounts_t");
+	for each in rs
+	{
+		append(retArray,get(each,"Approver"));
+	}
+	return retArray;
+}
+elif((isThisCustomerAMultiNationalOrGlobalAccount_t== "No" OR isThisCustomerAMultiNationalOrGlobalAccount_t =="") AND approver <> "" AND  opportunityID_t<> "" AND remainingTCV >= 0 AND contractType_t == "" AND fetchSolutionType == "")
+{
+Print "A";
+	rs = bmql("Select * from ApprovalMatrix where OptyOwner= $owner1 OR OptyOwner= $owner2 AND Active ='Y'");
+	for each in rs
+	{
+		append(retArray,get(each,"Level_1_Manager"));
+		append(retArray,get(each,"DealDesk"));
+		//append(retArray,get(each,"DealDesk"));
+		append(retArray,get(each,"Level_2_Manage"));
+		append(retArray,get(each,"Level_3_Manage"));
+		ret = get(each,"Approval8") + "::" + get(each,"Approval9");
+		append(retArray,ret);
+		//append(retArray,get(each,"Level_3_Manage"));
+		append(retArray,get(each,"SVP"));
+		ret = get(each,"CFO") + "::" + get(each,"CEO");
+		append(retArray,ret);
+		return retArray;
+		
+		
+	}
+}
+elif(opportunityID_t<> "" AND (contractType_t <> "" OR fetchSolutionType <> "") AND (discountFlag == "Yes" OR fetchPrerelease == "Yes"))
+{
+Print "Fetch Flow";
+rs = bmql("Select * from ApprovalMatrix where OptyOwner = $region_t AND Active ='Y'");
+	if(fetchPrerelease == "Yes")
+	{
+	for each in rs
+		{
+		append(retArray,get(each,"DirectorCM"));
+		append(retArray,get(each,"SeniorCM"));
+		}
+	}
+	for each in rs
+		{
+		append(retArray,get(each,"Level_1_Manager"));
+		append(retArray,get(each,"DealDesk"));
+		append(retArray,get(each,"Level_2_Manage"));
+		append(retArray,get(each,"Level_3_Manage"));
+	//	ret = get(each,"Approval8") + "::" + get(each,"Approval9") + "::" + get(each,"SVP");
+		append(retArray,get(each,"SVP"));
+		append(retArray,get(each,"Approval8"));
+		append(retArray,get(each,"Approval9"));
+		//append(retArray,ret);
+		//ret = get(each,"CFO") + "::" + get(each,"CEO");
+		//append(retArray,ret);
+		append(retArray,get(each,"CFO"));
+		append(retArray,get(each,"CEO"));
+		return retArray;
+		}
+	
+	
+}
+else
+{
+	rs = bmql("Select * from ApprovalMatrix where OptyOwner= $owner1 OR OptyOwner= $owner2 AND Active ='Y'");
+	for each in rs
+	{
+		append(retArray,get(each,"Level_1_Manager"));
+		append(retArray,get(each,"SeniorCM"));
+		append(retArray,get(each,"DirectorCM"));
+		append(retArray,get(each,"SVP"));
+		append(retArray,get(each,"CFO"));
+		append(retArray,get(each,"CEO"));
+	}	
+
+}
+
+return retArray;

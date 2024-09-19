@@ -1,0 +1,44 @@
+ret = "";
+sfUrl = "";
+strUrl1 = "grant_type=password&client_id=";
+sfUserName = "";
+sfUserPwd = "";
+sfClientId = "";
+sfClientSecret = "";
+strError = "";
+rs = bmql("Select * from SF_Int_Details where Type LIKE 'SF%'");
+
+for each in rs
+{
+	if(get(each,"Type") == "SF User Info")
+	{
+		sfUserName = get(each,"User_Name");
+		sfUserPwd = get(each,"User_Password");
+		sfUrl = get(each,"URL");
+	}
+	elif(get(each,"Type") == "SF Client Id")
+	{
+		sfClientId = get(each,"URL");
+	}
+	elif(get(each,"Type") == "SF Client Secret")
+	{
+		sfClientSecret = get(each,"URL");
+	}
+}
+
+sfUrl  = sfUrl + "?" + strUrl1 + sfClientId + "&client_secret=" + sfClientSecret + "&username=" + sfUserName + "&password=" + sfUserPwd; 
+requestJson = json();
+headers=dict("string");
+Responsedict = urldata(sfUrl,"Post",headers,jsontostr(requestJson));
+if(get(Responsedict,"Status-Code") == "200")
+{
+	messageBody = json(get(Responsedict,"Message-Body"));
+	ret = jsonget(messageBody,"access_token");
+	
+}
+else
+{	
+	strError  = "-1";
+}
+
+return ret;

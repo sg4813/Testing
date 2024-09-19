@@ -1,0 +1,11 @@
+{
+  "name" : "ContractEndDateRollUp",
+  "variableName" : "contractEndDateRollUp",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "contractStartDate_l", "contractEndDate_l", "oRCL_ABO_ActionCode_l", "_part_custom_field11", "_document_number", "_parent_doc_number", "_model_name", "_config_attr_info" ],
+  "mainDocAttributes" : [ "subscriptionEndDate_t" ],
+  "systemAttributes" : [ ]
+}

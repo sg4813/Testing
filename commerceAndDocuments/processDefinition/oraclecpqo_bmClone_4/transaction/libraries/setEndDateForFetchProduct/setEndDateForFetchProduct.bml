@@ -1,0 +1,113 @@
+ret = "";
+strPurchasingModel  = "";
+strContractMonth = "";
+strOrderDate = strtojavadate(OrderStartDate, "MM/dd/yyyy HH:mm:ss","America/New_York");
+for line in transactionLine
+{
+	strPurchasingModel = getconfigattrvalue(line._document_number, "purchasingModel");
+	//strContractMonth = getconfigattrvalue(line._document_number, "contractTerm");
+	strContractMonth = line.contactTerm_l;
+	print strContractMonth ;
+	if (strContractMonth == "" OR isnull(strContractMonth))
+	{
+	print "Vinay";
+	
+	strContractMonth  = line.contactTerm_l;
+	}
+	if(strContractMonth  <>"" ){
+	break;
+	}
+}
+
+if(strPurchasingModel == "Capex" OR contractType_t == "Capex")
+{
+	for line in transactionLine
+	{
+		if(line._part_number<>"900-00194"){
+			print "before error12";		
+			//tempDate = OrderStartDate;
+			tempContractEndDate = addmonths(strOrderDate, 12);
+			tempContractEndDate  = 	minusdays(tempContractEndDate ,1) ;
+			print 	tempContractEndDate ;
+			ret = ret + "|" + line._document_number + "~contractStartDate_l~"+ OrderStartDate + "|";
+			ret = ret + "|" +  line._document_number + "~contractEndDate_l~"+ datetostr(tempContractEndDate) + "|";
+			ret = ret + "|" + line._document_number + "~contactTerm_l~12 Months|"+ line._document_number + "~contractTermInMonths~12|";
+			ret = ret + "|" + line._document_number + "~salesOrder_l~" + oRCL_ERP_OrderNumber_t + "|";
+		}elif(line._part_number=="900-00194"){
+			tempDate = addmonths(strOrderDate, 12);
+			tempContractEndDate = addmonths(strOrderDate, 24);
+			tempContractEndDate  = 	minusdays(tempContractEndDate ,1) ;
+			print 	tempContractEndDate ;
+			ret = ret + "|" + line._document_number + "~contractStartDate_l~"+ datetostr(tempDate) + "|";
+			ret = ret + "|" +  line._document_number + "~contractEndDate_l~"+ datetostr(tempContractEndDate) + "|";
+			ret = ret + "|" + line._document_number + "~contactTerm_l~12 Months|"+ line._document_number + "~contractTermInMonths~12|";
+			ret = ret + "|" + line._document_number + "~salesOrder_l~" + oRCL_ERP_OrderNumber_t + "|";
+		}
+	}
+}
+else
+{
+			
+			if(strContractMonth == "36 Months")
+			{
+				intContractMonth = 36;
+			}
+			elif(strContractMonth == "1 Month")
+			{
+				intContractMonth = 1;
+			}
+			elif(strContractMonth == "2 Months")
+			{
+				intContractMonth = 2;
+			}
+			elif(strContractMonth == "3 Months")
+			{
+				intContractMonth = 3;
+			}
+			elif(strContractMonth == "6 Months")
+			{
+				intContractMonth = 6;
+			}
+			elif(strContractMonth == "24 Months")
+			{
+				intContractMonth = 24;
+			}
+			elif(strContractMonth == "48 Months")
+			{
+				intContractMonth = 48;
+			}
+			elif(strContractMonth == "12 Months")
+			{
+				intContractMonth = 12;
+			}
+			else
+			{
+				intContractMonth = 60;
+			}
+			for line in transactionLine
+			{ 
+				//tempDate = get(dictDate,line._document_number);
+				tempContractEndDate = minusdays(addmonths(strOrderDate, intContractMonth),1);
+				ret = ret + "|" + line._document_number + "~contractStartDate_l~"+ OrderStartDate+ "|";
+				ret = ret +"|" + line._document_number + "~contractEndDate_l~"+ datetostr(tempContractEndDate) + "|";
+				//ret = ret + "|" + line._document_number + "~contactTerm_l~"+ strContractMonth + "|" +  line._document_number + "~contractTermInMonths~"+ string(intContractMonth) + "|"; 
+				ret = ret + "|" + line._document_number + "~salesOrder_l~" + oRCL_ERP_OrderNumber_t + "|";
+			}
+}
+
+// Added by Shalini -- START -- calculating the PO End Date based on PO Duration for Fetch Model
+bFetchModel = false;
+for line in transactionLine{
+	if( line._model_variable_name == "fetch" ){
+		bFetchModel = true;
+		break;
+	}
+}
+if( bFetchModel AND (pODurationDays_t > 0) AND (OrderStartDate <> "") ){
+	ret = ret + "1~ZEB_PoStartDate~" + OrderStartDate + "|";
+	ret = ret + "1~ZEB_PoEndDate~" + datetostr(adddays(strtojavadate(OrderStartDate, "MM/dd/yyyy"), pODurationDays_t), "MM/dd/yyyy") + "|";
+}
+// Added by Shalini -- END
+
+print ret;
+return ret;

@@ -1,0 +1,15 @@
+{
+  "name" : "Get Price from Pricing Table",
+  "variableName" : "getPricingFromPricingTable",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "Dictionary of String Dictionaries",
+  "parameters" : [ {
+    "name" : "Account",
+    "type" : "String Dictionary"
+  }, {
+    "name" : "SkuNumber",
+    "type" : "String[]"
+  } ],
+  "attributes" : [ ]
+}

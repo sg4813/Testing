@@ -1,0 +1,54 @@
+cost = 0.0;
+currency ="";
+coversionfac =1.0;
+partNumberArray=string[];
+licenseQtyArray=integer[];
+finalString="";
+currency = currency_t;
+Quantity=1;
+
+rs1 = bmql("Select ConversionFactor from ConversionFactor where SourceCurrency =$currency and TargetCurrency ='USD'");//where _transaction_id = $_transaction_id
+for each in rs1
+	{
+		coversionfac = atof(get(each,"ConversionFactor"));
+		//print currency ;
+	}
+
+
+for line in transactionLine{
+	Model=line.modelName_l;
+	if(line._part_number <> "" AND line._part_custom_field11 == "Shell" AND Model == "Workcloud Sync" AND line._part_custom_field2 <>"Y"){
+		if(line.oRCL_ABO_ActionCode_l <>"DELETE") {
+			append(partNumberArray,line._part_number); 
+			//append(licenseQtyArray,line.license);
+			if(getconfigattrvalue("2", "numberOfLicenses_WCS") <> "" AND isnumber(getconfigattrvalue("2", "numberOfLicenses_WCS")) AND NOT ISNULL(getconfigattrvalue("2", "numberOfLicenses_WCS"))){
+				Quantity = atoi(getconfigattrvalue("2", "numberOfLicenses_WCS")); 
+			}
+		}
+	}
+	
+}
+print partNumberArray;
+partNumArrSize = range(sizeofarray(partNumberArray));
+
+costJson=json();
+costRS=bmql("Select SKU,Hosting,Uplift from WFC_Cost where SKU in $partNumberArray AND MinQty <= $Quantity AND MaxQty >=$Quantity");
+print costRS;
+for eachRec in costRS{
+	hostingCost=getfloat(eachRec,"Hosting");
+	supportCost=getfloat(eachRec,"Uplift");
+	tempCost=(hostingCost+supportCost)*coversionfac;
+	jsonput(costJson,"PartNumber",get(eachRec,"SKU"));
+	jsonput(costJson, get(eachRec,"SKU"), tempCost);
+}
+for eachLine in transactionLine{
+	if(eachLine.modelName_l == "Workcloud Sync" AND findinarray(partNumberArray, jsonget(costJson,"PartNumber")) <> -1 AND eachLine._part_custom_field11 == "Shell" AND jsonget(costJson,jsonget(costJson,"PartNumber")) <> "" AND NOT isnull(jsonget(costJson,jsonget(costJson,"PartNumber")))){
+	//if(eachLine._part_number == jsonget(costJson,"PartNumber") AND jsonget(costJson,jsonget(costJson,"PartNumber")) <> "" AND NOT isnull(jsonget(costJson,jsonget(costJson,"PartNumber")))){
+
+		tempPartCost=jsonget(costJson,jsonget(costJson,"PartNumber"),"float") * Quantity; 
+		finalString=finalString+eachLine._document_number+"~unitCost_l~"+string(tempPartCost)+"|";
+		/*tempCostString=Quantity*tempPartCost;
+		finalString=finalString+eachLine._document_number+"~costAmount_l~"+string(tempCostString)+"|";//will uncomment if required*/
+	}
+}
+return finalString;

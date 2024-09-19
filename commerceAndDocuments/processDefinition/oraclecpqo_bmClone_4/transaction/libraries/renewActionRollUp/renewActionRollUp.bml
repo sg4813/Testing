@@ -1,0 +1,20 @@
+retstring = "";
+flag = "";
+for line in transactionLine {
+	if(line._part_number <> "" and line.renewalType_l == "DO_NOT_RENEW" and line._parent_doc_number <> ""){
+	flag = "Y";
+	print line._parent_doc_number;
+	}
+}
+print "flag =" + flag;
+for each in transactionLine{
+	if (each._model_name == "Professional Services"  AND each.oRCL_ABO_ActionCode_l <> "DELETE") {
+	if(flag == "Y"){
+	retstring = retstring + "2~renewalType_l~" + "DO_NOT_RENEW" + "|";
+	}
+	else{
+	retstring = retstring + "2~renewalType_l~" + "RENEW" + "|";
+	}
+	}
+}
+return retstring;

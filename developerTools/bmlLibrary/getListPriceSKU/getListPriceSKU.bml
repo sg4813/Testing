@@ -1,0 +1,68 @@
+ret = dict("dict<string>");
+strAccountType = get(Account,"Account Type");
+arrayAccessCode = string[];
+if(Error == "Different")
+{
+	arrayAccessCode = string[]{"","CPQ-Err-Access1-2","CPQ-Err-Access1-2","CPQ-Err-003","CPQ-Err-004","CPQ-Err-005"};
+}
+else
+{
+	arrayAccessCode = string[]{"","CPQ-Indirect","CPQ-Indirect","CPQ-Indirect","CPQ-Indirect","CPQ-Indirect"};
+}
+tempskulist = string[];
+print "SkuList";
+print SkuList;
+print error;
+if(strAccountType == "Partner")
+{
+	jsonArraySkuDetails = jsonarray(get(ItemData,"Sku Details"));
+	nCount = range(jsonarraysize(jsonArraySkuDetails));
+	for each in nCount
+	{
+		jsonTemp = json(jsonarrayget(jsonArraySkuDetails,each));
+		strSku = jsonget(jsonTemp,"Sku Number");
+		print "strSku";
+		print strSku;
+		print "findinarray(SkuList,strSku)";
+		print findinarray(SkuList,strSku);
+		print "findinarray(tempskulist,strSku)";
+		print findinarray(tempskulist,strSku);
+		if(findinarray(SkuList,strSku) <> -1 AND findinarray(tempskulist,strSku) == -1)
+		{
+			print strSku;
+			dictTemp = dict("string");
+			put(dictTemp,"PriceList",jsonget(jsonTemp,"List Price"));
+			put(dictTemp,"Eligible Flag","N");
+			put(dictTemp,"Purchase Method","Indirect");
+			put(dictTemp,"List Price",jsonget(jsonTemp,"List Price"));
+			nAccessCode = atoi(jsonget(jsonTemp,"Access Code"));
+			put(dictTemp,"ErrorCode",arrayAccessCode[nAccessCode]);
+			put(ret,strSku,dictTemp);
+			print ret;
+			append(tempskulist,strSku);	
+		}
+	}
+	print "Get List Price SKU";
+	print ret;
+	return ret;
+}
+elif(strAccountType == "Internal")
+{
+	jsonArraySkuDetails = jsonarray(get(ItemData,"Sku Details"));
+	nCount = range(jsonarraysize(jsonArraySkuDetails));
+	for each in nCount
+	{
+		jsonTemp = json(jsonarrayget(jsonArraySkuDetails,each));
+		strSku = jsonget(jsonTemp,"Sku Number");
+		dictTemp = dict("string");
+		put(dictTemp,"PriceList",jsonget(jsonTemp,"List Price"));
+		put(dictTemp,"Eligible Flag","");
+		put(dictTemp,"Purchase Method","");
+		put(dictTemp,"List Price",jsonget(jsonTemp,"List Price"));
+		put(dictTemp,"ErrorCode","");
+		put(ret,strSku,dictTemp);	
+	}
+	return ret;
+}
+
+return ret;

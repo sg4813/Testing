@@ -1,0 +1,11 @@
+{
+  "name" : "testabhi",
+  "variableName" : "testabhi",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_config_attr_info", "_document_number" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

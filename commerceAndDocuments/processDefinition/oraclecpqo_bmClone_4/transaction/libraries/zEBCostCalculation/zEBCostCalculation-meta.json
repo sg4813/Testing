@@ -1,0 +1,11 @@
+{
+  "name" : "ZEB Reflexis ZPA Cost Calculation",
+  "variableName" : "zEBCostCalculation",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_part_number", "_model_name", "_document_number", "_config_attr_info", "annualCloudPriceInclHosting_l", "annualCloudNetPrice_l", "oRCL_ABO_ActionCode_l", "hours_l", "modelName_l" ],
+  "mainDocAttributes" : [ "currency_t", "region_t", "accountPriceList_t" ],
+  "systemAttributes" : [ ]
+}

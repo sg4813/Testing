@@ -1,0 +1,14 @@
+{
+  "name" : "Set End Date For Fetch Product",
+  "variableName" : "setEndDateForFetchProduct",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "OrderStartDate",
+    "type" : "String"
+  } ],
+  "subDocAttributes" : [ "_document_number", "_config_attr_info", "contractEndDate_l", "contractTermInMonths", "contactTerm_l", "contractStartDate_l", "_part_number", "_model_variable_name" ],
+  "mainDocAttributes" : [ "contractType_t", "oRCL_ERP_OrderNumber_t", "fetchMaxShipDate_t", "pODurationDays_t" ],
+  "systemAttributes" : [ "_system_user_date_pref" ]
+}

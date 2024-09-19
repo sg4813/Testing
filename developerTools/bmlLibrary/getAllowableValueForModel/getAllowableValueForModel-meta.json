@@ -1,0 +1,12 @@
+{
+  "name" : "Get Allowable Value For Model",
+  "variableName" : "getAllowableValueForModel",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "Inputs",
+    "type" : "String Dictionary"
+  } ],
+  "attributes" : [ ]
+}

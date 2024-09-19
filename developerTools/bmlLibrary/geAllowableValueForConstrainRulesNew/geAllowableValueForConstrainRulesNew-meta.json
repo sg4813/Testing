@@ -1,0 +1,12 @@
+{
+  "name" : "Get Allowable Value For Constrain Rules New",
+  "variableName" : "geAllowableValueForConstrainRulesNew",
+  "description" : "",
+  "libraryFunctions" : [ "util.getAllowableValueForConstrainRules" ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "InputDict",
+    "type" : "String Dictionary"
+  } ],
+  "attributes" : [ ]
+}

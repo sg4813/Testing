@@ -1,0 +1,116 @@
+ret = 0.0;
+
+strBundleName = get(Inputs,"Bundle Name","string");
+floatCost = get(Inputs,"Cost","float");
+strpurchasingModel = get(Inputs,"PurchasingModel","string");
+strcurrencyConversionFactor = get(Inputs,"currencyConversionFactor","float");//
+//strCost = get(Inputs,"FetchCost","float");
+strQuantity = get(Inputs,"RoboQauntity","integer");
+jsonarrayTemp = fetchCost;
+nCount  = range(jsonarraysize(jsonarrayTemp));
+WarrantySkuJson = json(get(Inputs,"bundleWarranty","string"));
+strWarrantySku = jsonget(WarrantySkuJson,strBundleName);
+floatWarrantyCost = 0.0;
+floatJoystickCost = 0.0;
+tempQuantity1 = 0.0;
+strJoystick = "";
+strcountry =  get(Inputs,"country","string");
+strcountryAccountRegion =  get(Inputs,"countryAccountRegion","string");
+strChargedoc = "";
+print strBundleName ;
+
+
+rs = bmql("Select * from Fetch_DynamicSKU Where (Active IS NULL OR Active = 'Y') AND Type  = 'Joystick' AND BundleName = $strBundleName");
+print rs;
+for each in rs
+{
+	if(get(each,"BundleName") == strBundleName)
+	{
+		tempQuantity = ceil(strQuantity/5.0);
+		tempQuantity1 = tempQuantity/strQuantity;
+		print "Abhishek";
+		print tempQuantity1 ;
+		strJoystick = get(each,"JoystickSKU");
+	}
+}
+
+print "strWarrantySku";
+print strWarrantySku ;
+print strJoystick;
+print tempQuantity1;
+for each in nCount
+{
+	jsonTemp = jsonarrayget(jsonarrayTemp,each,"json");
+	if(jsonget(jsonTemp,"PartNumber") == strWarrantySku )
+	{
+		floatWarrantyCost = jsonget(jsonTemp,"Cost","float") * strcurrencyConversionFactor; 
+		if(strpurchasingModel == "Opex")
+		{
+			floatWarrantyCost  = floatWarrantyCost/12.0;
+		}
+	}
+	elif(jsonget(jsonTemp,"PartNumber") == strJoystick)
+	{
+		floatJoystickCost = jsonget(jsonTemp,"Cost","float") * strcurrencyConversionFactor; 
+		print "tempQuantity1";
+		print tempQuantity1;
+		floatJoystickCost = tempQuantity1 * floatJoystickCost ;
+		if(strpurchasingModel == "Opex")
+		{
+			print "floatJoystickCost";
+			print floatJoystickCost ;
+			floatJoystickCost = floatJoystickCost /60.0;
+			print floatJoystickCost ;
+		}
+		print "floatJoystickCost Final";
+		print floatJoystickCost ;
+	}
+}
+print "floatWarrantyCost";
+print floatWarrantyCost  ;
+if(strpurchasingModel == "Opex")
+{
+	floatChargedoc = 0.0;
+	rs = bmql("Select * from BundleSKU_Relation where Bundle = $strBundleName AND  (Active ='Y' OR Active = 'y' OR Active IS NULL) AND Region IS NOT NULL");
+	
+	for each in rs
+	{
+		arrayRegion = split(get(each,"Region"),"|");
+		arrayExcludeCountry = string[];
+		if(get(each,"ExcludeCountry") <> "")
+		{
+			arrayExcludeCountry = split(get(each,"ExcludeCountry"),"|");
+		}
+		if(findinarray(arrayRegion,strCountry) <> -1)
+		{
+			strChargedoc = get(each,"ProductCode");
+		}
+		elif(findinarray(arrayRegion,strcountryAccountRegion) <> -1 AND findinarray(arrayExcludeCountry,strCountry) == -1 )
+		{
+			strChargedoc = get(each,"ProductCode");
+		}
+		if(strChargedoc <> "" OR len(strChargedoc) > 0)
+		{
+			for temp in nCount
+			{
+				jsonTemp = jsonarrayget(jsonarrayTemp,temp,"json");
+				if(jsonget(jsonTemp,"PartNumber") == strChargedoc)
+				{
+					floatChargedoc = floatChargedoc + jsonget(jsonTemp,"Cost","float") * strcurrencyConversionFactor;
+					floatChargedoc = floatChargedoc/60.0;
+					break;				
+				}
+			}
+		
+		}
+	}
+	print "floatChargedoc";
+	print floatChargedoc;
+	ret = round((floatCost + floatWarrantyCost  + floatJoystickCost+floatChargedoc),2) ;
+		
+}
+else
+{
+	ret = round((floatCost + floatWarrantyCost  + floatJoystickCost),2) ;
+}
+return ret;

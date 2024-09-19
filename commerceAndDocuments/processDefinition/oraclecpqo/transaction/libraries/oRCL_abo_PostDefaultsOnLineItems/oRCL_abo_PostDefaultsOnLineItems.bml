@@ -1,0 +1,149 @@
+//oRCL_abo_PostDefaultsOnLineItems
+//   Commerce library function used by SubDoc>AdvancedDefault>AfterForumla
+/////////////////////////////////////////
+//Function Definition
+//  Input Parameters:
+//      "lineHierInfo" - dict("anytype"); result of AboBuildLineItemHierarchy execution
+//  Imported library Functions:
+//      "abo_initializeContext"
+//  Imported MainDoc Attributes:
+//      "defaultRequestDate_t"
+//  Imported SubDoc Attributes:
+//      "transactionLine" - collection of new Sub Documents
+//      "_document_number" - doc number of current line
+//      "_parent_doc_number" - doc number of parent line
+//      "_model_variable_name" - model var name associated with the line
+//      "_line_bom_id" - BOM instance id holding field, Asset Key application discriminator 
+//      "itemInstanceId_l" - ABO asset key holding field
+//      "fulfillmentStatus_l" - ABO fulfillment status
+//      "oRCL_ABO_ActionCode_l" - ABO action code
+//      "requestDate_l" - order requested date on the line
+//  Returns string - concatenation of docNum~AttributeVarName~AttributeValue strings 
+//                   in the format compatible with Advanced Default>After Formulas
+// Function Body:
+returnVal = "";
+
+abocontext = util._ORCL_ABO.abo_initializeContext("oraclecpqo");//default commerce process
+print "1";
+print abocontext;
+
+businessTimeZone=jsonget(abocontext, "businessTimeZone", "string"); 
+
+if(sizeofarray(jsonKeys(abocontext)) == 0) { //ABO not defined
+print "0";
+   return returnVal;
+}
+//Start Variables Initialization Block 
+bDiagnosisOff=jsonget(abocontext, "AboDiagnosticDisabled", "boolean", true);  
+callContext="AboPostDefaultsOnLineItems";   
+assetKeyPrefix = jsonpathgetsingle(abocontext, "$.deltaBomSvcSetting.assetKeyPrefix", "string");
+
+docNumToRootDocNum = get(lineHierInfo, "DocNumToRootDocNum", "dict<string>");
+docNumToAttrs = get(lineHierInfo, "DocNumToAttrs", "dict<anytype>");
+
+rootDocNumToFinalRequestDate = dict("string"); //performance helper - stores finalized requestDate_l values 
+//End Variables Initialization Block 
+//Get Current Date and set timestamp to zero timestamp
+systemDate = util._ORCL_ABO.abo_dateTimeConverter("", "GETCURRDATE", "ZERO_TS");
+
+for line in transactionLine {
+   
+   lineRequest = "";
+   //initialize defaults application driving variables
+   isLinesRootNew = true; //means that the root line itself or sub-line's root is not initialized yet
+   requestDateFromRootLine = "";
+   isNewSPI = false;
+   
+   lineDocNumber = line._document_number;
+   print lineDocNumber;
+   isRoot = (len(line._parent_doc_number) < 1);
+   lineAssetKey = line.itemInstanceId_l;
+   
+   
+   if(isRoot) { //on the root check if it is already processed and if it is a fresh Symple Product Instance
+   print "2";
+      if(len(line.fulfillmentStatus_l) > 0) {
+         //status is set on the root line item - it is already initialized
+         //NOTE: We use empty fulfillmentStatus_l value as an indicator of new root line
+         //if this mechanism changes we'll have to revisit this          
+         isLinesRootNew = false;
+      } else { //status is empty on a root - check if it is a fresh SPI
+         isNewSPI = (isLinesRootNew AND len(lineAssetKey) < 1 AND len(line._model_variable_name) < 1 AND len(line._line_bom_id) > 0);
+      print isNewSPI;
+      }
+   }
+   
+   //filter out non ABO objects - empty asset key and not an SPI
+   if(len(lineAssetKey) < 1 AND NOT(isNewSPI)) {
+      continue;
+   }
+   //filter out existing roots
+   if(isRoot AND NOT(isLinesRootNew)) {
+      continue;
+   } 
+   
+   //initialize remaining driving variables
+   rootDocNumber = "";
+   lineAtrsMap = dict("string");
+   if(isRoot) {//on the root - can be retrieved from the line directly
+      //NOTE: getting this attribute directly from "line" variable
+      //      instead of using docNumToRootDocNum and docNumToAttrs as it's faster
+      requestDateFromRootLine = line.requestDate_l;
+      rootDocNumber = lineDocNumber;
+   } else { //on a child - we need it's root's status and requested date
+      if(containskey(docNumToRootDocNum , lineDocNumber)) {
+         rootDocNumber = get(docNumToRootDocNum, lineDocNumber);
+         lineAtrsMap = get(docNumToAttrs, rootDocNumber ,"dict<string>");
+         if(len(get(lineAtrsMap, "fulfillmentStatus_l")) > 0) {
+            isLinesRootNew = false;
+         }
+         requestDateFromRootLine = get(lineAtrsMap, "requestDate_l");
+      }
+   }
+   
+   if(isNewSPI) {//process SPI specific defaults
+      //assetKey not populated on Bom item, so generate requests for Asset Key, and Action Code
+      lineAtrsMap = get(docNumToAttrs, lineDocNumber ,"dict<string>");
+      newKey = getuuid(1);
+      newAssetKey = assetKeyPrefix + newKey[0];
+      put(lineAtrsMap, "itemInstanceId_l", newAssetKey);
+      lineRequest = lineDocNumber + "~itemInstanceId_l~" + newAssetKey + "|"
+      + lineDocNumber + "~oRCL_ABO_ActionCode_l~" + "ADD" + "|";
+   }//End SPI part
+   
+   if(isRoot AND isLinesRootNew) {//populate fulfillmentStatus_l on new root LI
+      lineRequest = lineRequest + lineDocNumber + "~fulfillmentStatus_l~" + "CREATED" + "|";
+   }
+   
+   
+   //Start "requestDate_l" population logic 
+   lineRequestedDate = line.requestDate_l;
+   newRequestDate = "";   
+   if(containskey(rootDocNumToFinalRequestDate, rootDocNumber)) {
+      newRequestDate = get(rootDocNumToFinalRequestDate, rootDocNumber);
+   } else {
+      newRequestDate = requestDateFromRootLine;
+      if(isLinesRootNew) {//only when root is new
+         // because Asset UI will supply today's value when "defaultRequestDate_t" is empty
+         // we need to adjust supplied date
+         if(len(requestDateFromRootLine) < 1) { 
+            // in empty case use header value
+            newRequestDate = defaultRequestDate_t;
+         } elif ((requestDateFromRootLine == systemDate) AND len(defaultRequestDate_t) < 1) {
+            // in case it is today - check if header is empty, and empty the value
+            newRequestDate = "";
+         }
+      }
+      //cache the value for future use
+      put(rootDocNumToFinalRequestDate,rootDocNumber,newRequestDate);
+   }
+   if(lineRequestedDate <> newRequestDate) { //"requestDate_l" value should be changed
+      lineRequest = lineRequest + lineDocNumber + "~requestDate_l~" + newRequestDate + "|";
+   }
+   //End "requestDate_l" population
+
+   returnVal = returnVal + lineRequest;
+}
+
+
+return returnVal;

@@ -1,0 +1,78 @@
+CurrentConfigurator = "";
+Qty = 0.0 ;
+LocalQty = 0.0;
+UnitCostPrice = 0.0;
+ReturnVal = "" ;
+CurrencyType = currency_t;
+print currency_t;
+print CurrencyType;
+ConversionFactor = 1.0;
+if(CurrencyType <> "USD"){
+	TempResult = bmql("select  ConversionFactor from ConversionFactor where SourceCurrency=$CurrencyType");
+	for result in  TempResult {
+		ConversionFactor = atof(get(result, "ConversionFactor"));
+		print ConversionFactor;
+	}
+}
+
+for line in transactionline {
+	CurrentConfigurator = line._part_number;
+	Qty = line.license;
+	Model = line.modelName_l;
+	if(line._part_custom_field11 == "Shell" AND Model == "WorkForce Connect" AND line._part_custom_field2 <>"Y"){
+	if(line.oRCL_ABO_ActionCode_l <>"DELETE") {
+		if(line.contractTermInMonths <> 6){
+			TermYear = line.contractTermInMonths/12;
+			LocalQty = Qty;
+		}else{
+			TermYear = 1;
+			LocalQty = Qty/2;
+		}
+		if (CurrentConfigurator =="IWG Cloud Software" AND Qty < 25000) {
+		CurrentConfigurator = "PTT Pro EMC Software";
+		}
+		if (CurrentConfigurator =="IWG Cloud Software" AND Qty >= 25000) {
+		CurrentConfigurator = "PTT Pro EMC Software Ent";
+		}
+		if (CurrentConfigurator =="IWG Software Ent" AND Qty < 25000) {
+		CurrentConfigurator = "PTT Pro EMC Software";
+		}
+		if (CurrentConfigurator =="IWG Software Ent" AND Qty >= 25000) {
+		CurrentConfigurator = "PTT Pro EMC Software Ent";
+		}
+	QueryResults = bmql("select SKU ,MinQty ,MaxQty ,Term , Hosting, VOD, GMSS, Uplift, LumpSum, Royalty from  WFC_Cost where  SKU=$CurrentConfigurator AND Term = $TermYear and MinQty <= $Qty and MaxQty >= $Qty");
+	
+		for result in  QueryResults {
+			minqty=atoi(get(result,"MinQty"));
+			maxqty=atoi(get(result,"MaxQty"));
+			term = atoi(get(result, "Term"));
+			hosting = atof(get(result, "Hosting"));
+			vod = atof(get(result, "VOD"));
+			gmss = atof(get(result, "GMSS"));
+			uplift = atof(get(result, "Uplift"));
+			lumpsum = get(result, "LumpSum");
+			royalty = atof(get(result, "Royalty"));
+			
+			if(lumpsum <> "Y"){	
+			
+				UnitCostPrice = (hosting + vod + gmss + uplift + royalty)* LocalQty;
+				UnitCostPrice = UnitCostPrice/TermYear;
+				print UnitCostPrice;
+				UnitCostPrice = round(UnitCostPrice/ConversionFactor,2);
+			} else { // Ent Pricing will be applied
+				print "Ent Pricing Applied with LumpSum Flag";
+				print line._document_number;
+				UnitCostPrice = hosting + vod + gmss + uplift + royalty;
+				UnitCostPrice = UnitCostPrice/TermYear;
+				print UnitCostPrice;
+				UnitCostPrice = round(UnitCostPrice/ConversionFactor,2);
+			}
+			ReturnVal = ReturnVal + line._document_number + "~unitCost_l~" + string(UnitCostPrice) + "|";
+		}
+		}
+		else {
+			ReturnVal = ReturnVal + line._document_number + "~unitCost_l~" + "1" + "|";
+		}	
+	}
+}
+return ReturnVal;

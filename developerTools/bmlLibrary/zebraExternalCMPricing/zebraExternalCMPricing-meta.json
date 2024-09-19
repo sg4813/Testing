@@ -1,0 +1,15 @@
+{
+  "name" : "Zebra External CM Pricing",
+  "variableName" : "zebraExternalCMPricing",
+  "description" : "",
+  "libraryFunctions" : [ "util.checkEligibilityForOCC", "util.getAccountDetails", "util.getOccEligibleItems", "util.getPriceForEndUser", "util.getPriceForSpecialAccount", "util.getPriceFromDiscountedMatrix", "util.getPricingFromAccountCatalog" ],
+  "returnType" : "JsonArray",
+  "parameters" : [ {
+    "name" : "SkuId",
+    "type" : "String[]"
+  }, {
+    "name" : "AccountNumber",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

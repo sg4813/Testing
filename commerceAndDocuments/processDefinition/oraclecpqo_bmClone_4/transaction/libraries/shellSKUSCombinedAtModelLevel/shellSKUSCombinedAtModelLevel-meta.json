@@ -1,0 +1,11 @@
+{
+  "name" : "ShellSKUSCombinedAtModelLevel",
+  "variableName" : "shellSKUSCombinedAtModelLevel",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_document_number", "_parent_doc_number", "_part_custom_field11", "_part_number", "oRCL_ABO_ActionCode_l" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

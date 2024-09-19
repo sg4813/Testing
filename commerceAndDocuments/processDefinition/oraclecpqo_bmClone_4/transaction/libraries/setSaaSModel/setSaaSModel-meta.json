@@ -1,0 +1,11 @@
+{
+  "name" : "Set SaaS Model",
+  "variableName" : "setSaaSModel",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_model_name", "_document_number", "_parent_doc_number", "modelName_l", "_part_custom_field2", "_part_number", "productLevel" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

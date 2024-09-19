@@ -1,0 +1,12 @@
+{
+  "name" : "Quote Fully Approved email trigger",
+  "variableName" : "quoteFullyApprovedEmailTrigger",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "transID",
+    "type" : "String"
+  } ],
+  "attributes" : [ "_company_name" ]
+}

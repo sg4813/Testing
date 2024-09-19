@@ -1,0 +1,342 @@
+//Tejasvi
+headers = dict("string");
+put(headers, "content-type", "application/json");
+updated = "";
+response=dict("string");
+jsonBody = json();
+responsemessage="";
+tempJson = json();
+transactionData = jsonArray();
+transLinejsonBody = json();
+docDict = dict("string");
+    datatableData = json();
+    datatableDat = json();
+    transLinejsonArr = jsonarray();
+testArr = string[];
+lineDict = dict("integer");
+bsIdDict = dict("string");
+modelLineDict = dict("string");
+quoteLineTableData = json();
+quoteLineItems = json();
+quoteLinejsonBody = json();
+quoteLineJsonArray = jsonarray();
+eachModelDict = dict("string[]");
+/*prodFamVarName = 
+prodLineVarName =
+modelVarName =*/
+dataJson = json();
+quoteDataJson = json();
+
+systemUrl = "";
+if(find(_company_name,"dev")<> -1){ 
+systemUrl = "https://devzebra.bigmachines.com";
+}
+elif(find(_company_name,"test")<> -1){
+systemUrl = "https://test-cpq.zebra.com";
+}
+else {
+systemUrl = "https://cpq.zebra.com";
+}
+print systemUrl;
+
+
+resultSet = bmql("select * from TransactionLineData");
+//print resultSet;
+//print resultSet;
+for each in resultset {
+    jsonBody = json();
+    responsemessage="";
+    tempJson = json();
+    transactionData = jsonArray();
+    transData = json();
+    tableJsonArrayData = jsonarray();
+    tableDat = json();
+    tableDataFinal = json();
+    tableDataFinal = json();
+    tableDataFina2 = json();
+    pf = json();
+    pl =  json(); 
+    pm = json();
+    tableDataFinalpl =json();
+    tableDataFinalpm = json();
+    tempJson = json();
+    tempJsonArray = jsonArray();
+    tempJson1 = json();
+    tempJsonemp = json();
+    tempJsonD = json();
+    tempJsonArrayD = jsonarray();
+    tempJsonDevices = json();
+    tempJsonDA = json();
+    tempJsonDNames = json();
+    tempJsonArrayDA = jsonarray();
+    tempJsonDevicesArray = json();
+    finalArrayset = json();
+    q1Json = json();
+    q2Json = json();
+    q3Json = json();
+    q4Json = json();
+    q5Json = json();
+    q6Json = json();
+    q7Json = json();
+    q8Json = json();
+    empColloborationJosn = json();
+	contractTermsJosn = json();
+	paymentTermsJosn = json();
+    count = 0;
+    counter = 0;
+    count1 = 0;
+    transId = get(each, "QuoteNumber");
+    quote = get(each, "Quote");
+    bsId = get(each, "BSID");
+    //print bsId;
+    val = atoi(bsId);
+    //selectedProducts = get(each, "SelectedProducts");
+    stores = atoi(get(each, "NoOfLocations"));
+    print stores;
+    countryName = get(each, "CountryName");
+    //countryName = "Unitedstates~Mexico";
+    empCount = atoi(get(each, "NoOfEmployees"));
+	ContractTerms = get(each, "ContractTerms");
+	DeviceCount = atoi(get(each, "NoOfDevices"));
+	BillingFrequency = get(each, "BillingFrequency");
+    /*devicesSelection = get(each, "DeviceSelection");
+   
+    empColl = get(each, "EmpColloboration");
+    voiceComm = get(each, "VoiceCommunication");
+    eachDeviceCount = get(each, " EachDeviceCount");
+    ZEB_lasTaskTracker = get(each, "ZEB_lasTaskTracker");
+    //devicesSelection = get(each, "DeviceSelection");
+    ZEB_deploymentSup = get(each, "ZEB_deploymentSup");
+    ZEB_physicalSiteSurv  = get(each, "ZEB_physicalSiteSurv");
+    //print ZEB_physicalSiteSurv;
+    ZEB_mdmConfiguration = get(each, "ZEB_mdmConfiguration");
+    ZEB_radioIntegration = get(each, "ZEB_radioIntegration");
+    ZEB_formalTraining = get(each, "ZEB_formalTraining");
+    ZEB_projectMan = get(each, "ZEB_projectMan");
+    PttPro = get(each, "PttPro");
+    VoiceClient = get(each, "VoiceClient");
+    IWGServer = get(each, "IWGServer");
+    RTPPORT = get(each, "RTPPORT");
+    PofileManager  = get(each, "ProfileManager");
+    ProfessionalServices  = get(each, "ProfessionalServices");*/
+    modelLine = get(each, "ModelLine");
+    //jsonput(jsonBody, "select2_FirstScreen", voiceComm);
+    jsonput(jsonBody, "pTTPro", "true");
+    //jsonput(jsonBody, "voiceClient", VoiceClient); 
+    jsonput(jsonBody, "iWGServer", "false"); 
+    jsonput(jsonBody, "ZEB_isRTPPortSelected", "false");
+    jsonput(jsonBody, "profileManager", "false");
+    jsonput(jsonBody, "testAttribute", "true");
+    jsonput(jsonBody, "wFSteps", 8);
+    jsonput(jsonBody, "convertedFlag", true);
+    //jsonput(jsonBody, "employeeCollaboration_CB", empColl);
+    //jsonput(jsonBody, "select2_FirstScreen", voiceComm);
+   
+	jsonput(empColloborationJosn, "value", true);
+	//jsonput(empColloborationJosn, "locked", true);
+	jsonput(jsonBody, "employeeCollaboration_CB", empColloborationJosn);
+	
+	//contract Terms
+	jsonput(contractTermsJosn, "value", ContractTerms);
+	jsonput(jsonBody, "contractTerms", contractTermsJosn);
+	
+	//Billing frequency
+	jsonput(paymentTermsJosn, "value", BillingFrequency);
+	jsonput(jsonBody, "paymentTerms", paymentTermsJosn);
+    
+	
+	  jsonput(q5Json, "value", "Yes");
+    jsonput(q5Json, "displayValue", "Yes");
+    jsonput(jsonBody, "ZEB_radioIntegration", q5Json);
+	/*
+    jsonput(q2Json, "value", ZEB_lasTaskTracker);
+    jsonput(q2Json, "displayValue", ZEB_lasTaskTracker);
+    jsonput(jsonBody, "ZEB_lasTaskTracker", q2Json);
+    jsonput(q3Json, "value", ZEB_physicalSiteSurv);
+    jsonput(q3Json, "displayValue", ZEB_physicalSiteSurv);
+    jsonput(jsonBody, "ZEB_physicalSiteSurvey", q3Json);
+    jsonput(q4Json, "value", ZEB_mdmConfiguration);
+    jsonput(q4Json, "displayValue", ZEB_mdmConfiguration);
+    jsonput(jsonBody, "ZEB_mdmConfigurationSupport", q4Json);
+  
+    jsonput(q6Json, "value", ZEB_projectMan);
+    jsonput(q6Json, "displayValue", ZEB_projectMan);
+    jsonput(jsonBody, "ZEB_projectManagement", q6Json);
+    jsonput(q7Json, "value", ZEB_deploymentSup);
+    jsonput(q7Json, "displayValue", ZEB_deploymentSup);
+    jsonput(jsonBody, "ZEB_deploymentSupport", q7Json);
+    jsonput(q8Json, "value", ZEB_formalTraining);
+    jsonput(q8Json, "displayValue", ZEB_formalTraining);
+    jsonput(jsonBody, "ZEB_formalTraining", q8Json);*/
+    /*jsonput(q1Json, "value", ZEB_lasTaskTracker);
+    jsonput(q21Json, "displayValue", ZEB_lasTaskTracker);*/
+    /*if(ProfessionalServices == "Custom Professional services") {
+        jsonput(jsonBody, "ZEB_customQuoteRequired_pf", false);
+    }*/
+    //need to add logic for arrayset Professional Services
+    //devicesSelection = "Alcatel~Mitel";
+    //jsonput(jsonBody, "pTTPro", selectedProducts);
+    //jsonput(jsonBody, "whereAreTheProductsBeingUsed_multiselectmenu",countryName);
+    //Country Selection
+    if(find(countryName,"~")<>-1) {
+        countryNames = split(countryName, "~");
+        for countries in countryNames {
+            jsonput(tempJson, "value", countryNames[count]);
+            jsonput(tempJson, "displayValue", countryNames[count]);
+            jsonarrayappend(tempJsonArray, tempJson);
+            count = count + 1;
+        }
+        jsonput(tempJson1, "items", tempJsonArray);
+        //print tempJson1;
+    }
+    else {
+            jsonput(tempJson, "value", countryName);
+            jsonput(tempJson, "displayValue", countryName);
+            jsonarrayappend(tempJsonArray, tempJson);
+            jsonput(tempJson1, "items", tempJsonArray);
+            //print tempJson1;
+    }
+    //devices Selection
+    /*if(find(devicesSelection,"~")<>-1) {
+        devices = split(devicesSelection, "~");
+        for deviceNames in devices {
+            jsonput(tempJsonD, "value", devices[counter]);
+            jsonput(tempJsonD, "displayValue", devices[counter]);
+            jsonarrayappend(tempJsonArrayD, tempJsonD);
+            counter = counter + 1;
+        }
+        jsonput(tempJsonDevices, "items", tempJsonArrayD);
+        //print tempJsonDevices;
+    } else {
+        jsonput(tempJsonD, "value", devicesSelection);
+        jsonput(tempJsonD, "displayValue", devicesSelection);
+        jsonarrayappend(tempJsonArrayD, tempJsonD);
+    }
+    //arrayset Selection
+    if(find(devicesSelection,"~")<>-1) {
+        devices1 = split(devicesSelection, "~");
+        for deviceNames1 in devices1 {
+            jsonput(tempJsonDA, "_index", count1);
+            jsonput(tempJsonDNames, "value", devices1[count1]);
+            jsonput(tempJsonDNames, "displayValue", devices1[count1]);
+            jsonput(tempJsonDA, "deviceName", tempJsonDNames);
+            jsonarrayappend(tempJsonArrayDA, tempJsonDA);
+            count1 = count1 + 1;
+        }
+        jsonput(tempJsonDevicesArray, "items", tempJsonArrayDA);
+    } else {
+        jsonput(tempJsonDA, "_index", 0);
+            jsonput(tempJsonDNames, "value", devicesSelection);
+            jsonput(tempJsonDNames, "displayValue", devicesSelection);
+            jsonput(tempJsonDA, "deviceName", tempJsonDNames);
+            jsonarrayappend(tempJsonArrayDA, tempJsonDA);
+    }
+    jsonput(jsonBody, "_setnumberOfDevices_arrayset", tempJsonDevicesArray); */
+    //print jsonbody;
+    //jsonput(jsonBody, "voiceClientPBXSelection", tempJsonDevices);
+    //jsonput(jsonBody, "employeeCollaboration_CB", tempJsonemp);
+    jsonput(jsonBody, "whereAreTheProductsBeingUsed_multiselectmenu", tempJson1);
+    jsonput(jsonBody, "howManyEmployeesDoYouNeedToConnect_ZS_", empCount);
+    jsonput(jsonBody, "howManyDevicesDoYouNeedToConnect_ZS_", DeviceCount);
+    jsonput(jsonBody, "howManyLocationsDoYouWantToDeployTheSolutionTo_ZS_", stores);
+    jsonput(tableDataFinal, "productFamily","zebraSaaS_ZS");
+    jsonput(tableDataFinal, "productLine" , "saasProducts_SP");
+    jsonput(tableDataFinal, "model", "workForceConnect_WFC");
+    jsonput(tableDataFinal, "configData", jsonBody);
+    jsonarrayappend(tableJsonArrayData, tableDataFinal);
+    jsonput(tableDat, "bsId", val);
+    jsonput(tableDat, "documentId", 337957606);
+    jsonput(tableDat, "items", tableJsonArrayData);
+    //print tableDat;
+        addModel = systemUrl + "/rest/v12/config/actions/_bulkAddToTxn";
+    results = urldata(addModel, "POST", headers, jsontostr(tableDat));
+    put(bsIdDict, bsId,quote);
+    print ">>>><<<<>>>><<<<>>><<<>>><<<<<>>><<<<>>>";
+    print results;
+    print ">>>><<<<>>>><<<<>>><<<>>><<<<<>>><<<<>>>";
+    tempArr = string[];
+    if(containskey(eachModelDict, bsId)){
+        tempArr = get(eachModelDict, bsId);
+        append(tempArr, modelLine);
+        put(eachModelDict, bsId,tempArr);
+    }else{
+        append(tempArr, modelLine);
+        put(eachModelDict, bsId, tempArr);
+    }
+    put(modelLineDict, modelLine + "###" + transId, bsId);
+    //print results;
+    /*linelevelurl = systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/"+ string(val) + "/transactionLine";
+    //saveUrl = systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/" + string(val) + "/actions/cleanSave_t";
+    results = urldata(linelevelurl, "GET", headers);
+    docNoArr = jsonpathgetmultiple(json(get(results,"Message-Body")), "$.items[?(@._model_segment_name == 'Zebra SaaS')]._document_number");
+    loop = range(jsonarraysize(docNoArr));
+    print "docNoArr-->";
+    print docNoArr;
+    for i in loop {
+        print docDict;
+            if(NOT(containskey(docDict, quote + jsonarrayget(docNoArr, i, "string")))){// AND findinarray(get(docDict, quote), modelLine) == -1){
+            append(testArr,modelLine);
+            put(docDict, quote + jsonarrayget(docNoArr, i, "string"), modelLine);
+            jsonput(transLinejsonBody, "Quote", get(each, "Quote"));
+            jsonput(transLinejsonBody, "ModelLine", modelLine);
+            jsonput(transLinejsonBody, "ModelDoc", jsonarrayget(docNoArr, i, "integer"));
+            jsonput(transLinejsonBody , "_sync_action","update");
+            jsonarrayappend(transLinejsonArr, transLinejsonBody);
+        }
+    }*/
+}
+            /*jsonput(datatableDat, "items", transLinejsonArr);
+            jsonput(datatableData, "documents", datatableDat);
+            responseData1  = urldata(systemUrl + "/rest/v9/adminCustom" + "TransactionLineData" + "/actions/synchronize","POST",headers,jsontostr(datatableData),5000);
+print "tableData-->";
+print datatableData;*/
+allQuotes = keys(bsIdDict);
+for eachId in allQuotes {
+    linelevelurl = systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/"+ eachId + "/transactionLine";
+    results = urldata(linelevelurl, "GET", headers);
+    parentdocNoArr = jsonpathgetmultiple(json(get(results,"Message-Body")), "$.items[?(@._model_segment_name == 'Zebra SaaS')]._document_number");
+    loop = range(jsonarraysize(parentdocNoArr));
+    tempArr = get(eachModelDict, eachId);
+    for i in loop{
+        quote = get(bsIdDict, eachId);
+        sublinedocNoArr = jsonpathgetmultiple(json(get(results,"Message-Body")), "$.items[?(@._parent_doc_number == " + jsonarrayget(parentdocNoArr, i, "string") + ")]._document_number");
+        print sublinedocNoArr;
+        lineloop = range(jsonarraysize(sublinedocNoArr));
+        for j in lineloop{
+            linedocNoArr = jsonpathgetmultiple(json(get(results,"Message-Body")), "$.items[?(@._parent_doc_number == " + jsonarrayget(sublinedocNoArr, j, "string") + ")]._document_number");
+            linepartNoArr = jsonpathgetmultiple(json(get(results,"Message-Body")), "$.items[?(@._parent_doc_number == " + jsonarrayget(sublinedocNoArr, j, "string") + ")]._part_number");
+            print linedocNoArr;
+            doclineloop = range(jsonarraysize(linedocNoArr));
+            for linedoc in doclineloop{
+                put(lineDict, quote + jsonarrayget(sublinedocNoArr, j, "string"), jsonarrayget(linedocNoArr, linedoc, "integer"));
+                jsonput(quoteLinejsonBody, "Quote", quote);
+                jsonput(quoteLinejsonBody, "Model", tempArr[i]);
+                jsonput(quoteLinejsonBody, "SKU", jsonarrayget(linepartNoArr, linedoc, "string"));
+                //jsonput(quoteLinejsonBody, "ModelName", "WorkForceConnect");
+                jsonput(quoteLinejsonBody, "ModelDoc", jsonarrayget(parentdocNoArr, i, "integer"));
+                jsonput(quoteLinejsonBody, "LineDoc", jsonarrayget(linedocNoArr, linedoc, "integer"));
+                jsonput(quoteLinejsonBody , "_sync_action","update");
+                jsonarrayappend(quoteLineJsonArray, quoteLinejsonBody);
+            }
+        }
+        jsonput(transLinejsonBody, "Quote", quote);
+        jsonput(transLinejsonBody, "ModelLine", tempArr[i]);
+        jsonput(transLinejsonBody, "ModelDoc", jsonarrayget(parentdocNoArr, i, "integer"));
+        jsonput(transLinejsonBody , "_sync_action","update");
+        jsonarrayappend(transLinejsonArr, transLinejsonBody);
+    }   
+}
+jsonput(datatableDat, "items", transLinejsonArr);
+jsonput(datatableData, "documents", datatableDat);
+responseData1  = urldata(systemUrl + "/rest/v9/adminCustom" + "TransactionLineData" + "/actions/synchronize","POST",headers,jsontostr(datatableData),5000);
+jsonput(quoteLineItems, "items", quoteLineJsonArray);
+jsonput(quoteLineTableData, "documents", quoteLineItems);
+responseData2  = urldata(systemUrl + "/rest/v9/adminCustom" + "QuoteLines" + "/actions/synchronize","POST",headers,jsontostr(quoteLineTableData),5000);
+print lineDict;
+print "MainDOc-->";
+print datatableData;
+//print responseData1;
+print "LineDoc-->";
+print quoteLineTableData;
+print responseData2;
+return "";

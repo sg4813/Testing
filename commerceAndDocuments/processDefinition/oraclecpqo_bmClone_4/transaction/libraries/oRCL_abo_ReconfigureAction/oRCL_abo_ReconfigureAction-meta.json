@@ -1,0 +1,14 @@
+{
+  "name" : "ABO Reconfigure Action",
+  "variableName" : "oRCL_abo_ReconfigureAction",
+  "description" : "ABO implementation of the reconfigure and reconfigure line action script respectively.",
+  "libraryFunctions" : [ "util.ORCL_ABO.abo_initializeContext", "util.ORCL_ABO.abo_reconfigure" ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "isMainDoc",
+    "type" : "Boolean"
+  } ],
+  "subDocAttributes" : [ "_document_number", "itemInstanceId_l", "fulfillmentStatus_l", "requestDate_l", "_line_bom_parent_id", "oRCL_ABO_ActionCode_l" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ "_system_buyside_id", "_system_current_document_number", "_system_selected_document_number" ]
+}

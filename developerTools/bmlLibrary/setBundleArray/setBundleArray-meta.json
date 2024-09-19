@@ -1,0 +1,12 @@
+{
+  "name" : "Set Bundle Array",
+  "variableName" : "setBundleArray",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "inputParamsDict",
+    "type" : "Anytype Dictionary"
+  } ],
+  "attributes" : [ ]
+}

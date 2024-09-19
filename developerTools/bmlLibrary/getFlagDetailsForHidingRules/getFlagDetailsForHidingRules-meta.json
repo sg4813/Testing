@@ -1,0 +1,15 @@
+{
+  "name" : "Get Flag details for hiding rules",
+  "variableName" : "getFlagDetailsForHidingRules",
+  "description" : "Not in use",
+  "libraryFunctions" : [ ],
+  "returnType" : "String[]",
+  "parameters" : [ {
+    "name" : "accountProvince",
+    "type" : "String"
+  }, {
+    "name" : "accountType",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

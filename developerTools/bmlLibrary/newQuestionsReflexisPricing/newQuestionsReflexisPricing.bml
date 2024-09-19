@@ -1,0 +1,171 @@
+/*
+inputParamsDict=Any Type Dictionary
+
+*/
+resultArray=Float[]{0.0};
+currency="";
+listPrice=0.0;
+cost=0.0;
+coversionfac=1.0;
+regionFactor = 0.0;
+priceTotal = 0.0;
+finalPrice = 0.0;
+costDict=dict("float");
+listPriceDict=dict("float");
+
+//Input Parameters
+action=get(inputParamsDict,"action","string");
+partNumberPSRef=get(inputParamsDict,"partNumberPSRef","string[]");
+region=get(inputParamsDict,"region","string");
+newQuestions_pl=get(inputParamsDict,"newQuestions_pl","string");
+noOfPacks_pl=get(inputParamsDict,"noOfPacks_pl","string");
+// added below attribute for CCZC - 6882 by Triveni
+reportModification=get(inputParamsDict,"reportModification","string");
+noOfMaintenancePacks_pl=get(inputParamsDict,"noOfMaintenancePacks_pl","string");
+noOfReports_pl=get(inputParamsDict,"noOfReports_pl","string");
+storePulseRTTM_pl=get(inputParamsDict,"storePulseRTTM_pl","string");
+storePRTTMUseCaseM_pl=get(inputParamsDict,"storePRTTMUseCaseM_pl","string");
+configBlockHours_pl=get(inputParamsDict,"configBlockHours_pl","string");
+tacBlockOfHours_pl=get(inputParamsDict,"tacBlockOfHours_pl","string");
+implShadowing_pl=get(inputParamsDict,"implShadowing_pl","string");
+
+//Currency Conversion
+rs1 = bmql("Select currency_t from commerce.transaction");//where _transaction_id = $_transaction_id
+for each in rs1
+{
+	 currency = get(each,"currency_t");
+}
+rs1 = bmql("Select ConversionFactor from ConversionFactor where SourceCurrency =$currency and TargetCurrency ='USD'");
+for each in rs1
+{        if(isnumber(get(each,"ConversionFactor"))){
+		coversionfac = atof(get(each,"ConversionFactor"));
+		print coversionfac;
+	}
+}
+
+//Setting List Price and Cost Dictionaries
+recordSetRegion = bmql("select * from PS_PerHour_Price where ModelName = 'PS' AND Org = $region AND NewQuestions='Y'");
+print recordSetRegion;
+for eachRegion in recordSetRegion
+{	
+
+	regionFactor = atof(get(eachRegion,"List_Price"));
+	attrVarName=get(eachRegion,"AttrVarName");	
+	attrValue=get(eachRegion,"AttrValue");
+	listPrice=atof(get(eachRegion,"List_Price"));
+	cost=atof(get(eachRegion,"Cost"));
+	key=attrVarName+"##"+attrValue;
+	put(costDict,key,cost);
+	put(listPriceDict,key,listPrice);
+}
+
+//Finding selected attributes
+validKeys=String[];
+if(newQuestions_pl=="Yes")
+{
+	if((implShadowing_pl <> "") AND NOT ISNULL(implShadowing_pl)){ // added condition for Runtime exception error by Prathyusa
+		if(find(implShadowing_pl,"~") >=0){
+			arrayImplShadow = split(implShadowing_pl,"~"); //~None~1stOption~2ndOption
+			for each in arrayImplShadow 
+			{
+				if(each=="Task Management Shadowing")
+				{
+					append(validKeys,"implShadowing_pl"+"##"+"Task Management Shadowing");
+				}
+				elif(each=="Workforce Management Shadowing")
+				{
+					append(validKeys,"implShadowing_pl"+"##"+"Workforce Management Shadowing");
+				}
+			}
+		}
+	}
+	else
+	{
+		if(implShadowing_pl=="Task Management Shadowing")
+		{
+			append(validKeys,"implShadowing_pl"+"##"+"Task Management Shadowing");
+		}
+		elif(implShadowing_pl=="Workforce Management Shadowing")
+		{
+			append(validKeys,"implShadowing_pl"+"##"+"Workforce Management Shadowing");
+		}
+	}
+	
+	
+	if(storePulseRTTM_pl<>"Please Select" AND storePulseRTTM_pl<>"" AND NOT ISNULL(storePulseRTTM_pl))
+	{
+		append(validKeys,"storePulseRTTM_pl"+"##"+storePulseRTTM_pl);
+	}
+	if(storePRTTMUseCaseM_pl=="TRUE" OR storePRTTMUseCaseM_pl=="true")
+	{
+		append(validKeys,"storePRTTMUseCaseM_pl"+"##TRUE");
+	}
+	
+	
+	if(noOfPacks_pl<>"Please Select" AND noOfPacks_pl<> "" AND NOT ISNULL(noOfPacks_pl))
+	{
+		append(validKeys,"noOfPacks_pl"+"##"+noOfPacks_pl);
+		
+	}
+	// added below if for CCZC-6882 by triveni - START
+	if(reportModification<>"Please Select" AND reportModification <>"" AND NOT ISNULL(reportModification))
+	{
+		append(validKeys,"reportModification"+"##"+reportModification);
+		
+	} // added above if for CCZC-6882 by triveni - END
+	if(noOfMaintenancePacks_pl<>"Please Select" AND noOfMaintenancePacks_pl <> "" AND NOT ISNULL(noOfMaintenancePacks_pl))
+	{
+		append(validKeys,"noOfMaintenancePacks_pl"+"##"+noOfMaintenancePacks_pl); 
+	}
+	if(noOfReports_pl=="Individual Report")
+	{
+		append(validKeys,"noOfReports_pl"+"##"+noOfReports_pl);
+	}
+	if(noOfReports_pl<>"Please Select" AND noOfReports_pl<>"Individual Report" AND noOfReports_pl <> "" AND NOT ISNULL(noOfReports_pl))
+	{
+		append(validKeys,"noOfReports_pl"+"##"+noOfReports_pl);
+	}
+	
+	if(configBlockHours_pl<>"Please Select" AND configBlockHours_pl <> "" AND NOT ISNULL(configBlockHours_pl))
+	{
+		append(validKeys,"configBlockHours_pl"+"##"+configBlockHours_pl);
+	}
+	if(tacBlockOfHours_pl<>"Please Select" AND tacBlockOfHours_pl <> "" AND NOT ISNULL(tacBlockOfHours_pl))
+	{
+		append(validKeys,"tacBlockOfHours_pl"+"##"+tacBlockOfHours_pl);
+	}
+
+	
+}
+print validKeys;
+if(action=="LIST_PRICE")
+{
+	for eachValidKey in validKeys
+	{
+		if(get(listPriceDict,eachValidKey) > 0.0)
+		{			
+			append(resultArray,round((get(listPriceDict,eachValidKey)/coversionfac),0));
+		}
+		else
+		{
+			append(resultArray,0.0);
+		}
+	}
+}
+
+
+if(action=="COST")
+{
+	for eachValidKey in validKeys
+	{
+		if(get(costDict,eachValidKey) > 0.0)
+		{
+			append(resultArray,round((get(costDict,eachValidKey)/coversionfac),0));
+		}
+		else
+		{
+			append(resultArray,0.0);
+		}
+	}
+}
+return resultArray;

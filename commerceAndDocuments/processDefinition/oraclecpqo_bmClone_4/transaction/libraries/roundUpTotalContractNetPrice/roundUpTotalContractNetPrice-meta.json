@@ -1,0 +1,11 @@
+{
+  "name" : "RoundUp Total Contract Net Price",
+  "variableName" : "roundUpTotalContractNetPrice",
+  "description" : "JIRA: CCZC-6576 : This requirement is to Round Total contract Net price at line up to 2 decimal digits",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "grossCloudNetPrice_l", "_document_number", "costAmount_l", "unitCost_l", "unitCost" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

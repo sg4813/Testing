@@ -1,0 +1,98 @@
+ret = string[];
+EligibleSiebelProduct = string[];
+NAEligibleSiebelProduct = string[];
+ExculdeSiebelProduct = string[];
+strAccountNumber = AccountNumber;
+dCurrentDate = getdate();
+rs = recordset();
+recordAvailble = string[];
+
+if(sizeofarray(InputQuery) > 0)
+{
+
+	rs = bmql("Select SiebelProductId, StartDate, EndDate, AccountNumber,SiebelRowId from CustomEligibility where SiebelProductId IN $InputQuery");
+}
+for each in rs
+{
+	dStartDate = strtojavadate(get(each,"StartDate"), "MM/dd/yyyy HH:mm:ss","America/New_York");
+	dEndDate = getdate();
+	strEndDate = get(each,"EndDate");
+	if(strEndDate <> "")
+	{
+		dEndDate = strtojavadate(strEndDate, "MM/dd/yyyy HH:mm:ss","America/New_York");
+	}
+	if(comparedates(dCurrentDate,dStartDate) <> -1 AND (strEndDate == "" OR comparedates(dEndDate,dCurrentDate ) <> -1))
+	{
+		append(recordAvailble,get(each,"SiebelRowId"));
+	}
+	
+}
+	
+
+//print "Custom eligiblity";
+for each in rs
+{
+	if(findinarray(recordAvailble,get(each,"SiebelRowId")) <> -1)
+	{
+		dStartDate = strtojavadate(get(each,"StartDate"), "MM/dd/yyyy HH:mm:ss","America/New_York");
+		dEndDate = getdate();
+		strEndDate = get(each,"EndDate");
+		if(strEndDate <> "")
+		{
+			dEndDate = strtojavadate(strEndDate, "MM/dd/yyyy HH:mm:ss","America/New_York");
+		}
+		if(comparedates(dCurrentDate,dStartDate) <> -1 AND (strEndDate == "" OR comparedates(dEndDate,dCurrentDate ) <> -1))
+		{
+			if(get(each,"AccountNumber") == strAccountNumber)
+			{
+				append(EligibleSiebelProduct,get(each,"SiebelProductId"));
+			}
+			else
+			{
+				if(findinarray(NAEligibleSiebelProduct,get(each,"SiebelProductId")) == -1)
+				{
+					append(NAEligibleSiebelProduct,get(each,"SiebelProductId"));
+				}
+			}		
+		}
+		else
+		{
+			append(ExculdeSiebelProduct,get(each,"SiebelProductId"));
+		}
+	}
+}
+
+nCount = range(jsonarraysize(JsonArrayEligibleItems));
+print JsonArrayEligibleItems;
+for each in nCount
+{
+	strTemp = jsonarrayget(JsonArrayEligibleItems,each);
+	jsonTemp = json(strTemp);
+	//print jsonTemp;
+	strSiebelProductId = jsonget(jsonTemp,"SiebelProductId");
+	if(findinarray(InputQuery,strSiebelProductId) == -1) 
+	{
+		//print "hi";
+		//print jsonget(jsonTemp,"Sellable");
+		if(jsonget(jsonTemp,"Sellable") <> "Sellable Custom")
+		{
+			append(ret,jsonget(jsonTemp,"SKU"));
+		}
+	}
+	else
+	{
+		if(findinarray(EligibleSiebelProduct,strSiebelProductId) <> -1)
+		{
+			append(ret,jsonget(jsonTemp,"SKU"));
+		}
+		else
+		{
+			if(findinarray(NAEligibleSiebelProduct,strSiebelProductId) == -1 AND findinarray(InputQuery,strSiebelProductId) <> -1 AND jsonget(jsonTemp,"Sellable") <> "Sellable Custom" AND findinarray(ExculdeSiebelProduct,strSiebelProductId) == -1)
+			{
+				append(ret,jsonget(jsonTemp,"SKU"));
+			}
+		}
+	}
+}
+print ret;
+return ret;

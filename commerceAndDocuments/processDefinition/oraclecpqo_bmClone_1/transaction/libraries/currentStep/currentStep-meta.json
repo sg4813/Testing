@@ -1,0 +1,14 @@
+{
+  "name" : "Current Step",
+  "variableName" : "currentStep",
+  "description" : "Determines the previous and next step in the standard step flow for the current step for the transaction.  This is used for debugging modifications to the Commerce Process Steps.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "direction",
+    "type" : "String"
+  } ],
+  "subDocAttributes" : [ ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ "_system_current_step_var" ]
+}

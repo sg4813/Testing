@@ -1,0 +1,25 @@
+ret = "";
+rs = bmql("Select DISTINCT SkuNumber from ModelSKUrelationship  where Category= 'Accessories' AND Status = 'Active'");
+iCount = 0;
+accArray = string[];
+for each in rs
+{
+	append(accArray,get(each,"SkuNumber"));
+	
+}
+
+rs = bmql("Select DISTINCT Image,SkuNumber from Item_Master where SkuNumber IN $accArray AND Image IS NOT NULL");
+
+for each in rs
+{
+	strImage = get(each,"Image");
+	if(find(strImage,"w=50") == -1 AND find(strImage,"w=100") == -1)
+	{
+	
+		print get(each,"SkuNumber");
+		print strImage;
+		print "*****";
+	}
+}
+print iCount;
+return "";

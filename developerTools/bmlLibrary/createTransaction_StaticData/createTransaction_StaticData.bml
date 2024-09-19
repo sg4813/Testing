@@ -1,0 +1,19 @@
+url = "https://devzebra.bigmachines.com/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction";
+params = "";
+headers = dict("string");
+put(headers, "content-type", "application/json");
+/*results = urldata(url, "POST", headers);
+messageBody = get(results,"Message-Body");
+messageBodyJson = json(messageBody);
+txId = jsonget(messageBodyJson, "_id");
+print txId;
+print "CPQ Quote No. : " + jsonget(messageBodyJson, "transactionID_t");*/
+saveUrl = "https://devzebra.bigmachines.com/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/" + "118170660" + "/actions/cleanSave_t";
+results = urldata(saveUrl, "POST", headers);
+str = "{\"bsId\":" + "118170660" +",\"documentId\": 93445549,\"items\": [{\"productFamily\": \"zebraSaaS_ZS\",\"productLine\": \"saasProducts_SP\",\"model\": \"workForceConnect_WFC\",\"configData\": {\"employeeCollaboration_CB\": {\"value\": true,\"locked\": true},\"testAttribute\": true,\"pTTPro\": true,\"whereAreTheProductsBeingUsed_multiselectmenu\": {\"items\": [{\"value\": \"unitedStatesOfAmerica\",\"displayValue\": \"United States Of America\"}]},\"howManyEmployeesDoYouNeedToConnect_ZS_\": 10,\"howManyLocationsDoYouWantToDeployTheSolutionTo_ZS_\": 10,\"howManyDevicesDoYouNeedToConnect_ZS_\": 10,\"ZEB_lasTaskTracker\": {\"value\": \"Yes\",\"displayValue\": \"Yes\"},\"ZEB_videoTransfer\": {\"items\": [{\"value\": \"Customer has their own storage environment\",\"displayValue\": \"Customer has their own storage environment\"}]},\"ZEB_deploymentSupport\": { \"value\": \"Yes\",\"displayValue\": \"Yes\"},\"ZEB_customQuoteRequired_pf\": true}}]}";
+addModel = "https://devzebra.bigmachines.com/rest/v12/config/actions/_bulkAddToTxn";
+results = urldata(addModel, "POST", headers, jsontostr(json(str)));
+reponseData =  urldata("https://devzebra.bigmachines.com/rest/v12/productFamilies/zebraSaaS_ZS/productLines/saasProducts_SP/models/workForceConnect_WFC/arraySets/numberOfDevices_arrayset/attributes/deviceName", "GET", headers);
+print reponseData;
+//print results;
+return "";

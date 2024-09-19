@@ -1,0 +1,102 @@
+ret = dict("dict<string>");
+tempJsonArray = jsonarray();
+sbWhere = stringbuilder();
+sbSkuNumber = stringbuilder();
+arraySkuNumber = string[];
+dictPrice = dict("string");
+
+arraySkuJsonArray = jsonarray(AccountSku);
+nCount = range(jsonarraysize(arraySkuJsonArray));
+for each in nCount		
+{
+	jsonObjTemp = json(jsonarrayget(arraySkuJsonArray,each));
+	strSkuTemp = jsonget(jsonObjTemp,"Sku Number");
+	strListPrice = jsonget(jsonObjTemp,"List Price");
+	put(dictPrice,strSkuTemp,strListPrice);
+	jsonObjTemp = json();
+}
+
+strListPrice = "";
+strSkuTemp = "";
+arraySkuJsonArray = jsonarray();
+
+sbappend(sbWhere,"AccountNumber = '",AccountId, "'");  
+sbappend(sbWhere," AND (Eligible = 'Y' OR Eligible = '' OR Eligible IS NULL)");
+
+if(NOT(isempty(SkuNumber)))
+{
+	bFlag = true;
+	for each in SkuNumber
+	{
+		if(bFlag)
+		{
+			sbappend(sbSkuNumber,"( SkuNumber = '",each,"')");
+			bFlag = false;
+			
+		}
+		else
+		{
+			sbappend(sbSkuNumber," OR ( SkuNumber = '",each,"')");
+		}
+		
+	}
+	
+	sbappend(sbWhere," AND (", sbtostring(sbSkuNumber), ")"); 
+}
+
+strWhere = sbtostring(sbWhere);
+print strWhere;
+rs = bmql("Select SkuNumber, DiscountPrice, PurchaseMethod, Eligible from AccountCatalog where $strWhere");
+print rs;
+bFlag = true;
+for each in rs
+{
+	bFlag = false;
+	dictTemp = dict("string");
+	append(arraySkuNumber,get(each,"SkuNumber"));
+	put(dictTemp,"PriceList",get(each,"DiscountPrice"));
+	put(dictTemp,"ErrorCode","");	
+	put(dictTemp,"Purchase Method","");
+	put(dictTemp,"Eligible Flag",get(each,"Eligible"));
+	put(ret,get(each,"SkuNumber"),dictTemp);
+}
+arraySkuJsonArray = jsonarray(AccountSku);
+print arraySkuJsonArray;
+print jsonarraysize(arraySkuJsonArray);
+nCount = range(jsonarraysize(arraySkuJsonArray));
+
+for each in nCount		
+{
+	strErrorCode  = "";
+	strTemp = jsonarrayget(arraySkuJsonArray,each);
+	jsonObjTemp = json(strTemp);
+	strSkuTemp = jsonget(jsonObjTemp,"Sku Number");
+	
+	if(findinarray(arraySkuNumber,strSkuTemp) == -1)
+	{
+		dictTemp = dict("string");
+		put(dictTemp,"PriceList",get(dictPrice,strSkuTemp));
+		put(dictTemp,"Eligible Flag","N");
+		put(dictTemp,"ErrorCode","CPQ-Err-DirectCustomer");	
+		put(dictTemp,"Purchase Method","");
+		put(ret,strSkuTemp,dictTemp);
+	}
+}
+
+if(bFlag)
+{
+	nCount = range(jsonarraysize(arraySkuJsonArray));	
+	for each in nCount		
+	{
+		dictTemp = dict("string");
+		jsonObjTemp = json(jsonarrayget(arraySkuJsonArray,each));
+		strSkuTemp = jsonget(jsonObjTemp,"Sku Number");
+		strListPrice = jsonget(jsonObjTemp,"List Price");
+		put(dictTemp,"PriceList",strListPrice);
+		put(dictTemp,"ErrorCode","CPQ-Err-DirectCustomer");	
+		put(dictTemp,"Purchase Method","");
+		put(dictTemp,"Eligible Flag","N");
+		put(ret,strSkuTemp,dictTemp);
+	}
+}
+return ret;

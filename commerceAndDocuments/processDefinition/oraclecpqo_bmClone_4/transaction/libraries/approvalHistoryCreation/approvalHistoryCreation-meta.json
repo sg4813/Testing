@@ -1,0 +1,14 @@
+{
+  "name" : "Approval History Creation",
+  "variableName" : "approvalHistoryCreation",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "ApprovalHistrory",
+    "type" : "String"
+  } ],
+  "subDocAttributes" : [ ],
+  "mainDocAttributes" : [ "approval_history_submit_t", "approval_status_submit_t", "approvalHistory", "quoteRevisionNew_t" ],
+  "systemAttributes" : [ "_system_user_name" ]
+}

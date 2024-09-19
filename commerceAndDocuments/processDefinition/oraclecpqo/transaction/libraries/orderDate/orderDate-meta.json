@@ -1,0 +1,11 @@
+{
+  "name" : "Order Date",
+  "variableName" : "orderDate",
+  "description" : "Updates a transaction's order date when the order is created.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ "_system_date" ]
+}

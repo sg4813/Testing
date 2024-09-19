@@ -1,0 +1,21 @@
+{
+  "name" : "Suppliestesting",
+  "variableName" : "suppliestesting",
+  "description" : "",
+  "libraryFunctions" : [ "util.zebraExternalPricingnew" ],
+  "returnType" : "String[]",
+  "parameters" : [ {
+    "name" : "selectPrinterModel",
+    "type" : "String"
+  }, {
+    "name" : "oCCAccountID",
+    "type" : "String"
+  }, {
+    "name" : "buffer1",
+    "type" : "String"
+  }, {
+    "name" : "buffer2",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

@@ -1,0 +1,56 @@
+// Quantity: 6, totalnetprice, flag:Y, selected: Y
+retJson = json();
+retSKUTypeJson = json();
+skuTypeJsonArr = jsonarray();
+tempArr = range(sizeofarray(CabinetSize));
+for val in tempArr{
+print "in cabinet size loop -->" + string(val);
+skuTypeArr = keys(SkuTypeDictArray);
+validSkuTypeArr = string[];
+	for each in skuTypeArr{
+	tempSKUTypeArr = get(SkuTypeDictArray, each);
+	jsonSKUType = json();
+		for itemQty in tempSKUTypeArr{
+			if(tempSKUTypeArr[val] > 0){
+		print each + string(tempSKUTypeArr[val]);
+		tempCabSize = CabinetSize[val];
+		rs = bmql("select SKU, StdSkuFlag from CabinetSKUDetails where CabinetSize = $tempCabSize AND Org = $Region AND SKUType = $each AND Active ='Y'");
+		partsArr = string[];
+		stdSKUArr = string[];
+			for rec in rs{
+			skuTypeJsonArr = jsonarray();
+			tempSKUVar = get(rec,"SKU");
+			tempStdSKUVar = get(rec,"StdSkuFlag");
+			append(partsArr, tempSKUVar);
+			append(stdSKUArr, tempStdSKUVar);
+			}
+			tempItemArr = range(sizeofarray(partsArr));
+			for item in tempItemArr {			
+				jsonput(jsonSKUType ,"Part Number",partsArr[val]);
+				jsonput(jsonSKUType ,"Standard SKU",stdSKUArr[val]);
+				jsonput(jsonSKUType ,"Quantity", tempSKUTypeArr[val]);
+				jsonArrayObj = util.zebraExternalPricingnew(partsArr, AccountId);
+				nCount = range(jsonarraysize(jsonArrayObj));
+				for value in nCount
+				{
+				localJsonObj = json(jsonarrayget(jsonArrayObj,value));
+					if(jsonget(localJsonObj,"SKU") == partsArr[item]){
+					strPrice = atof(jsonget(localJsonObj, "Price"));
+					strListPrice = atof(jsonget(localJsonObj, "List Price"));
+					jsonput(jsonSKUType ,"Price",strPrice);
+					jsonput(jsonSKUType ,"List Price",strListPrice);
+					}
+				}
+				jsonarrayappend(skuTypeJsonArr ,jsonSKUType);
+			}
+		}
+		
+		}
+		if(jsonarraysize(skuTypeJsonArr) > 0)
+		{
+		jsonput(retSKUTypeJson, each , jsonarraytostr(skuTypeJsonArr));
+		}
+		}
+	jsonput(retJson, CabinetSize[val], retSKUTypeJson);	
+	}
+return retJson;

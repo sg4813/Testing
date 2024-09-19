@@ -1,0 +1,84 @@
+table_name="";
+allModelsJson=json();
+modelNamesArray=String[];
+tabledict = dict("string");
+availbleModelName = string[];
+
+headers = dict("string");
+put(headers, "content-type", "application/json");
+strUserName = "AS3869";
+strPassword = "Ad@123456";
+strUserDetails = strUserName  + ":" + strPassword;	
+encodecredential = encodebase64(strUserDetails);	
+authstring = "Basic "+ encodecredential;
+put(headers, "Authorization", authstring);
+
+strUrl = "https://devzebra.bigmachines.com/rest/v13/adminCustomModelSKUrelationship/";
+
+resultSet1 = bmql("select Model,Table  from ModelColumns");
+
+for each in resultSet1 
+{
+	append(modelNamesArray,get(each,"Model"));
+	put(tabledict,get(each,"Model"),get(each,"Table"));
+}
+
+
+for eachModel in modelNamesArray
+{
+	allSkuArray=String[];
+	missedSkuArray=String[];
+	skuId = dict("string");
+	
+	
+	model_name = eachModel;
+	
+	print skuId;
+	table_name = get(tabledict,eachModel);
+	//Logic to Find All SKU's Required
+	resultSet2 = bmql("select Model,SkuNumber from ModelSKUrelationship where Model=$model_name AND Category= 'Standard Configurations' AND ConfiguratorEnabled IS NULL");
+	for each in resultSet2
+	{
+		sku=get(each,"SkuNumber");
+		append(allSkuArray,sku); 
+	}		
+			
+	if(not isempty(allSkuArray))
+	{
+		skuId = util.getTableId(model_name);
+		availbleSku = String[];
+		NotavailbleSku = String[];
+		resultSet3 = bmql("select StdConfiguration from $table_name where StdConfiguration IN $allSkuArray");
+		for each in resultSet3
+		{
+			sku=get(each,"StdConfiguration");
+			if(findinarray(availbleSku,sku) ==-1)
+			{
+				append(availbleSku,sku); 
+				print sku;
+				strUrl1 = strUrl + get(skuId,sku);
+				requestJson = json();
+				jsonput(requestJson,"ConfiguratorEnabled","Y");
+				temp = urldata(strUrl1,"POST",headers,jsontostr(requestJson));
+				
+			}
+		}
+		
+		for eachSKU in allSkuArray
+		{
+			if(findinarray(availbleSku,eachSKU)==-1)
+			{
+				//print eachSKU;
+				strUrl1 = strUrl + get(skuId,eachSKU);
+				//print strUrl;
+				requestJson = json();
+				jsonput(requestJson,"ConfiguratorEnabled","N");
+				temp = urldata(strUrl1,"POST",headers,jsontostr(requestJson));
+			}
+		}
+		
+		
+	}
+}
+
+return "";

@@ -1,0 +1,108 @@
+ret = json();
+requestJson = json();
+requestProductJson = jsonarray();
+strpurchasingModel  = "";
+strProductDetails  = "";
+bExistingcustomer = "true";
+
+dictUnit = dict("string");
+put(dictUnit,"RAAS Robot","Per Robot/Per Month");
+put(dictUnit,"Hardware","Each");
+dictProductType = dict("string");
+rs = bmql("Select * from Fetch_Unit");
+
+for each in rs
+{
+	put(dictUnit,get(each,"Product_Code"),get(each,"Unit"));
+	if(get(each,"Type") <> "")
+	{
+		put(dictProductType,get(each,"Product_Code"),get(each,"Type"));
+	}
+}
+
+rs = bmql("Select * from FetchBillingSKU where BundleName NOT LIKE '%Surge%'");
+dictBilling  = dict("string");
+for each in rs
+{
+	put(dictBilling,get(each,"BillingSKU"),get(each,"BundleName"));	
+}
+print dictBilling;
+for line in transactionLine
+{
+	
+	if(line.fetchProductType_l <>"WARR" AND line._part_custom_field11=="Shell")
+	{
+		tempJson1 = json();
+	//strType = jsonget(tempJson,"Type");
+		strType = line.category_l;
+		strPartNumber = line._part_number;
+		strBundleName = line.parentSKU_l;
+		jsonput(tempJson1 ,"parts",strPartNumber);
+		jsonput(tempJson1 ,"quantity",line.license);
+		floatPrice = line.annualCloudNetPrice_l/line.license;
+		floatPrice = floatPrice/12;
+		jsonput(tempJson1 ,"discountedprice",floatPrice);
+		floatPrice = line.annualCloudPriceInclHosting_l/line.license;
+		floatPrice = floatPrice/12;
+		jsonput(tempJson1 ,"listprice",floatPrice);
+		jsonput(tempJson1 ,"description","");
+		jsonput(tempJson1 ,"bundle",get(dictBilling,strBundleName));
+		strCost = (line.unitCost_l)/(12*line.license);
+		jsonput(tempJson1 ,"upliftcost",strCost);
+		
+		if(strType == "Hardware" OR (strType == "Robot" AND strpurchasingModel == "Capex"))
+		{
+			jsonput(tempJson1,"unit",get(dictUnit,"Hardware"));
+		}
+		elif(strType == "Robot" AND contractType_t == "Opex - Lease")
+		{
+			jsonput(tempJson1,"unit","Per Robot/Per Month");			
+		}
+		else
+		{
+			jsonput(tempJson1,"unit",get(dictUnit,line._part_number));
+		}
+				
+		
+		jsonput(tempJson1 ,"oracleLineId",line._document_number);	
+		if(containskey(dictProductType,line._part_number))
+		{
+			jsonput(tempJson1,"producttype",get(dictProductType,line._part_number));
+		}
+		else
+		{
+		jsonput(tempJson1,"producttype","");
+		}
+	jsonput(tempJson1,"totalcontractterm","12");
+	jsonput(tempJson1,"surgecontractterm","1");
+			
+	jsonarrayappend(requestProductJson,tempJson1);
+	} 
+	
+}
+jsonput(requestJson,"quoteid",bs_id);
+jsonput(requestJson,"solutionsubtype","");
+jsonput(requestJson,"usecase","");
+jsonput(requestJson,"productdetails",requestProductJson);
+jsonput(requestJson,"surgepeakperiodonly","false");
+jsonput(requestJson,"existingcustomer","true");
+if(contractType_t == "Capex")
+{
+	jsonput(requestJson,"purchasingmodel","Capex");
+}
+else
+{
+	jsonput(requestJson,"purchasingmodel","RaaS");
+}
+jsonput(requestJson,"oracleQuoteNumber",transactionID_t);
+jsonput(requestJson,"oracleQuoteStatus",status_t);
+jsonput(requestJson,"psaBillingType",ZEB_PSBillType_t);
+//strOutput = jsontostr(requestJson);
+Inputs =  json();
+jsonput(Inputs,"ObjectId",fetchRecordId);
+print requestJson;
+jsonput(Inputs,"Request",requestJson);
+jsonput(Inputs,"fetchSFDCObject",fetchSFDCObject);
+response = util.productSynchToSF(Inputs);
+
+return "1~fetchSFJson~"+ jsontostr(requestJson) + "|1~fetchSFProductResponse~" + response + "|";

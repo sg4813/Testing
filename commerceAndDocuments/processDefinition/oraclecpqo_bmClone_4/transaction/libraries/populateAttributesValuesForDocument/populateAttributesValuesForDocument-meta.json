@@ -1,0 +1,11 @@
+{
+  "name" : "Populate Attributes Values for Document",
+  "variableName" : "populateAttributesValuesForDocument",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "annaulVolumnShipment_l", "_part_number" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

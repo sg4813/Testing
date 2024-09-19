@@ -1,0 +1,21 @@
+{
+  "name" : "Multi Robot Fetch Cost",
+  "variableName" : "mobileRobotFetchCost",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "Float",
+  "parameters" : [ {
+    "name" : "fetchCostJsonArrString",
+    "type" : "String"
+  }, {
+    "name" : "partNumber",
+    "type" : "String"
+  }, {
+    "name" : "quantity",
+    "type" : "Integer"
+  }, {
+    "name" : "PARAM1",
+    "type" : "Anytype Dictionary"
+  } ],
+  "attributes" : [ ]
+}

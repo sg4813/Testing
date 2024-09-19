@@ -1,0 +1,118 @@
+ret = "";
+tempJson = json();
+tempJsonArray = jsonarray();
+LineNumber = string[];
+DemoNumber = string[];
+SkuNumber = string[];
+demoSku = dict("string[]");
+dictLineNumber = dict("string");
+strError = "";
+
+if(demoFlag AND demoNumberTransaction <> "")
+{
+strAccessToken = util.salesforceAuthenticationAccessToken();
+strAuthorization = "Bearer "+ strAccessToken;
+sfUrl  = "";
+skuOrg = "";
+
+headers = dict("string");
+put(headers,"Content-Type","application/json");
+put(headers,"Authorization",strAuthorization);
+
+rs = bmql("Select * from SF_Int_Details where Type = 'Demo Validation'");
+for each in rs
+{
+
+	sfUrl = get(each,"URL");
+}
+rs = bmql("Select * from Account where ACCOUNTNUMBER = $resellerID");
+for each in rs
+{
+	skuOrg = get(each,"ORGANIZATION");
+}
+strError = "";
+
+if(demoNumberTransaction <>"")
+{
+for line in transactionLine
+{
+	if(line._part_number <> "" AND line._parent_line_item <> "Mobile Robotics"  AND strError == "" AND line.syncWithOCC_l == "Y")
+	{
+		print tempJson;
+		tempJson = json();
+		jsonput(tempJson,"VoucherNumber",demoNumberTransaction);
+		arrayTemp = jsonarray();
+		jsonarrayappend(arrayTemp,line._part_number);
+		//jsonarrayappend(arrayTemp,line.parentSKU_l);
+		jsonput(tempJson,"skuValue",arrayTemp);
+		jsonput(tempJson,"partnerAccountNumber",resellerID);
+		jsonput(tempJson,"skuOrg",skuOrg);
+		requestJson = json();
+		jsonput(requestJson,"req",tempJson);
+		print requestJson;
+		//print headers;
+		print sfUrl;
+		responsedict = urldata(sfUrl,"Post",headers,jsontostr(requestJson));
+		print responsedict ;
+		//print "1";
+		//print strError ;
+		//print "2";
+		if(get(Responsedict,"Status-Code") == "200")
+		{
+			print "3";
+			tempJson = json(get(Responsedict,"Message-Body"));
+			if(isjsonnull(tempJson,"error"))
+			{
+				print "4";
+				tempJson1 = jsonget(tempJson,"skuandDemoValidity","json");
+				tempJson2 = jsonget(tempJson1,demoNumberTransaction,"json");			
+				print tempJson2 ;
+				if(jsonget(tempJson2,line._part_number) == "false")
+				{
+					print "6";
+					//strError = "Demo Number is already Used with " + line._part_number;
+					//strError = "Invalid Demo Voucher. Please verify or contact your Account Manager.";
+					strError = "This demo voucher has already been used. Please contact your Account Manager.";
+					ret = "1~demoValidationError~"+ strError + "|";
+				}
+			}
+			else
+			{
+				print "5";
+				strError = jsonget(tempJson,"error");
+				if(strError == "No Demo Number or Sku found!")
+				{
+					strError = "Invalid Demo Voucher. Please verify or contact your Account Manager.";
+				}
+				ret = "1~demoValidationError~"+ strError + "|";
+			}
+			
+	
+		}
+		else
+		{
+			strError = "System Issue, please contact your Zebra representative.";
+			ret = "1~demoValidationError~"+ strError + "|";
+		}
+	}
+}
+}
+if(strError == "")
+{
+	ret = "1~demoValidationError~"+ strError + "|";
+	for line in transactionLine
+	{
+		if(line.syncWithSFDC_l == "Y")
+		{
+			ret = ret + "|" + line._document_number + "~demoNumber~" + demoNumberTransaction + "|";
+		}
+	}
+}
+
+}
+if(demoFlag AND demoNumberTransaction == "")
+{
+	ret = "1~demoValidationError~"+ "There is some integration delay. Can you please validate again."+ "|";
+}
+
+return ret;

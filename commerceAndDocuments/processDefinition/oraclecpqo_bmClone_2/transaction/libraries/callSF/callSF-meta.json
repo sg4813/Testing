@@ -1,0 +1,11 @@
+{
+  "name" : "Call SF",
+  "variableName" : "callSF",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_config_attr_info", "_document_number" ],
+  "mainDocAttributes" : [ "bs_id" ],
+  "systemAttributes" : [ ]
+}

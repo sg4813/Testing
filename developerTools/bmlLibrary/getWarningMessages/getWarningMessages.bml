@@ -1,0 +1,584 @@
+ret = "";
+
+retAcc = "";
+retSoft = "";
+retServ = "";
+retAllServ = "";
+retAllService = "";
+retLearningServ = "";
+beforeMsg = "";
+afterMsg = "";
+ret1 = "";
+ret2 = "";
+ret3 = "";
+ret4 = "";
+ret5 = "";
+ret6 = "";
+ret7 = "";
+ret8 = "";
+pno = "";
+ErrorMessage = "";
+localJson = json();
+arrayPart = string[];
+arrayError = string[];
+arrayError1 = string[];
+
+//Start of the Code - Razvi
+if(WarningMsgVal == "Recommended Message"){
+if(AdditionalItemJson <> "" AND AutoAttachSkuVal <> ""){
+	allAccFlag = false;
+	bFlag = false;
+	retsize = range(sizeofarray(PartNumberArr));
+	retCount = sizeofarray(PartNumberArr);
+	for each in retsize{
+		if(TypeArr[each] == "Accessories"){
+		pno = TypeArr[each];
+		tempJsonArray = jsonArray(AutoAttachSkuVal);
+		tempCount = range(jsonarraysize(tempJsonArray));
+			for  iCount in tempCount
+			{
+			tempJson = json(jsonarrayget(tempJsonArray,iCount));
+			localJson = json();
+			strPart = jsonget(tempJson,"Child SKU");
+			strType = jsonget(tempJson,"Type");
+				if(PartNumberArr[each] == strPart AND strType == "Accessories"){
+					retAcc = retAcc + PartNumberArr[each];
+					bFlag = true;
+					if(each < (retCount - 1)){
+					retAcc = retAcc + ", ";
+					}
+				}else{
+				continue;
+				}
+			}
+		}else{
+		continue;
+		}
+	}
+	if(endswith(retAcc , ", ")){
+	retAcc = substring(retAcc ,0, -2);	
+	}
+	if(bFlag){
+	results = bmql("Select BeforeSKUMessage, AfterSKUMessage from ErrorMessage where ErrorCode = $pno");
+		for each in results {
+			beforeMsg = get(each, "BeforeSKUMessage");
+			afterMsg = get(each, "AfterSKUMessage");
+		}
+	ret = ret + "<br>" + beforeMsg + " " + retAcc + " " + afterMsg;
+	}
+}
+
+if(AdditionalItemJson <> "" AND AutoAttachSkuVal <> ""){
+	allSoftwareFlag = false;
+	bFlag = false;
+	retsize = range(sizeofarray(PartNumberArr));
+	retCount = sizeofarray(PartNumberArr);
+	for each in retsize{
+		if(TypeArr[each] == "Software"){
+		pno = TypeArr[each];
+		tempJsonArray = jsonArray(AutoAttachSkuVal);
+		tempCount = range(jsonarraysize(tempJsonArray));
+			for  iCount in tempCount
+			{
+			tempJson = json(jsonarrayget(tempJsonArray,iCount));
+			localJson = json();
+			strPart = jsonget(tempJson,"Child SKU");
+			strType = jsonget(tempJson,"Type");
+				if(PartNumberArr[each] == strPart AND strType == "Software"){
+					retSoft = retSoft + PartNumberArr[each];
+					bFlag = true;
+					if(each < (retCount - 1)){
+					retSoft = retSoft + ", ";
+					}
+				}else{
+				continue;
+				}
+			}
+		}else{
+		continue;
+		}
+	}
+	if(endswith(retSoft , ", ")){
+	retSoft = substring(retSoft ,0, -2);	
+	}
+	if(bFlag){
+	results = bmql("Select BeforeSKUMessage, AfterSKUMessage from ErrorMessage where ErrorCode = $pno");
+		for each in results {
+			beforeMsg = get(each, "BeforeSKUMessage");
+			afterMsg = get(each, "AfterSKUMessage");
+		}
+	ret = ret + "<br>" + beforeMsg + " " + retSoft + " " + afterMsg;
+	}
+}
+if(AdditionalItemJson <> ""){
+	allServiceFlag = false;
+	bFlag = false;
+	bAllServices = false;
+	retsize = range(sizeofarray(PartNumberArr));
+	retCount = sizeofarray(PartNumberArr);
+	for each in retsize{
+		if(TypeArr[each] == "Services"){
+		pno = TypeArr[each];
+			if(AutoAttachServicesVal <> ""){
+			tempJsonArray = jsonArray(AutoAttachServicesVal);
+			tempCount = range(jsonarraysize(tempJsonArray));
+			for  iCount in tempCount
+			{
+			tempJson = json(jsonarrayget(tempJsonArray,iCount));
+			localJson = json();
+			strPart = jsonget(tempJson,"Services SKU");
+				if(PartNumberArr[each] == strPart){
+					retServ = retServ + PartNumberArr[each] + ", ";
+					bFlag = true;
+				}
+			}
+			}else{
+			continue;
+			}
+			}
+		}
+		if(endswith(retServ, ", ")){
+		retServ = substring(retServ,0, -2);	
+		}
+		if(bFlag){
+		results = bmql("Select BeforeSKUMessage, AfterSKUMessage from ErrorMessage where ErrorCode = $pno");
+			for each in results {
+				beforeMsg = get(each, "BeforeSKUMessage");
+				afterMsg = get(each, "AfterSKUMessage");
+			}
+		ret = ret + "<br>" + beforeMsg + " " + retServ + " " + afterMsg;
+		}
+	
+	for each in retsize{
+		if(TypeArr[each] == "Services"){
+		pno = "All" + " " + TypeArr[each];
+		tempJsonArray = jsonArray(AdditionalItemJson);
+		tempCount = range(jsonarraysize(tempJsonArray));
+			for  iCount in tempCount
+			{
+			tempJson = json(jsonarrayget(tempJsonArray,iCount));
+			localJson = json();
+			strPart = jsonget(tempJson,"Part Number");
+			strType = jsonget(tempJson,"Type");
+				if(PartNumberArr[each] == strPart AND strType == "Services"){
+					retAllService = retAllService + PartNumberArr[each] + ", ";
+					bAllServices = true;
+				}else{
+				continue;	
+				}
+		}
+		}else{
+		continue;
+		}	
+		}
+		if(endswith(retAllService, ", ")){
+		retAllService = substring(retAllService ,0, -2);	
+		}
+		if(bAllServices){
+		results = bmql("Select BeforeSKUMessage, AfterSKUMessage from ErrorMessage where ErrorCode = $pno");
+				for each in results {
+					beforeMsg = get(each, "BeforeSKUMessage");
+					afterMsg = get(each, "AfterSKUMessage");
+				}
+		retAllServ = retAllServ + "<br>" + beforeMsg + " " + retAllService + " " + afterMsg;	
+		allServiceFlag = true;
+		}
+		if(allServiceFlag){
+		ret = ret + retAllServ;
+		}
+}
+if(AdditionalItemJson <> ""){
+	bFlag = false;
+	retsize = range(sizeofarray(PartNumberArr));
+	retCount = sizeofarray(PartNumberArr);
+	for each in retsize{
+		if(TypeArr[each] == "Learning"){
+		pno = TypeArr[each];
+			if(AutoAttachSkuVal <> ""){
+			tempJsonArray = jsonArray(AutoAttachSkuVal);
+			tempCount = range(jsonarraysize(tempJsonArray));
+			for  iCount in tempCount
+			{
+			tempJson = json(jsonarrayget(tempJsonArray,iCount));
+			localJson = json();
+			strPart = jsonget(tempJson,"Child SKU");
+				if(PartNumberArr[each] == strPart){
+					retLearningServ = retLearningServ + PartNumberArr[each];
+					bFlag = true;
+					if(each + 1 < (retCount - 1)){
+					retLearningServ = retLearningServ + ", ";
+					}
+				}else{
+				continue;
+				}
+			}
+			}else{
+			continue;
+			}
+			}
+		}
+		if(endswith(retLearningServ , ", ")){
+		retLearningServ = substring(retLearningServ ,0, -2);	
+		}
+		if(bFlag){
+		results = bmql("Select BeforeSKUMessage, AfterSKUMessage from ErrorMessage where ErrorCode = $pno");
+				for each in results {
+					beforeMsg = get(each, "BeforeSKUMessage");
+					afterMsg = get(each, "AfterSKUMessage");
+				}
+		ret = ret + "<br>" + beforeMsg + " " + retLearningServ + " " + afterMsg;
+		}
+}
+}
+//End of Code
+if(WarningMsgVal == "Warning Message"){
+if(AdditionalItemJson <> ""){
+	allAccFlag = false;
+	bFlag = false;
+	afterMsg = "";
+	retsize = range(sizeofarray(PartNumberArr));
+	retCount = sizeofarray(PartNumberArr);
+	for each in retsize{
+		if(ErrorCodeArr[each] == "CPQ-Err-001"){
+		pno = ErrorCodeArr[each];
+		tempJsonArray = jsonArray(AdditionalItemJson);
+		tempCount = range(jsonarraysize(tempJsonArray));
+			for  iCount in tempCount
+			{
+			tempJson = json(jsonarrayget(tempJsonArray,iCount));
+			localJson = json();
+			strPart = jsonget(tempJson,"ErrorCode");
+				if(ErrorCodeArr[iCount] == strPart){
+					ret1 = ret1 + PartNumberArr[each];
+					bFlag = true;
+					if(iCount < (retCount - 1)){
+					ret1 = ret1 + ", ";
+					}
+					break;
+				}else{
+				continue;
+				}
+			}
+		}else{
+		continue;
+		}
+	}
+	if(endswith(ret1, ", ")){
+		ret1 = substring(ret1,0, -2);	
+	}
+	if(bFlag){
+   	results = bmql("Select BeforeSKUMessage, AfterSKUMessage from ErrorMessage where ErrorCode = $pno");
+   	for each in results {
+	beforeMsg = get(each, "BeforeSKUMessage");
+    	afterMsg = get(each, "AfterSKUMessage");
+   	}
+	ret = ret + "<li>" + beforeMsg + " " + ret1 +" "+ afterMsg + "</li>";
+	}
+}
+if(AdditionalItemJson <> ""){
+	allAccFlag = false;
+	bFlag = false;
+	afterMsg = "";
+	retsize = range(sizeofarray(PartNumberArr));
+	retCount = sizeofarray(PartNumberArr);
+	for each in retsize{
+		if(ErrorCodeArr[each] == "CPQ-Err-003"){
+		pno = ErrorCodeArr[each];
+		tempJsonArray = jsonArray(AdditionalItemJson);
+		tempCount = range(jsonarraysize(tempJsonArray));
+			for  iCount in tempCount
+			{
+			tempJson = json(jsonarrayget(tempJsonArray,iCount));
+			localJson = json();
+			strPart = jsonget(tempJson,"ErrorCode");
+				if(ErrorCodeArr[iCount] == strPart){
+					ret2 = ret2 + PartNumberArr[each];
+					bFlag = true;
+					if(iCount < (retCount - 1)){
+					ret2 = ret2 + ", ";
+					}
+					break;
+				}else{
+				continue;
+				}
+			}
+		}else{
+		continue;
+		}
+	}
+	if(endswith(ret2, ", ")){
+		ret2 = substring(ret2,0, -2);	
+	}
+	if(bFlag){
+	results = bmql("Select BeforeSKUMessage, AfterSKUMessage from ErrorMessage where ErrorCode = $pno and CountryRegion = $RegionVal ");
+   	for each in results {
+	beforeMsg = get(each, "BeforeSKUMessage");
+    	afterMsg = get(each, "AfterSKUMessage");
+   	}
+	ret = ret + "<li>" + beforeMsg + " " + ret2 +" "+ afterMsg +"</li>";
+	}
+}
+if(AdditionalItemJson <> ""){
+	allAccFlag = false;
+	bFlag = false;
+	afterMsg = "";
+	retsize = range(sizeofarray(PartNumberArr));
+	retCount = sizeofarray(PartNumberArr);
+	for each in retsize{
+		if(ErrorCodeArr[each] == "CPQ-Err-004"){
+		pno = ErrorCodeArr[each];
+		tempJsonArray = jsonArray(AdditionalItemJson);
+		tempCount = range(jsonarraysize(tempJsonArray));
+			for  iCount in tempCount
+			{
+			tempJson = json(jsonarrayget(tempJsonArray,iCount));
+			localJson = json();
+			strPart = jsonget(tempJson,"ErrorCode");
+				if(ErrorCodeArr[iCount] == strPart){
+					ret3 = ret3 + PartNumberArr[each];
+					bFlag = true;
+					if(iCount < (retCount - 1)){
+					ret3 = ret3 + ", ";
+					}
+					break;
+				}else{
+				continue;
+				}
+			}
+		}else{
+		continue;
+		}
+	}
+	if(endswith(ret3, ", ")){
+		ret3 = substring(ret3,0, -2);	
+	}
+	if(bFlag){
+	results = bmql("Select BeforeSKUMessage, AfterSKUMessage from ErrorMessage where ErrorCode = $pno");
+   	for each in results {
+	beforeMsg = get(each, "BeforeSKUMessage");
+    	afterMsg = get(each, "AfterSKUMessage");
+   	}
+	ret = ret + "<li>" + beforeMsg + " " + ret3 +" "+ afterMsg +"</li>";
+	}
+}
+if(AdditionalItemJson <> ""){
+	allAccFlag = false;
+	bFlag = false;
+	afterMsg = "";
+	retsize = range(sizeofarray(PartNumberArr));
+	retCount = sizeofarray(PartNumberArr);
+	for each in retsize{
+		if(ErrorCodeArr[each] == "CPQ-Err-005"){
+		pno = ErrorCodeArr[each];
+		tempJsonArray = jsonArray(AdditionalItemJson);
+		tempCount = range(jsonarraysize(tempJsonArray));
+			for  iCount in tempCount
+			{
+			tempJson = json(jsonarrayget(tempJsonArray,iCount));
+			localJson = json();
+			strPart = jsonget(tempJson,"ErrorCode");
+				if(ErrorCodeArr[iCount] == strPart){
+					ret4 = ret4 + PartNumberArr[each];
+					bFlag = true;
+					if(iCount < (retCount - 1)){
+					ret4 = ret4 + ", ";
+					}
+					break;
+				}else{
+				continue;
+				}
+			}
+		}else{
+		continue;
+		}
+	}
+	if(endswith(ret4, ", ")){
+		ret4 = substring(ret4,0, -2);	
+	}
+	if(bFlag){
+	results = bmql("Select BeforeSKUMessage, AfterSKUMessage from ErrorMessage where ErrorCode = $pno");
+   	for each in results {
+	beforeMsg = get(each, "BeforeSKUMessage");
+    	afterMsg = get(each, "AfterSKUMessage");
+   	}
+	ret = ret + "<li>" + beforeMsg + " " + ret4 +" "+ afterMsg +"</li>";
+	}	
+}
+
+if(AdditionalItemJson <> ""){
+	allAccFlag = false;
+	bFlag = false;
+	afterMsg = "";
+	retsize = range(sizeofarray(PartNumberArr));
+	retCount = sizeofarray(PartNumberArr);
+	for each in retsize{
+		if(ErrorCodeArr[each] == "CPQ-Indirect"){
+		pno = ErrorCodeArr[each];
+		tempJsonArray = jsonArray(AdditionalItemJson);
+		tempCount = range(jsonarraysize(tempJsonArray));
+			for  iCount in tempCount
+			{
+			tempJson = json(jsonarrayget(tempJsonArray,iCount));
+			localJson = json();
+			strPart = jsonget(tempJson,"ErrorCode");
+				if(ErrorCodeArr[iCount] == strPart){
+					ret5 = ret5 + PartNumberArr[each];
+					bFlag = true;
+					if(iCount < (retCount - 1)){
+					ret5 = ret5 + ", ";
+					}
+					break;
+				}else{
+				continue;
+				}
+			}
+		}else{
+		continue;
+		}
+	}
+	if(endswith(ret5, ", ")){
+		ret5 = substring(ret5,0, -2);	
+	}
+	if(bFlag){
+	results = bmql("Select BeforeSKUMessage, AfterSKUMessage from ErrorMessage where ErrorCode = $pno");
+   	for each in results {
+	beforeMsg = get(each, "BeforeSKUMessage");
+    	afterMsg = get(each, "AfterSKUMessage");
+   	}
+	ret = ret + "<li>" + beforeMsg + " " + ret5 +" "+ afterMsg +"</li>";
+	}
+}
+if(AdditionalItemJson <> ""){
+	allAccFlag = false;
+	bFlag = false;
+	afterMsg = "";
+	retsize = range(sizeofarray(PartNumberArr));
+	retCount = sizeofarray(PartNumberArr);
+	for each in retsize{
+		if(ErrorCodeArr[each] == "CPQ-Err-DirectCustomer"){
+		pno = ErrorCodeArr[each];
+		tempJsonArray = jsonArray(AdditionalItemJson);
+		tempCount = range(jsonarraysize(tempJsonArray));
+			for  iCount in tempCount
+			{
+			tempJson = json(jsonarrayget(tempJsonArray,iCount));
+			localJson = json();
+			strPart = jsonget(tempJson,"ErrorCode");
+				if(ErrorCodeArr[iCount] == strPart){
+					ret6 = ret6 + PartNumberArr[each];
+					bFlag = true;
+					if(iCount < (retCount - 1)){
+					ret6 = ret6 + ", ";
+					}
+					break;
+				}else{
+				continue;
+				}
+			}
+		}else{
+		continue;
+		}
+	}
+	if(endswith(ret6, ", ")){
+		ret6 = substring(ret6,0, -2);	
+	}
+	if(bFlag){
+	results = bmql("Select BeforeSKUMessage, AfterSKUMessage from ErrorMessage where ErrorCode = $pno");
+   	for each in results {
+	beforeMsg = get(each, "BeforeSKUMessage");
+    	afterMsg = get(each, "AfterSKUMessage");
+   	}
+	ret = ret + "<li>" + beforeMsg + " " + ret6 +" "+ afterMsg +"</li>";
+	}
+}
+//Added New Code -- Razvi
+if(AdditionalItemJson <> ""){
+	allAccFlag = false;
+	bFlag = false;
+	afterMsg = "";
+	retsize = range(sizeofarray(PartNumberArr));
+	retCount = sizeofarray(PartNumberArr);
+	for each in retsize{
+		if(ErrorCodeArr[each] == "PLM"){
+		pno = ErrorCodeArr[each];
+		tempJsonArray = jsonArray(AdditionalItemJson);
+		tempCount = range(jsonarraysize(tempJsonArray));
+			for  iCount in tempCount
+			{
+			tempJson = json(jsonarrayget(tempJsonArray,iCount));
+			localJson = json();
+			strPart = jsonget(tempJson,"ErrorCode");
+			
+				if(ErrorCodeArr[iCount] == strPart){
+					ret7 = ret7 + PartNumberArr[each];
+					bFlag = true;
+					if(iCount < (retCount - 1)){
+					ret7 = ret7 + ", ";
+					}
+					break;
+				}else{
+				continue;
+				}
+			}
+		}else{
+		continue;
+		}
+	}
+	if(endswith(ret7, ", ")){
+		ret7 = substring(ret7,0, -2);	
+	}
+	if(bFlag){
+   	results = bmql("Select BeforeSKUMessage, AfterSKUMessage from ErrorMessage where ErrorCode = $pno");
+   	for each in results {
+	beforeMsg = get(each, "BeforeSKUMessage");
+    	afterMsg = get(each, "AfterSKUMessage");
+   	}
+	ret = ret + "<li>" + beforeMsg + " " + ret7 +" "+ afterMsg + "</li>";
+	}
+}
+if(AdditionalItemJson <> ""){
+	allAccFlag = false;
+	bFlag = false;
+	afterMsg = "";
+	retsize = range(sizeofarray(PartNumberArr));
+	retCount = sizeofarray(PartNumberArr);
+	for each in retsize{
+		if(ErrorCodeArr[each] == "CPQ-Err-Access1-2"){
+		pno = ErrorCodeArr[each];
+		tempJsonArray = jsonArray(AdditionalItemJson);
+		tempCount = range(jsonarraysize(tempJsonArray));
+			for  iCount in tempCount
+			{
+			tempJson = json(jsonarrayget(tempJsonArray,iCount));
+			localJson = json();
+			strPart = jsonget(tempJson,"ErrorCode");
+				if(ErrorCodeArr[iCount] == strPart){
+					ret8 = ret8 + PartNumberArr[each];
+					bFlag = true;
+					if(iCount < (retCount - 1)){
+					ret8 = ret8 + ", ";
+					}
+					break;
+				}else{
+				continue;
+				}
+			}
+		}else{
+		continue;
+		}
+	}
+	if(endswith(ret8, ", ")){
+		ret8 = substring(ret8,0, -2);	
+	}
+	if(bFlag){
+   	results = bmql("Select BeforeSKUMessage, AfterSKUMessage from ErrorMessage where ErrorCode = $pno");
+   	for each in results {
+	beforeMsg = get(each, "BeforeSKUMessage");
+    	afterMsg = get(each, "AfterSKUMessage");
+   	}
+	ret = ret + "<li>" + beforeMsg + " " + ret8 +" "+ afterMsg + "</li>";
+	}
+}
+}
+
+return ret;

@@ -1,0 +1,133 @@
+retType= get(inputParamsDict,"retType","string");
+purchasingModel = get(inputParamsDict,"purchasingModel","string");
+shoppingCartArrayJson = get(inputParamsDict,"shoppingCartArrayJson","string");
+contracTerm = get(inputParamsDict,"contractTerm","string");
+opptyType = get(inputParamsDict,"opptyType","string");
+isThisForSurgePeakPeriodOnly = get(inputParamsDict,"isThisForSurgePeakPeriodOnly","boolean");
+raaSSurgePeakSeasonContractPeriod = get(inputParamsDict,"raaSSurgePeakSeasonContractPeriod","string");
+//annualCloudPriceshoppingCart = get(inputParamsDict,"annualCloudPriceshoppingCart","float");
+surgeContractPeriodHold = get(inputParamsDict,"surgeContractPeriod1","string");
+surgeContractPeriodHoldJson = json();
+if(surgeContractPeriodHold <> "")
+{
+	surgeContractPeriodHoldJson = json(surgeContractPeriodHold);
+	
+}
+shoppingCartJsonArray = jsonarray(shoppingCartArrayJson);
+retDict = dict("float");
+RaasAnnualReccuringRevenue = 0.0;
+RaasTotalContractValue= 0.0;
+CapexAmount= 0.0;
+TotalContractValue = 0.0;
+FetchCoreAnnualReccuringRevenue = 0.0;
+
+
+
+loopArray = range(jsonarraysize(shoppingCartJsonArray));
+
+
+
+for each in loopArray
+{
+
+	tempJson = jsonarrayget(shoppingCartJsonArray , each , "json");
+	type = jsonget(tempJson, "Type", "string");
+	ListPrice= jsonget(tempJson, "List Price", "float");
+	NetPrice= jsonget(tempJson, "Net Price", "float");
+	PartNumber= jsonget(tempJson, "Part Number", "string");
+	BundleName = jsonget(tempJson,"Bundle Name");
+	if(purchasingModel == "Opex" AND type == "Robot" AND (opptyType =="" or opptyType =="Production"))
+	{
+		if(isThisForSurgePeakPeriodOnly)
+		{
+			splitContract = split(contracTerm," ");
+			
+			RaasTotalContractValue  = (atof(splitContract[0])/12) * atof(raaSSurgePeakSeasonContractPeriod) * NetPrice;
+			RaasAnnualReccuringRevenue = atof(raaSSurgePeakSeasonContractPeriod) * NetPrice ;
+		}
+		else
+		{
+			if(find(BundleName,"Surge") <> -1)
+			{
+				tempContract = jsonget(surgeContractPeriodHoldJson,PartNumber,"integer");
+				RaasAnnualReccuringRevenue = RaasAnnualReccuringRevenue + NetPrice*tempContract;
+				contracTermArray = split(contracTerm," ");
+				RaasTotalContractValue = RaasTotalContractValue + NetPrice*tempContract*atoi(contracTermArray[0])/12;
+				
+			}
+			else
+			{			
+				RaasAnnualReccuringRevenue= RaasAnnualReccuringRevenue + NetPrice*12;
+				if(contracTerm == "36 Months"){
+				RaasTotalContractValue= RaasTotalContractValue+ NetPrice*36;
+				}elif(contracTerm == "24 Months"){
+				RaasTotalContractValue= RaasTotalContractValue+ NetPrice*24;
+				}elif(contracTerm == "60 Months"){
+				RaasTotalContractValue= RaasTotalContractValue+ NetPrice*60;
+				}elif(contracTerm == "48 Months"){
+				RaasTotalContractValue= RaasTotalContractValue+ NetPrice*48;
+				}elif(contracTerm == "1 Month"){
+				RaasTotalContractValue= RaasTotalContractValue+ NetPrice*1;
+				}elif(contracTerm == "2 Months"){
+				RaasTotalContractValue= RaasTotalContractValue+ NetPrice*2;
+				}elif(contracTerm == "3 Months"){
+				RaasTotalContractValue= RaasTotalContractValue+ NetPrice*3;
+				}
+			}
+		}
+
+	}
+elif(purchasingModel == "Opex" AND type <> "Robot" )
+{
+	CapexAmount= CapexAmount+ NetPrice;
+}
+if(purchasingModel == "Opex" AND type == "Robot" AND opptyType =="POC")
+{
+	if(contracTerm == "1 Month"){
+	RaasTotalContractValue= RaasTotalContractValue+ NetPrice*1;
+	RaasAnnualReccuringRevenue= RaasAnnualReccuringRevenue + NetPrice*1;
+	}elif(contracTerm == "2 Months"){
+	RaasTotalContractValue= RaasTotalContractValue+ NetPrice*2;
+	RaasAnnualReccuringRevenue= RaasAnnualReccuringRevenue + NetPrice*2;
+	}elif(contracTerm == "3 Months"){
+	RaasTotalContractValue= RaasTotalContractValue+ NetPrice*3;
+	RaasAnnualReccuringRevenue= RaasAnnualReccuringRevenue + NetPrice*3;
+	}
+}
+if(purchasingModel == "Capex" AND find(lower(PartNumber), "900-00178") >=0)
+{
+
+	FetchCoreAnnualReccuringRevenue = FetchCoreAnnualReccuringRevenue + NetPrice;
+}
+elif(purchasingModel == "Capex" )
+{
+	CapexAmount= CapexAmount+ NetPrice;
+}
+if(opptyType =="Renewal")
+{
+
+	FetchCoreAnnualReccuringRevenue = FetchCoreAnnualReccuringRevenue + NetPrice;
+}
+
+
+
+}
+if(purchasingModel == "Capex" ){
+TotalContractValue = FetchCoreAnnualReccuringRevenue + CapexAmount;
+}elif(purchasingModel == "Opex" ){
+TotalContractValue = RaasTotalContractValue + CapexAmount;
+}
+if(opptyType =="Renewal"){
+TotalContractValue = FetchCoreAnnualReccuringRevenue;
+}
+
+jsonTemp = json();
+jsonput(jsonTemp,"RaasAnnualReccuringRevenue", RaasAnnualReccuringRevenue );
+jsonput(jsonTemp,"RaasTotalContractValue", RaasTotalContractValue );
+jsonput(jsonTemp,"CapexAmount", CapexAmount);
+jsonput(jsonTemp,"TotalContractValue", TotalContractValue);
+jsonput(jsonTemp,"FetchCoreAnnualReccuringRevenue", FetchCoreAnnualReccuringRevenue );
+
+ret = jsontostr(jsonTemp);
+
+return ret;

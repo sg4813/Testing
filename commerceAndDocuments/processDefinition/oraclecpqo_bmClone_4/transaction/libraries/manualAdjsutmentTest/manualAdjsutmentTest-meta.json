@@ -1,0 +1,11 @@
+{
+  "name" : "Manual Adjsutment Test",
+  "variableName" : "manualAdjsutmentTest",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "annualCloudPriceInclHosting_l", "oRCL_manualAdjustments" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

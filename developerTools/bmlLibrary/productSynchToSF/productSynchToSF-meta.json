@@ -1,0 +1,12 @@
+{
+  "name" : "Product Synch to SF",
+  "variableName" : "productSynchToSF",
+  "description" : "",
+  "libraryFunctions" : [ "util.salesforceAuthenticationAccessToken" ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "Inputs",
+    "type" : "Json"
+  } ],
+  "attributes" : [ ]
+}

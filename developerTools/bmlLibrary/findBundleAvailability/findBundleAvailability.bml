@@ -1,0 +1,10 @@
+result="N";
+for eachBundle in bundleNameArray
+{
+	if(eachBundle==currentBundle)
+	{
+		result="Y";
+		break;
+	}
+}
+return result;

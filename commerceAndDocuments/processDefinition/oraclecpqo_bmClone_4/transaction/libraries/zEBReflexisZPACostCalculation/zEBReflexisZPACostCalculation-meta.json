@@ -1,0 +1,11 @@
+{
+  "name" : "ZEB Reflexis ZPA Cost Calculation ReqApp",
+  "variableName" : "zEBReflexisZPACostCalculation",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_part_number", "_model_name", "_document_number", "_config_attr_info", "annualCloudPriceInclHosting_l", "annualCloudNetPrice_l", "hours_l", "storecount_l", "empcount_l", "typeOfHosting_l", "typeOfRetailer_l", "netProfitMargin_l", "revenueFromRetailStoresNotOverall_l", "_part_custom_field11", "modelName_l", "parentSKU_l", "ZEB_pSOfferings", "oRCL_ABO_ActionCode_l" ],
+  "mainDocAttributes" : [ "currency_t", "region_t", "accountPriceList_t" ],
+  "systemAttributes" : [ ]
+}

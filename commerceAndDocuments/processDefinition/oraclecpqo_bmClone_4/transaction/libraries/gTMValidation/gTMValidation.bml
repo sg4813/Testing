@@ -1,0 +1,432 @@
+//Tejasvi
+
+headers = dict("string");
+put(headers, "content-type", "application/json");
+
+strUserName = "";
+strPassword = "";
+URL = "";
+
+recordSet = bmql("select * from INT_SYSTEM_DETAILS where System = 'GTM'"); 
+
+for each in recordSet {
+	strUserName = get(each, "Username");
+	strPassword = get(each, "Password");
+	URL = get(each, "Endpoint");
+}
+
+strUserDetails = strUserName  + ":" + strPassword;	
+encodecredential = encodebase64(strUserDetails);	
+authstring = "Basic "+ encodecredential;
+put(headers, "Authorization", authstring);
+response=dict("string");
+jsonBody = json();
+responsemessage="";
+tempJson = json();
+transactionData = jsonArray();
+transData = json();
+docDict = dict("string");
+datatableData = json();
+systemUrl = "";
+gtmNotesItem = json();
+gtmNotesItemArray = jsonarray();
+gtmNotesItemJson = json();
+orderItemJosnArray = jsonarray();
+finalJson = json();
+completeJson = json();
+inventoryItemId = "";
+operatingUnit = "ZTE UK OU";
+BackOffice = "EMEA - Bourne End";
+lineType = "Standard Line-ZTE UK";
+shipFromOrg = "NL1";
+orderTypeId = "1001";
+orderHeaderType = "Standard-ZTE UK";
+shipToSiteNumber ="";
+billToSiteNumber="";
+addressLine1="";
+addressLine2="";
+city = "";
+state="";
+county="";
+country = "";
+usZipcode = "";
+retVal = "";
+
+	
+/*if(find(_company_name,"dev")<> -1){ 
+	systemUrl = "https://devzebra.bigmachines.com";
+}
+elif(find(_company_name,"test")<> -1){
+	systemUrl = "https://test-cpq.zebra.com";
+}
+else {
+	systemUrl = "https://cpq.zebra.com";
+}*/
+billingDict = dict("string");
+billingDict1 = dict("string");
+modelDocNum = "2";
+docNumBilling  = "";
+docNumBilling1  = "";
+topModelLineid1 = "";
+parentDocNum1 = "";
+
+if(billAddressDetail_t <> "") {
+	billAddressDetails = json(billAddressDetail_t);
+	//{"accountName":"SOLBOSCH AX","accountNum":"1541736","addressLine1":"Avenue Depage-Square J. Servais","addressLine2":"","city":"Bruxelles","state":"","county":"","province":"","country":"Belgium","zipcode":"1050","usZipcode":"","sblAccountId":"1-18OXZU25","sblAddressId":"1-18OXZU28","ATPRecordId":"1-18OXZU28"}
+	accountName = jsonget(billAddressDetails, "accountName");
+	accountNum = jsonget(billAddressDetails, "accountNum");
+	addressLine1= jsonget(billAddressDetails, "address1");
+	addressLine2 = jsonget(billAddressDetails, "address2");
+	city = jsonget(billAddressDetails, "city");
+	state = jsonget(billAddressDetails, "state");
+	//selectedState
+	county = jsonget(billAddressDetails, "county");
+	country= jsonget(billAddressDetails, "country");
+	//selectedCountry
+	province = jsonget(billAddressDetails, "province");
+	usZipcode = jsonget(billAddressDetails, "postalCode");
+	//sblAccountId = jsonget(billAddressDetails, "sblAccountId");
+	//sblAddressId = jsonget(billAddressDetails, "sblAddressId");
+	//ATPRecordId = jsonget(billAddressDetails, "ATPRecordId");
+	billToSiteNumber = jsonget(billAddressDetails, "x_site_Number");
+	//shipToSiteNumber = jsonget(billAddressDetails, "x_site_Number");
+	//print billAddressDetail_t ;
+}
+//added below code for https://jira.zebra.com/browse/CCZC-7065: GSHARMA
+if(ZEB_ShipToAddress_t <> "") {
+	shipAddressDetails = json(ZEB_ShipToAddress_t);
+	shipToSiteNumber = jsonget(shipAddressDetails, "x_site_Number");
+	//print ZEB_ShipToAddress_t ;
+}
+//Operating Unit/Order Type/orderTypeId/headerAttribute5 Set
+if(region_t== "Zebra EMEA") {
+			operatingUnit = "ZTE UK OU";
+			BackOffice = "EMEA - Bourne End";
+			lineType = "Standard Line-ZTE UK";
+			shipFromOrg = "NL1";
+			orderTypeId = "1001";
+			orderHeaderType = "Standard-ZTE UK";
+		}
+		if(region_t == "Zebra Australia") {
+			operatingUnit = "ZTE UK OU";
+			BackOffice = "APAC Australia";
+			lineType = "Standard Line-ZAU";
+			shipFromOrg = "SG1";
+			orderTypeId = "1001";
+			orderHeaderType = "Standard-ZAU";
+		}
+		if(region_t == "Zebra APAC RMB") {
+			operatingUnit = "ZTE UK OU";
+			BackOffice = "APAC-Shanghai";
+			lineType = "Standard Line-GZS";
+			shipFromOrg = "SH1";
+			orderTypeId = "1001";
+			orderHeaderType = "Standard-GZS";
+		}
+		if(region_t == "Zebra APAC USD") {
+			operatingUnit = "ZTE UK OU";
+			BackOffice = "APAC-Singapore";
+			lineType = "Standard Line-ZSG";
+			shipFromOrg = "SG1";
+			orderTypeId = "1001";
+			orderHeaderType = "Standard-ZSG";
+		}
+		if(region_t == "Zebra NALA") {
+			operatingUnit = "ZTE UK OU";
+			BackOffice = "Zebra VH";
+			lineType = "Standard Line-ZTI";
+			shipFromOrg = "TX2";
+			orderTypeId = "1001";
+			orderHeaderType = "Standard-ZTI";
+		}
+
+/* Shalini: Collect all the part number and fetch the product group - START */
+partNumbers = string[];
+for line in transactionLine{
+	if( (line._part_number <> "") AND (line._part_custom_field11 == "Shell") AND (line._part_number <> "Travel Expense") AND (ISNULL(line._part_custom_field1) OR (line._part_custom_field1 == "")) ){
+		append(partNumbers, line._part_number);
+	}
+}
+
+// Query the table and store the details in the dictionary
+partNumProdGroupDict = dict("string");
+if( sizeofarray(partNumbers) > -1 ){
+	recordSet = bmql("select part_number, custom_field1 from _parts where part_number IN $partNumbers");
+	for record in recordSet{
+		partNumber = get(record, "part_number");
+		prodGroup = get(record, "custom_field1");
+
+		if( ISNULL(prodGroup) OR (prodGroup == "") ){
+			continue;
+		}
+
+		put(partNumProdGroupDict, partNumber, prodGroup);
+	}
+}
+/* Shalini: Collect all the part number and fetch the product group - END */
+
+for each in transactionLine {
+	parentDocNum = each._parent_doc_number;
+	docNum = each._document_number;
+	if(each._part_custom_field11 == "Billing" and (find(each.modelName_l,"WorkForce Connect") <>-1 OR find(each.modelName_l, "Reflexis")<> -1 OR find(each._part_number, "Reflexis")<> -1 OR find(each._part_number, "WFC")<> -1)) {
+		put(billingDict, docNum, parentDocNum);
+		docNumBilling = each._document_number;
+		parentDocNum1 = each._parent_doc_number;
+	}
+	if(each._model_variable_name == "prescriptiveAnalytics") {
+		put(billingDict1, docNum, parentDocNum);
+		docNumBilling1 = each._document_number;
+		print each._part_number;
+		print docNumBilling1;
+	}
+	// AND (each.oRCL_ABO_ActionCode_l == "ADD" OR each.oRCL_ABO_ActionCode_l == "RENEW")
+	if(each._part_custom_field11 == "Shell" AND each._part_number <> "Travel Expense") {
+		//print "Tejasvi";
+		gtmNotesItem = json();
+		gtmNotesItemArray = jsonarray();
+		gtmNotesItemJson = json();
+		cpqNumber = transactionID_t;
+		docNum = each._document_number;
+		recordId = bs_id + docNum;
+		partDisplayNumber = each._part_display_number;
+		lineId = "CPQ"+ "-" + bs_id + "-" + docNum;
+		lineNumber = docNum;
+		topModelLineid = each._parent_doc_number;
+		inventoryItemId = each._part_custom_field1;
+
+		// Shalini: Fetch the latest product group from the parts master
+		if( (each._part_number <> "")  AND (ISNULL(inventoryItemId) OR (inventoryItemId == "")) AND (containskey(partNumProdGroupDict, each._part_number)) ){
+			inventoryItemId = get(partNumProdGroupDict, each._part_number);
+		}
+
+		//will remove below code once Invetory ID logic is updated
+		/*if(partDisplayNumber == "WFC-PTTP-SW-SAAS") {
+			inventoryItemId = 7860794;
+		}
+		if(partDisplayNumber == "WFC-VC-STD-SW") {
+			inventoryItemId = 7867817;
+		}
+		if(partDisplayNumber == "RFX-RTTM") {
+			inventoryItemId = 7860788;
+		}
+		if(partDisplayNumber == "RFX-TM") {
+			inventoryItemId = 7860790;
+		}*/
+		/*if(each.modelName_l == "Prescriptive Analytics") {
+			topModelLineid1 = each._parent_doc_number;
+		}
+		if(each.modelName_l == "Prescriptive Analytics") {
+				print "ModelDocumentNumberTesting";
+				modelDocNum = get(billingDict1, topModelLineid1);
+				print modelDocNum;
+		}
+		*/
+		/*if((docNumBilling == topModelLineid) and (each.modelName_l == "WorkForce Connect" OR each.modelName_l == "Reflexis")) {
+				modelDocNum = get(billingDict, topModelLineid);
+		}*/
+		orderedQuantity = each.license;
+		customerPoNumber = purchaseOrderNumber_t;
+		transactionalCurrCode = currency_t;
+		extPriceCurrency = currency_t;
+		scheduleShipDate = each.contractStartDate_l;
+		shipToCustName = endUserName_t;
+		billToCustName = resellerName;
+		tpAttribute10 = each.contractStartDate_l;
+		tpAttribute11 = each.contractEndDate_l;
+		unitSellingPrice = 0.0;
+		if(each.annualCloudNetPrice_l > 0.0) {
+			unitSellingPrice = each.annualCloudNetPrice_l/orderedQuantity;//annualCloudNetPrice_l/totalContractValue
+		}
+		
+		jsonput(jsonBody, "recordId", recordId);// bsidDocNum
+		jsonput(jsonBody, "transmissionType", "Order");//nochange
+		jsonput(jsonBody, "batchId", bs_id);//bsid
+		jsonput(jsonBody, "gtmTransId", "");
+		jsonput(jsonBody, "processFlag", "TRANSFERRED");//nochange
+		jsonput(jsonBody, "headerId", bs_id);//bsid
+		jsonput(jsonBody, "requestId", -1);//no change
+		jsonput(jsonBody, "orderNumber", cpqNumber);//quote Number
+		jsonput(jsonBody, "operatingUnit", operatingUnit);//needs Confirmation - Will update based on Region
+		orderDate = defaultRequestDate_t;
+		orderDate = replace(orderDate, "-", "");
+		orderDate = replace(orderDate, ":", "");
+		orderDate = replace(orderDate, " ", "");
+		jsonput(jsonBody, "orderedDate", orderDate);//orderDate_t/defaultRequestDate_t
+		jsonput(jsonBody, "headerAttribute1", "Manual");//instead Of Partner portal
+		jsonput(jsonBody, "headerAttribute2", "");
+		jsonput(jsonBody, "headerAttribute3", "");//no change
+		jsonput(jsonBody, "headerAttribute4", "");
+		jsonput(jsonBody, "headerAttribute5", BackOffice); ///needs Confirmation - Will update based on Region
+		/*jsonput(jsonBody, "headerAttribute6", "");
+		jsonput(jsonBody, "headerAttribute7", "");
+		jsonput(jsonBody, "headerAttribute8", "");
+		jsonput(jsonBody, "headerAttribute9", "");
+		jsonput(jsonBody, "headerAttribute10", "");
+		jsonput(jsonBody, "headerAttribute11", "");
+		jsonput(jsonBody, "headerAttribute12", "");
+		jsonput(jsonBody, "headerAttribute13", "");
+		jsonput(jsonBody, "headerAttribute14", "");
+		jsonput(jsonBody, "headerAttribute15", "");
+		jsonput(jsonBody, "headerAttribute16", "");
+		jsonput(jsonBody, "headerAttribute17", "");
+		jsonput(jsonBody, "headerAttribute18", "");
+		jsonput(jsonBody, "headerAttribute19", "");
+		jsonput(jsonBody, "headerAttribute20", "");*/
+		jsonput(jsonBody, "lineId", lineId); //bsid-documentnumber
+		jsonput(jsonBody, "lineNumber", lineNumber);//line document number
+		jsonput(jsonBody, "inventoryItemId", inventoryItemId);//needs Confirmation
+		jsonput(jsonBody, "itemNumber", partDisplayNumber);//Pat Display number
+		jsonput(jsonBody, "orderedQuantity", orderedQuantity);//license
+		jsonput(jsonBody, "customerPoNumber", customerPoNumber);//purchase order number
+		jsonput(jsonBody, "orderQuantityUom", "EA");//needs confirmation
+		jsonput(jsonBody, "unitSellingPrice", each.annualCloudNetPrice_l);//TCV/quantity - which one to use annualCloudNetPrice_l/totalContractValue
+		jsonput(jsonBody, "transactionalCurrCode", currency_t);//currency 
+		jsonput(jsonBody, "extendedPrice", each.annualCloudNetPrice_l);//TCV/quantity - which one to use annualCloudNetPrice_l/totalContractValue
+		jsonput(jsonBody, "extPriceCurrency", currency_t);//currency
+		jsonput(jsonBody, "scheduleShipDate", each.contractStartDate_l);// timestamp
+		jsonput(jsonBody, "flowStatusCode", "BOOKED");//no change
+		jsonput(jsonBody, "lineType", lineType);// needs to be updated based on region
+		jsonput(jsonBody, "shipFromOrg", shipFromOrg); //needs to be updated based on region, given some value for now
+		jsonput(jsonBody, "orderTypeId", orderTypeId);//no change
+		jsonput(jsonBody, "orderHeaderType",  orderHeaderType);// needs to be updated based on region
+		jsonput(jsonBody, "shipSourceType",  "INTERNAL");//no change
+		jsonput(jsonBody, "shipSetId",  "");//blank
+		jsonput(jsonBody, "shipToCustName",  shipToCustName);//end user name
+		jsonput(jsonBody, "shipToLocation",  "TR");//need Confirmation
+		jsonput(jsonBody, "shipToContactId",  "");//needs confirmation
+		if(billToCustName <> ""){
+			jsonput(jsonBody, "billToCustName",  billToCustName);//resellerName
+		} else {
+			jsonput(jsonBody, "billToCustName",  shipToCustName);//end User Name
+		}
+		jsonput(jsonBody, "billToLoc",  "AE");//need confirmation
+		/*jsonput(jsonBody, "invoiceToContactId",  "");//need confirmation
+		jsonput(jsonBody, "deliverToCustName",  "");//need confirmation
+		jsonput(jsonBody, "deliverToLocation",  "");//need Confirmation
+		jsonput(jsonBody, "deliverToContactId",  "");//need confirmation*/
+		jsonput(jsonBody, "billToLoc",  "TR");//need confirmation
+		
+		jsonput(jsonBody, "attribute1",  "Manual");//nochange
+		/*jsonput(jsonBody, "attribute2",  "");
+		jsonput(jsonBody, "attribute3",  "");
+		jsonput(jsonBody, "attribute4",  "");
+		jsonput(jsonBody, "attribute5",  "");
+		jsonput(jsonBody, "attribute6",  "");
+		jsonput(jsonBody, "attribute7",  "");
+		jsonput(jsonBody, "attribute8",  "");
+		jsonput(jsonBody, "attribute9",  "");
+		jsonput(jsonBody, "attribute10",  "");
+		jsonput(jsonBody, "attribute11",  "");*/
+		jsonput(jsonBody, "attribute12",  each.annualCloudNetPrice_l);//TCV/quantity - which one to use annualCloudNetPrice_l/totalContractValue
+		/*jsonput(jsonBody, "attribute13",  "1-24QJU8P9");//needs confirmation
+		jsonput(jsonBody, "attribute14",  "");
+		jsonput(jsonBody, "attribute15",  "");
+		jsonput(jsonBody, "attribute16",  "");
+		jsonput(jsonBody, "attribute17",  "");
+		jsonput(jsonBody, "attribute18",  "");
+		jsonput(jsonBody, "attribute19",  "");
+		jsonput(jsonBody, "attribute20",  "");*/
+		
+		/*jsonput(jsonBody, "tpAttribute1",  "");
+		jsonput(jsonBody, "tpAttribute2",  "");
+		jsonput(jsonBody, "tpAttribute3",  "");
+		jsonput(jsonBody, "tpAttribute4",  "");
+		jsonput(jsonBody, "tpAttribute5",  "");
+		jsonput(jsonBody, "tpAttribute6",  "TUR");//needs confirmation*/
+		jsonput(jsonBody, "tpAttribute7",  "FCA");// needs confirmation
+		/*jsonput(jsonBody, "tpAttribute8",  "");
+		jsonput(jsonBody, "tpAttribute9",  "");*/
+		jsonput(jsonBody, "tpAttribute10",  tpAttribute10);//contract start date with time stamp
+		jsonput(jsonBody, "tpAttribute11",  tpAttribute11);//contract end date with time stamp
+		/*jsonput(jsonBody, "tpAttribute12",  "");
+		jsonput(jsonBody, "tpAttribute13",  "");
+		jsonput(jsonBody, "tpAttribute14",  "");
+		jsonput(jsonBody, "tpAttribute15",  "");*/
+		
+		jsonput(jsonBody, "topModelLineId",  parentDocNum1);//Parent id(modelDocumentNumber for WorkForce Connect and Reflexis)
+		//jsonput(jsonBody, "topModelLineId",  modelDocNum);//Parent id
+		if(find(each.modelName_l, "Prescriptive Analytics") <> -1 and docNumBilling1 <> "") {
+			jsonput(jsonBody, "topModelLineId",  docNumBilling1);//Parent id(modelDocumentNumber for Prescriptive Analytics)
+		}
+		if(each._part_number == "PA Professional Services" AND each.modelName_l == "Professional Services") {
+				paPSParentDocNum = each._parent_doc_number;
+				jsonput(jsonBody, "topModelLineId",  paPSParentDocNum);//Parent id(modelDocumentNumber for Professional Services Prescriptive Analytics)
+		}
+		jsonput(jsonBody, "linkToLineId",  "");//needs confirmation
+		jsonput(jsonBody, "itemTypeCode",  "STANDARD");//no change
+		jsonput(jsonBody, "splitFromLineId",  "");//needs confirmation
+		jsonput(jsonBody, "shipToSiteNumber", shipToSiteNumber );//need confirmation822694
+		jsonput(jsonBody, "billToSiteNumber",  billToSiteNumber);//need confirmation 1114966
+		jsonput(jsonBody, "delToSiteNumber",  "");//need Confirmation
+		jsonput(jsonBody, "gtmLnStatus",  "OPEN");//no change
+		
+		//gtmNotesItem
+		jsonput(gtmNotesItem, "notesSeqId", 9001441);//need confirmation
+		//jsonput(gtmNotesItem, "gtmLineRecordId", 15079544);
+		jsonput(gtmNotesItem, "gtmLineRecordId", recordId);//bsidDocnum
+		jsonput(gtmNotesItem, "batchId", bs_id);//bsid
+		jsonput(gtmNotesItem, "headerId", bs_id);//quote number
+		jsonput(gtmNotesItem, "lineId", lineId);//bsid-documentNumber
+		jsonput(gtmNotesItem, "processFlag", "TRANSFERRED");//no change
+		jsonput(gtmNotesItem, "documentType", "Addressee");//no change
+		
+		jsonput(gtmNotesItem, "documentId", lineId);//line doc number
+		jsonput(gtmNotesItem, "documentTypeId", shipToSiteNumber + "_AD");//https://jira.zebra.com/browse/CCZC-7064
+		if(billToCustName <> ""){
+			jsonput(gtmNotesItem, "companyName", billToCustName);
+		} else {
+			jsonput(gtmNotesItem, "companyName", shipToCustName);
+		}
+		
+		jsonput(gtmNotesItem, "docTypeName", "");//needs confirmation
+		jsonput(gtmNotesItem, "addressLine1", addressLine1);//needs confirmation
+		jsonput(gtmNotesItem, "addressLine2", addressLine2);//needs confirmation
+		jsonput(gtmNotesItem, "addressLine3", "");//needs confirmation
+		jsonput(gtmNotesItem, "addressLine4", "");//needs confirmation
+		jsonput(gtmNotesItem, "county", county);//country - need confirmation
+		jsonput(gtmNotesItem, "city", city);// need confirmation
+		jsonput(gtmNotesItem, "state", state); //need confirmation
+		jsonput(gtmNotesItem, "postalCode", usZipcode); //need confirmation
+		jsonput(gtmNotesItem, "country", country);
+		jsonput(gtmNotesItem, "attentionTo", "");
+		jsonput(gtmNotesItem, "createdBy", "");//need confirmation - some number is given in sample payload
+		jsonput(gtmNotesItem, "creationDate", createdDate_t);//need confirmation 
+		jsonput(gtmNotesItem, "lastUpdatedBy", "");//need confirmation - some number is given in sample payload
+		jsonput(gtmNotesItem, "lastUpdateDate", createdDate_t);//need confirmation 
+		//createdBy_t, lastUpdatedBy_t, createdDate_t,createdBy_t
+		/*jsonput(gtmNotesItem, "notesAttr3", "");
+		jsonput(gtmNotesItem, "notesAttr4", "");
+		jsonput(gtmNotesItem, "notesAttr1", "");
+		jsonput(gtmNotesItem, "notesAttr2", "");
+		jsonput(gtmNotesItem, "notesAttr5", "");
+		jsonput(gtmNotesItem, "notesAttr6", "");
+		jsonput(gtmNotesItem, "notesAttr7", "");
+		jsonput(gtmNotesItem, "notesAttr8", "");
+		jsonput(gtmNotesItem, "notesAttr9", "");
+		jsonput(gtmNotesItem, "notesAttr10", "");*/
+		jsonarrayappend(gtmNotesItemArray, gtmNotesItem);
+		jsonput(gtmNotesItemJson, "gtmNotesItem", gtmNotesItemArray);
+		jsonput(jsonBody, "gtmNotes", gtmNotesItemJson);
+		jsonarrayappend(orderItemJosnArray, jsonBody);
+		
+	}
+}
+
+jsonput(finalJson, "orderItem", orderItemJosnArray);
+//jsonput(completregion_teJson, "salesOrderRequest", finalJson);
+jsonput(completeJson, "gtmSalesOrderRequest", finalJson);
+
+/*print URL;
+print strUserName;
+print strPassword;*/
+responseData = urldata(URL, "POST",headers,jsontostr(completeJson));
+print "data-start";
+print responseData;
+print "date-end";
+responseMessage = get(responseData, "Message-Body");
+print responseMessage;
+retVal = retVal + "1~ZEB_gTMRsponseMessage~" + responseMessage + "|";
+retVal = retVal + "1~ZEB_gTMPayload~" + jsontostr(completeJson) + "|";
+print completeJson;
+
+return retVal;

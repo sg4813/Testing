@@ -1,0 +1,27 @@
+{
+  "name" : "Pricing Rule",
+  "variableName" : "pricingRule",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "Float",
+  "parameters" : [ {
+    "name" : "shoppingCartArrayJson",
+    "type" : "String"
+  }, {
+    "name" : "purchasingModel",
+    "type" : "String"
+  }, {
+    "name" : "retType",
+    "type" : "String"
+  }, {
+    "name" : "Param4",
+    "type" : "Integer"
+  }, {
+    "name" : "Param5",
+    "type" : "String"
+  }, {
+    "name" : "Param6",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

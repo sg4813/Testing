@@ -1,0 +1,19 @@
+// NAME: Get Integration Details
+// VARNAME: GetIntegrationDetails
+// PARAM: sysName (String)
+// DEPENDENCY: INT_SYSTEM_DETAILS (Data Table)
+// RETURN: String Dictionary
+
+ret = dict("string");
+
+// Get the entry from the INT_SYSTEM_DETAILS data table based on the entered system name
+details = bmql("select Username, Password, SoapEndpoint from INT_SYSTEM_DETAILS where System = $sysName");
+
+// Get the Soap Endpoint, Username, and Password for the returned entry
+for det in details {
+	put(ret, "SoapEndpoint", get(det, "SoapEndpoint"));
+	put(ret, "Username", get(det, "Username"));
+	put(ret, "Password", get(det, "Password"));
+}
+
+return ret;

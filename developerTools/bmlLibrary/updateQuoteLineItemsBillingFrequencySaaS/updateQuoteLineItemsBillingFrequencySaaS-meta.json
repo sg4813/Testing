@@ -1,0 +1,9 @@
+{
+  "name" : "Update Quote Line Items BillingFrequency SaaS",
+  "variableName" : "updateQuoteLineItemsBillingFrequencySaaS",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "attributes" : [ "_company_name" ]
+}

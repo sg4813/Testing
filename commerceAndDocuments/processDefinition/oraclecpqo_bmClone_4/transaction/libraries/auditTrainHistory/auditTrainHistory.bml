@@ -1,0 +1,98 @@
+ret = jsonarray();
+newAuditTrail = Input;
+QuoteFields = string[]{"Status"};
+oldAuditTrail = json();
+if(len(auditTrailJson) == 0)
+{
+	FinalJson = jsonarray();
+	for each in QuoteFields 
+	{
+		optionJson = json();		
+		NewValue = jsonget(newAuditTrail,each);
+		jsonput(optionJson,"action", "Created");
+		jsonput(optionJson,"modifiedDate",datetostr(getdate(true)));
+		jsonput(optionJson,"modifiedBy",_system_user_name);
+		jsonput(optionJson,"oldValue","");
+		jsonput(optionJson,"newValue", NewValue);
+		jsonput(optionJson,"fieldName",each);
+		jsonarrayappend(FinalJson,optionJson);
+	}
+	return  FinalJson;
+	
+}
+oldAuditTrail  = json(auditTrailJson);
+oldFields = jsonget(oldAuditTrail,"fields");
+newFields = jsonget(newAuditTrail,"fields");
+oldFieldsArray = split(oldFields,"$$");
+newFieldArray = split(newFields,"$$");
+FinalJson = jsonarray();
+if(len(auditTrailFinalJson) > 0)
+{
+	FinalJson = jsonarray(auditTrailFinalJson);
+}
+
+for each in QuoteFields 
+{
+	NewValue = jsonget(newAuditTrail,each);
+	OldValue = jsonget(oldAuditTrail,each);
+	print NewValue;
+	print OldValue;
+	if(OldValue <> NewValue)
+	{
+		optionJson = json();
+		jsonput(optionJson,"action", "Modify");
+		jsonput(optionJson,"modifiedDate",datetostr(getdate(true)));
+		jsonput(optionJson,"modifiedBy",_system_user_name);
+		jsonput(optionJson,"oldValue", jsonget(oldAuditTrail,each));
+		jsonput(optionJson,"newValue", NewValue);
+		jsonput(optionJson,"fieldName",each);
+		jsonarrayappend(FinalJson , optionJson);
+	}
+}
+
+for each in oldFieldsArray 
+{
+	if(len(each) > 0){
+	NewValue = jsonget(newAuditTrail,each);
+	OldValue = jsonget(oldAuditTrail,each);
+	if(findinarray(newFieldArray,each) == -1)
+	{
+		
+		print NewValue;
+		print OldValue;
+		optionJson = json();
+		jsonput(optionJson,"action", "Remove");
+		jsonput(optionJson,"modifiedDate",datetostr(getdate(true)));
+		jsonput(optionJson,"modifiedBy",_system_user_name);
+		jsonput(optionJson,"oldValue",OldValue);
+		jsonput(optionJson,"newValue", "");
+		jsonput(optionJson,"fieldName",each);
+		jsonarrayappend(FinalJson , optionJson);	
+	}
+	elif(findinarray(newFieldArray,each) <> -1 AND OldValue <> NewValue)
+	{
+		optionJson = json();
+		jsonput(optionJson,"action", "Modify");
+		jsonput(optionJson,"modifiedDate",datetostr(getdate(true)));
+		jsonput(optionJson,"modifiedBy",_system_user_name);
+		jsonput(optionJson,"oldValue", OldValue);
+		jsonput(optionJson,"newValue", NewValue);
+		jsonput(optionJson,"fieldName",each);
+		jsonarrayappend(FinalJson , optionJson);	
+	}
+}}
+for each in newFieldArray
+{
+	if(findinarray(oldFieldsArray,each) == -1)
+	{
+		optionJson = json();
+		jsonput(optionJson,"action", "Created");
+		jsonput(optionJson,"modifiedDate",datetostr(getdate(true)));
+		jsonput(optionJson,"modifiedBy",_system_user_name);
+		jsonput(optionJson,"oldValue", "");
+		jsonput(optionJson,"newValue", jsonget(newAuditTrail,each));
+		jsonput(optionJson,"fieldName",each);
+		jsonarrayappend(FinalJson , optionJson);
+	}
+}
+return FinalJson;

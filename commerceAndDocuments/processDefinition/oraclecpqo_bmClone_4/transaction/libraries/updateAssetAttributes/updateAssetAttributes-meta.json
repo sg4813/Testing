@@ -1,0 +1,11 @@
+{
+  "name" : "Update Asset Attributes",
+  "variableName" : "updateAssetAttributes",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "billingFrequency", "_document_number", "_parent_doc_number", "oRCL_ABO_ActionCode_l", "rootAssetKey_l", "_line_bom_part_number", "_model_name", "annualCloudPriceWoHosting_l", "grossCloudPriceInclHosting_l", "annualCloudPriceInclHosting_l", "grossCloudPriceWoHosting_l", "originalTransactionNumber_l" ],
+  "mainDocAttributes" : [ "distributorID", "ZEB_distributorEmail", "transactionID_t", "resellerID", "endUserNum_t", "originalTransactionNumber_t" ],
+  "systemAttributes" : [ "_system_company_name" ]
+}

@@ -1,0 +1,26 @@
+flagDP = "";
+flagMAP = "";
+flagsArr = String[];
+tempProvince = accountProvince;
+tempAccType = accountType;
+if(tempProvince == "NA" AND tempAccType =="Internal"){
+//Hide Disc Price
+//flagDP = "true";
+append(flagsArr,"flagDP");
+}
+/*if(tempProvince == "NA" AND tempAccType =="External"){
+retVal = True;(Hide nothing)
+}*/
+if(tempProvince == "NON NA" AND tempAccType =="Internal"){
+//(Hide MAP and DP)
+//flagMAP = "true";
+append(flagsArr,"flagMAP");
+//flagDP = "true";
+append(flagsArr,"flagDP");
+}
+if(tempProvince == "NON NA" AND tempAccType =="External"){
+//(Hide MAP)
+//flagMAP = "true";
+append(flagsArr,"flagMAP");
+}
+return flagsArr;

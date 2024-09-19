@@ -1,0 +1,46 @@
+strAccountType = "Direct";
+strPurchasingType = "Capex";
+retJson = json();
+tempJson = json();
+
+arrayBundle = string[];
+
+rs = bmql("Select * from Relavent_Bundles where Status = 'Active' AND Purchasing_Type = $strPurchasingType");
+for each in rs
+{
+	append(arrayBundle,get(each,"Bundle"));
+}
+
+rs = bmql("Select * from Fetch_Pricing where Bundle_Name IN $arrayBundle AND Account_Type = $strAccountType Order By Bundle_Name");
+
+for bundle in arrayBundle
+{
+	tempJson = json();
+	tempArrayJson = jsonarray();
+	for each in rs
+	{
+		strBundle = get(each,"Bundle_Name");	
+		if(bundle == strBundle)
+		{		
+			isListPrice = "N";
+			strMinQuantity = get(each,"Min_Quantity");
+			strMaxQuantity = get(each,"Max_Quantity");
+			if( strMinQuantity  == "" AND strMaxQuantity  == "")
+			{
+				isListPrice = "Y";
+			}
+			strPartNumber = get(each,"Part_Number");
+			
+			strPrice = get(each,"Price");
+			jsonput(tempJson,"PartNumber",strBundle + "-" + strPartNumber);
+			jsonput(tempJson,"Price",strPrice );
+			jsonput(tempJson,"ListPrice",isListPrice);
+			jsonput(tempJson,"MinQuantity",strMinQuantity);
+			jsonput(tempJson,"MaxQuantity",strMaxQuantity);
+			jsonarrayappend(tempArrayJson,tempJson);
+		}
+	}
+	jsonput(retJson,bundle,jsonarraytostr(tempArrayJson));
+}
+print retJson;
+return jsontostr(retJson);

@@ -1,0 +1,46 @@
+retVal = "";
+actionCode = "";
+/*for each in transactionLine {
+print each._part_custom_field11;
+	if(each._model_variable_name <> ""){
+		actionCode = each.oRCL_ABO_ActionCode_l;
+		print actionCode;
+		retval = retVal + each._document_number + "~ZEB_customActionCode_l~" + actionCode + "|";
+	}
+	if(each._part_custom_field11 == "Billing" OR each._part_custom_field11 == "Shell") {
+		
+		retval = retVal + each._document_number + "~ZEB_customActionCode_l~" + actionCode + "|";
+	}
+
+}
+return retVal;*/
+
+for line in transactionLine {
+	
+	if (line._parent_doc_number =="" and line._model_name <> ""){
+	actionCode =line.oRCL_ABO_ActionCode_l;
+	retval = retVal + line._document_number + "~ZEB_customActionCode_l~" + actionCode + "|";
+	}
+	elif(line._parent_doc_number <> ""){
+		for each in transactionLine {
+			if (line._parent_doc_number == each._document_number){
+				if(line._part_custom_field11 == "Billing"){
+					actionCode = each.oRCL_ABO_ActionCode_l;
+					print actionCode;
+					retval = retVal + line._document_number + "~ZEB_customActionCode_l~" + actionCode + "|";
+				}
+				elif(line._part_custom_field11 == "Shell"){
+					for i in transactionLine {
+						if ((each._parent_doc_number == i._document_number ) or (line._parent_doc_number == i._document_number)){
+						actionCode = i.oRCL_ABO_ActionCode_l;
+						print actionCode;
+						retval = retVal + line._document_number + "~ZEB_customActionCode_l~" + actionCode + "|";
+						break;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+return retVal;

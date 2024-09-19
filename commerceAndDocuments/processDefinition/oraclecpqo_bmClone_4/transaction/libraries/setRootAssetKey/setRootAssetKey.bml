@@ -1,0 +1,46 @@
+ret = "";
+
+for line in transactionLine
+{
+	
+		if(line.oRCL_ABO_ActionCode_l <> "ADD")
+		{
+			ret = line.rootAssetKey_l + "&&";			
+			break;		
+		}
+}
+for line in transactionLine
+{
+	if(line.oRCL_ABO_ActionCode_l <> "ADD")
+	{
+		ret = ret + line.oRCL_ABO_ActionCode_l  + "^^";
+	}
+	else
+	{
+		break;
+	}
+
+}
+if(ret <> "")
+{
+	ret = ret + "&&";
+}
+
+for line in transactionLine
+{
+	
+	if(line.oRCL_ABO_ActionCode_l <> "ADD")
+	{
+		ret = ret + line.itemInstanceId_l+ "^^";
+	}
+	else
+	{
+		break;
+	}
+}
+
+if(ret <> "")
+{
+		ret = "|1~rootAssetKeyLineItems~"+ret+"|";
+}
+return ret;

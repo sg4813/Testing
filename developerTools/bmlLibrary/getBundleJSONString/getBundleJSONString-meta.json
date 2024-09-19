@@ -1,0 +1,18 @@
+{
+  "name" : "get Bundle JSON String",
+  "variableName" : "getBundleJSONString",
+  "description" : "NOT IN USE",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "skuID",
+    "type" : "String"
+  }, {
+    "name" : "modelID",
+    "type" : "String"
+  }, {
+    "name" : "accountID",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

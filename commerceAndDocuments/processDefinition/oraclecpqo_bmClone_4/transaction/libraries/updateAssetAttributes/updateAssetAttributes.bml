@@ -1,0 +1,131 @@
+result="";
+assetId="";
+assetIdDict = dict("string");
+retval= "";
+url="";
+if(_system_company_name=="devzebra"){
+	url="devzebra.bigmachines.com";
+	}
+	elif(_system_company_name=="testzebra"){
+	url="test-cpq.zebra.com";
+	}
+	elif(_system_company_name=="zebra"){
+	url="cpq.zebra.com";
+	}
+	else{
+	url="xyz";
+	}
+
+for line in transactionLine{
+	if(line._model_name <> ""){
+	params=dict("string");
+	put(params,"Accept","application/json");
+	put(params,"Content-Type","application/json");
+	//response="";
+       	//response=urldatabyget("https://"+_system_company_name+".bigmachines.com/rest/v4/assets?limit=1&orderby=dateAdded:desc&fields=id,dateAdded,status,_asset_custom_distributorID,_asset_custom_resellerId,_asset_custom_endUser,_asset_custom_originalTransactionNumber,assetKey&q={assetKey:%22"+line.rootAssetKey_l+"%22}","error","");
+       // if(_system_company_name=="devzebra"){
+		response=urldatabyget("https://"+url+"/rest/v4/assets?limit=1&orderby=dateAdded:desc&fields=id,dateAdded,status,_asset_custom_distributorID,_asset_custom_resellerId,_asset_custom_endUser,_asset_custom_originalTransactionNumber,assetKey&q={assetKey:%22"+line.rootAssetKey_l+"%22}","error","");
+	//}
+	//else {
+		//response=urldatabyget("https://"+"test-cpq.zebra.com/rest/v4/assets?limit=1&orderby=dateAdded:desc&fields=id,dateAdded,status,_asset_custom_distributorID,_asset_custom_resellerId,_asset_custom_endUser,_asset_custom_originalTransactionNumber,assetKey&q={assetKey:%22"+line.rootAssetKey_l+"%22}","error","");
+	//}
+	assetID = "";
+	response1=json(response);
+	jsonResponseArrayStr =  jsonget(response1, "items");
+	jsonResponseArray = jsonarray(jsonResponseArrayStr);
+	assetInfoStr = jsonarrayget(jsonResponseArray , 0);
+	assetInfo  = json(assetInfoStr);
+	enddate= jsonget(assetInfo , "endDate");
+	assetKey1= jsonget(assetInfo , "assetKey");
+	startDate= jsonget(assetInfo , "startDate");
+	//uplift= jsonget(assetInfo , "uplift"); --VAGARWAL2 31-Jan
+	distId=jsonget(assetInfo,"_asset_custom_distributorID");
+	reselId=jsonget(assetInfo,"_asset_custom_resellerId");
+	endUserNo=jsonget(assetInfo,"_asset_custom_endUser");
+	//reuplift=jsonget(assetInfo,"_asset_custom_ZEB_upLift");--VAGARWAL2 31-Jan
+	OrignlTxnNullcheck = isjsonnull(assetInfo,"_asset_custom_originalTransactionNumber");
+	OriginalTxnNo = jsonget(assetInfo,"_asset_custom_originalTransactionNumber");
+
+	if(find(response,"\"id\":") <> -1){
+		response = substring(response,find(response,"id\""));
+		assetID = jsonget(assetInfo,"id");
+	}
+
+	print "--"+assetID;
+	 input=json();
+	 
+	 if(OrignlTxnNullcheck == true){
+	 
+		jsonput(input,"_asset_custom_originalTransactionNumber",transactionID_t);
+		jsonput(input,"_asset_custom_distributorID",distributorID);
+		jsonput(input,"_asset_custom_resellerId",resellerID);
+		jsonput(input,"_asset_custom_endUser",distributorID+"_"+resellerID+"_"+endUserNum_t);
+		//jsonput(input,"_asset_custom_ZEB_upLift",ZEB_upLift_t);--VAGARWAL2 31-Jan
+		
+		//result= urldatabypost("https://"+_system_company_name+".bigmachines.com/rest/v4/assets/"+ assetID, jsontostr(input), "error",params,true);
+		
+		if(_system_company_name=="devzebra"){
+			result= urldatabypost("https://"+_system_company_name+".bigmachines.com/rest/v4/assets/"+ assetID, jsontostr(input), "error",params,true);
+		}
+		else {
+			result= urldatabypost("https://"+url+"/rest/v4/assets/"+ assetID, jsontostr(input), "error",params,true);
+		}
+		//retval = retval + line._document_number + "~originalTransactionNumber_l~" + transactionID_t + "|";
+		
+		//retval = retval+  "1~originalTransactionNumber_t~" + transactionID_t +"|";
+		
+
+		
+		}
+		
+		elif(OrignlTxnNullcheck == false){
+		
+		if(line.oRCL_ABO_ActionCode_l=="RENEW")
+		{
+		jsonput(input,"_asset_custom_originalTransactionNumber",transactionID_t);
+		}
+		else
+		{
+		jsonput(input,"_asset_custom_originalTransactionNumber",OriginalTxnNo);
+		//retval = retval+  "1~originalTransactionNumber_t~" + OriginalTxnNo +"|";
+		}
+		jsonput(input,"_asset_custom_distributorID",distributorID);
+		jsonput(input,"_asset_custom_resellerId",resellerID);
+		jsonput(input,"_asset_custom_endUser",distributorID+"_"+resellerID+"_"+endUserNum_t);
+		//jsonput(input,"_asset_custom_ZEB_upLift",ZEB_upLift_t);--VAGARWAL2 31-Jan
+		
+		
+		//retval = retval + line._document_number + "~originalTransactionNumber_l~" + OriginalTxnNo + "|";
+		
+		//result= urldatabypost("https://"+_system_company_name+".bigmachines.com/rest/v4/assets/"+ assetID, jsontostr(input), "error",params,true);
+	if(_system_company_name=="devzebra"){
+		result= urldatabypost("https://"+_system_company_name+".bigmachines.com/rest/v4/assets/"+ assetID, jsontostr(input), "error",params,true);
+	}
+	else {
+		result= urldatabypost("https://"+url+"/rest/v4/assets/"+ assetID, jsontostr(input), "error",params,true);
+	}
+	
+	 }
+		
+		
+			elif(containskey(assetIdDict, line._parent_doc_number)){
+			jsonInput = json();
+			ID = get(assetIdDict, line._parent_doc_number);
+			param=dict("string");
+			put(param,"Accept","application/json");
+			put(param,"Content-Type","application/json");
+			//result= urldatabypost("https://"+_system_company_name+".bigmachines.com/rest/v4/assets/"+ ID, jsontostr(jsonInput), "error",param,true);
+		if(_system_company_name=="devzebra"){
+			result= urldatabypost("https://"+_system_company_name+".bigmachines.com/rest/v4/assets/"+ ID, jsontostr(jsonInput), "error",param,true);
+		}
+		else {
+			result= urldatabypost("https://"+url+"/rest/v4/assets/"+ ID, jsontostr(jsonInput), "error",param,true);
+		}
+		}
+		
+			
+		}
+		
+	
+}
+return retval;

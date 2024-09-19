@@ -1,0 +1,11 @@
+{
+  "name" : "Ordered By",
+  "variableName" : "orderedBy",
+  "description" : "Updates a transaction's ordered by attribute with the current user when an order is created.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ "_system_user_name" ]
+}

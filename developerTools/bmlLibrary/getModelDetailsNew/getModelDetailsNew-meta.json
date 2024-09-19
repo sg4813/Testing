@@ -1,0 +1,21 @@
+{
+  "name" : "Get Model details new",
+  "variableName" : "getModelDetailsNew",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "Model",
+    "type" : "String"
+  }, {
+    "name" : "Attribute",
+    "type" : "String"
+  }, {
+    "name" : "value",
+    "type" : "String"
+  }, {
+    "name" : "valuesequence",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

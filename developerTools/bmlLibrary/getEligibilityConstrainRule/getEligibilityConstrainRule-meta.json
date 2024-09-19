@@ -1,0 +1,12 @@
+{
+  "name" : "Get Eligibility Constrain Rule",
+  "variableName" : "getEligibilityConstrainRule",
+  "description" : "Created by: Abhishek 07/02/19: Function will provide Constrain condition for Item Eligibility.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String[]",
+  "parameters" : [ {
+    "name" : "Source",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

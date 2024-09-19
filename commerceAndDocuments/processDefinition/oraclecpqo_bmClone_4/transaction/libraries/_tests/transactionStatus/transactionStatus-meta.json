@@ -1,0 +1,6 @@
+{
+  "name" : "Transaction Status",
+  "variableName" : "transactionStatus",
+  "description" : "Will make sure the quote status returns the correct string",
+  "libraryFunctions" : [ "commerce.transactionStatus" ]
+}

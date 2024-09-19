@@ -1,0 +1,12 @@
+icount =0;
+jcount = 0;
+for each in SKUArray
+{
+	if (each == SKU){
+	jcount = icount ;
+	}
+
+icount=icount+1;
+}
+
+return Quantity[jcount];

@@ -1,0 +1,11 @@
+{
+  "name" : "fileAttachment",
+  "variableName" : "fileAttachment",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ ],
+  "mainDocAttributes" : [ "fileAttachmentPOC" ],
+  "systemAttributes" : [ ]
+}

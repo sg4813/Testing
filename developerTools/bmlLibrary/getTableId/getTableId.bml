@@ -1,0 +1,52 @@
+ret = dict("string");
+strModelName  = ModelName;
+
+arrayModel = split(strModelName, " ");
+print arrayModel;
+if(sizeofarray(arrayModel) > 1)
+{
+	strModelName = "";
+	for each in arrayModel
+	{
+		if(strModelName == "")
+		{
+			strModelName = each;
+		}
+		else
+		{
+			strModelName = strModelName+ "+" + each;
+		}
+	}	
+}
+print strModelName ;
+headers = dict("string");
+put(headers, "content-type", "application/json");
+strUserName = "AS3869";
+strPassword = "i0_#CF__E3";
+strUserDetails = strUserName  + ":" + strPassword;	
+encodecredential = encodebase64(strUserDetails);	
+authstring = "Basic "+ encodecredential;
+put(headers, "Authorization", authstring);
+requestJson = json();
+strrequestJson = jsontostr(requestJson);
+//strUrl = "https://devzebra.bigmachines.com/rest/v12/customModelSKUrelationship?q={'model':'' + strModelName    +"','category':'Standard Configurations'}";
+strUrl = "";
+strUrl = "https://cpq.zebra.com/rest/v12/customModelSKUrelationship?q={$and:[{model:'" + strModelName  +"'},{category:'Standard+Configurations'}]}" ;
+response = urldata(strUrl,"GET",headers,"{}");
+
+if(get(response,"Status-Code") == "200")
+{
+	output = json(get(response,"Message-Body"));
+	
+	tablerecords = jsonarray(jsonget(output,"items"));
+	//print tablerecords;
+	nCount = range(jsonarraysize(tablerecords));
+	for each in nCount
+	{
+		tempjson = json(jsonarrayget(tablerecords,each));
+		tempsku = jsonget(tempjson,"skunumber");
+		tempId = jsonget(tempjson,"id");
+		put(ret,tempsku,tempId);
+	}
+}
+return ret ;

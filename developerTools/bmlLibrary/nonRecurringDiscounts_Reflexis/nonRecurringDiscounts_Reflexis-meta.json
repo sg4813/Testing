@@ -1,0 +1,9 @@
+{
+  "name" : "Non Recurring Discounts_Reflexis",
+  "variableName" : "nonRecurringDiscounts_Reflexis",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "attributes" : [ "_company_name" ]
+}

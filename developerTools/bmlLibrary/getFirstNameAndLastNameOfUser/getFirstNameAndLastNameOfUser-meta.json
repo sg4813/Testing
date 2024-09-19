@@ -1,0 +1,15 @@
+{
+  "name" : "Get First Name and Last Name of User",
+  "variableName" : "getFirstNameAndLastNameOfUser",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "transID",
+    "type" : "String"
+  }, {
+    "name" : "Approvername",
+    "type" : "String"
+  } ],
+  "attributes" : [ "_company_name" ]
+}

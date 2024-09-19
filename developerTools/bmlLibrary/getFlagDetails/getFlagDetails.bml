@@ -1,0 +1,20 @@
+flagDict = dict("string");
+flagMAP = "false";
+flagDP = "false";
+tempProvince = accountProvince;
+tempAccType = accountType;
+if(tempProvince == "NA" AND tempAccType =="Internal"){
+flagDP = "true";
+put(flagDict,"flag",flagDP);
+}
+if(tempProvince == "NON NA" AND tempAccType =="Internal"){
+flagMAP = "true";
+put(flagDict,"flag",flagMAP);
+flagDP = "true";
+put(flagDict,"flag",flagDP);
+}
+if(tempProvince == "NON NA" AND tempAccType =="External"){
+flagMAP = "true";
+put(flagDict,"flag",flagMAP);
+}
+return flagDict;

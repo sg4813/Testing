@@ -1,0 +1,69 @@
+retVal="";
+partnerArray=String[]{"","Mobile Robotics Specialist","Advanced Mobile Robotics Specialist"};
+minQtyArray=String[]{"1","2","5","11","21"};
+maxQtyArray=String[]{"1","4","10","20",""};
+tableName="TempFetchPricePOC";
+select="Part_Number,Account_Type,Account_Membership,Min_Quantity,Max_Quantity,Price";
+
+//Fetching all rows from TempAdhocPrices
+priceRecordSet = bmql("select * from TempAdhocPrices");
+
+//Adding rows in TempFetchPricePOC for each row in TempAdhocPrices data table
+for eachPartRecord in priceRecordSet
+{	
+	directPriceArray=String[];
+	partnerPriceArray=String[];
+	partNumber=get(eachPartRecord,"ProductCode");
+	ListPrice=get(eachPartRecord,"ListPrice");	
+	append(directPriceArray,get(eachPartRecord,"D1"));
+	append(directPriceArray,get(eachPartRecord,"D24"));
+	append(directPriceArray,get(eachPartRecord,"D510"));
+	append(directPriceArray,get(eachPartRecord,"D1120"));
+	append(directPriceArray,get(eachPartRecord,"D20"));
+	append(partnerPriceArray,get(eachPartRecord,"C1"));
+	append(partnerPriceArray,get(eachPartRecord,"C24"));
+	append(partnerPriceArray,get(eachPartRecord,"C510"));
+	append(partnerPriceArray,get(eachPartRecord,"C1120"));
+	append(partnerPriceArray,get(eachPartRecord,"C20"));
+	
+	//ListPrice
+	results=recordset();
+	results=bmql("insert into $tableName ($select) values ($partNumber,'','','','',$ListPrice)");
+	
+	//Direct and Partner Rows
+	for eachPartner in partnerArray
+	{
+		partnerName=eachPartner;
+		if(partnerName=="")
+		{
+			accType="Direct";
+			index=0;
+			for eachPrice in directPriceArray
+			{
+				LPrice=eachPrice;
+				minQty=minQtyArray[index];
+				maxQty=maxQtyArray[index];
+				results1=recordset();
+				results1=bmql("insert into $tableName ($select) values ($partNumber,$accType,'',$minQty,$maxQty,$LPrice)");
+				index=index+1;
+			}
+			
+		}
+		else
+		{
+			accType="Partner";
+			index=0;
+			for eachPrice in partnerPriceArray
+			{
+				LPrice=eachPrice;
+				minQty=minQtyArray[index];
+				maxQty=maxQtyArray[index];
+				results2=recordset();
+				results2=bmql("insert into $tableName ($select) values ($partNumber,$accType,$partnerName,$minQty,$maxQty,$LPrice)");
+				index=index+1;
+			}
+			
+		}
+	}
+}
+return retVal;

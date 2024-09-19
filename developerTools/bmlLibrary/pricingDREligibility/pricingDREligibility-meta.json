@@ -1,0 +1,15 @@
+{
+  "name" : "Pricing DR Eligibility",
+  "variableName" : "pricingDREligibility",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String[]",
+  "parameters" : [ {
+    "name" : "Inputs",
+    "type" : "String Dictionary"
+  }, {
+    "name" : "ProductFamily",
+    "type" : "String[]"
+  } ],
+  "attributes" : [ ]
+}

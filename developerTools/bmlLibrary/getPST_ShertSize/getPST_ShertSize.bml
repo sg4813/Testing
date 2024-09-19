@@ -1,0 +1,49 @@
+//Tejasvi
+
+Sites = howManyLocationsDoYouWantToDeployTheSolutionTo_ZS_;
+Devices = howManyDevicesDoYouNeedToConnect_ZS_;
+no_site_devi = 0;
+type_st_dv = "";
+size="";
+
+
+results = bmql("select * from PS_Tsize where (Minimum <= $Sites and Maximum >= $Sites and  Devices_Site = 'Site') OR (Minimum <= $Devices and Maximum >= $Devices and Devices_Site = 'Device') ORDER BY Weightage DESC");
+print results;
+
+partno = "";
+t_size = "";
+wtg = "0";
+count = 0;
+val1 = 0;
+for result in results {
+	Weightage = atoi(get(result, "Weightage"));
+	wtg = wtg + "," + String(Weightage);
+	val = split(wtg, ",");
+	for each in val {
+		val1 = atoi((val[count]));
+		if(val1 < Weightage) {
+			t_size = get(result, "Tsize");
+			count = count + 1;
+		}
+	}
+}
+counter = 0;
+/*for result in results {
+	if(counter == 0) {
+		size =(get(result, "Weightage"));
+		print size;
+		counter  = counter + 1;
+	}
+}*/
+
+if(t_size  == "Short"){
+	size="S";
+}elif(t_size  == "Large"){
+	size="L";
+}elif(t_size  == "Medium"){
+	size="M";
+}elif(t_size  == "Custom"){
+	size="C";
+}
+
+return size;
