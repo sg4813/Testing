@@ -1,0 +1,64 @@
+/*rs = bmql("Select DISTNICT ACCOUNTNUMBER from Account where ACCOUNTTYPE <> 'Internal'");
+iCount = 0;
+queryTemp = string[];
+queryTemp1 = string[];
+queryTemp2 = string[];
+
+for each in rs
+{
+	iCount = iCount + 1;
+	if(iCount < 5000)
+	{
+		append(queryTemp,get(each,"ACCOUNTNUMBER"));
+	}
+	elif(iCount >= 5000 AND iCount < 10000)
+	{
+		append(queryTemp1,get(each,"ACCOUNTNUMBER"));
+	}
+	else
+	{
+		append(queryTemp2,get(each,"ACCOUNTNUMBER"));
+	}
+}
+iCount = 0;
+rs = bmql("Select AccountNumber from AccountCatalog where AccountNumber IN $queryTemp2 OR AccountNumber IN $queryTemp1 OR AccountNumber IN $queryTemp");
+test = string[];
+
+for each in rs
+{
+	iCount = iCount + 1;
+	o
+}
+//print queryTemp2;
+print iCount;*/
+test = string[];
+test1 = string[];
+test2 = string[];
+rs = bmql("Select AccountNumber from AccountCatalog");
+iCount = 0;
+for each in rs
+{
+	if(findinarray(test,get(each,"AccountNumber")) == -1 AND findinarray(test1,get(each,"AccountNumber")) == -1 AND findinarray(test2,get(each,"AccountNumber")) == -1)
+	{
+		iCount = iCount + 1;
+		if(iCount < 5000)
+		{
+			append(test,get(each,"AccountNumber"));
+		
+		}
+		elif(iCount >= 5000 AND iCount < 10000)
+		{
+			append(test1,get(each,"AccountNumber"));
+		}
+		else
+		{
+			append(test2,get(each,"AccountNumber"));
+		}
+	}
+}
+print test;
+print test1;
+print test2;
+//rs = bmql("Select  ACCOUNTNUMBER from Account where ACCOUNTTYPE <> 'Internal'");
+
+return "";

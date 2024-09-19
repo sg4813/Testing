@@ -1,0 +1,12 @@
+{
+  "name" : "TablePriceUpdate",
+  "variableName" : "tablePriceUpdate",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "action",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

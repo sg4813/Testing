@@ -1,0 +1,12 @@
+{
+  "name" : "Populate Bid To Quote JSON",
+  "variableName" : "popLeadToQuoteJSON",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "action",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

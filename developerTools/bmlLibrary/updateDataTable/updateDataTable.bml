@@ -1,0 +1,4 @@
+lang = dict("string");
+recordSet = bmql("UPDATE $tableName SET $setClause WHERE $whereClause", lang, fields);
+
+return "";

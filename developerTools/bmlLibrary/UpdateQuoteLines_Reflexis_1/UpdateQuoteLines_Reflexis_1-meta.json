@@ -1,0 +1,9 @@
+{
+  "name" : "UpdateQuoteLines_Reflexis",
+  "variableName" : "UpdateQuoteLines_Reflexis_1",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "attributes" : [ "_company_name" ]
+}

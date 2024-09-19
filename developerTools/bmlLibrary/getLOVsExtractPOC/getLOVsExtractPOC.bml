@@ -1,0 +1,126 @@
+instance="";
+ret = "";
+strUrl1 ="";
+final_string="";
+count=0;
+if(_company_name=="devzebra")
+{
+	instance="devzebra.bigmachines.com";
+}
+elif(_company_name=="testzebra")
+{
+	instance="test-cpq.zebra.com";
+}
+elif(_company_name=="stagezebra")
+{
+	instance="stagezebra.bigmachines.com";
+}
+elif(_company_name=="zebra")
+{
+	instance="cpq.zebra.com";
+}
+print instance;
+headers = dict("string");
+put(headers, "Content-Type", "application/json");
+ // Fetching the credentials form data table
+        recordSet = bmql("select * from INT_SYSTEM_DETAILS where System = 'Fetch-Approval'"); 
+        strPassword ="";
+        strUserName ="";
+        for each_new in recordSet 
+        {
+	strUserName = get(each_new , "Username");
+	strPassword = get(each_new , "Password");
+	}
+	strUserDetails = strUserName  + ":" + strPassword;	
+	encodecredential = encodebase64(strUserDetails);	
+	authstring = "Basic "+ encodecredential;
+	put(headers, "Authorization", authstring);
+
+rs=recordset();
+rs=bmql("select Model,ModelAttribute from ModelSkuSequence where Productline=$Productline AND Model=$Model");
+print rs;
+for each in rs
+{
+  //temp="";
+ value=get(each,"ModelAttribute");
+ print "value";
+ print value;
+ 
+ count=count+1;
+ strUrl1 = "https://"+instance+"/rest/v16/productFamilies/"+Productfamily+"/productLines/"+Productline+"/attributes/"+value+"/menuItems";
+ print strUrl1 ;
+//strUrl1 = "https://"+instance+"/rest/v16/productFamilies/"+Productfamily+"/productLines/"+Productline+"/attributes/"+Attribute+"/menuItems";
+//print strUrl1 ;
+requestJson = json();
+
+response = dict("string");
+response=urldata(strUrl1,"GET",headers);
+print "response";
+print response;
+print (get(response, "Message-Body"));
+response1=json();
+	if(get(response, "Message-Body") <> "" AND NOT isnull(get(response, "Message-Body"))){
+		response1= (json(get(response, "Message-Body")));
+		//print "response1";
+		//print response1;
+		//print (jsonarray(jsonget(response1,"items"));
+		temp=jsonarray(jsonget(response1,"items"));
+		print "temp";
+		print temp;
+		size=range(jsonarraysize(temp));
+		display=json();
+		attrvalue=json();
+		displayjson=json();
+		attrvaluejson=json();
+		for each1 in size
+		{
+		 display=json(jsonarrayget(temp,each1));
+		 print "display";
+		 print display;
+		 jsonput(displayjson,"displayval",jsonpathgetsingle(display,"$..displayValue"));
+		 print "displayjson";
+		 print displayjson;
+		 attrvalue=json(jsonarrayget(temp,each1));
+		 print "attrvalue";
+		 print attrvalue;
+		 jsonput(attrvaluejson,"val",jsonpathgetsingle(display,"$..value"));
+		 print "attrvaluejson";
+		 print attrvaluejson;
+		
+		table_url="https://"+instance+"/rest/v16/adminCustomZSPLOVsdownload";
+		print table_url;
+		headers1 = dict("string");
+		put(headers1, "content-type", "application/json");
+		requestJsonArray=jsonArray();
+		requestPayload=json();
+		jsonput(requestPayload, "Productline",Productline);
+		jsonput(requestPayload, "Model",model);
+		jsonput(requestPayload, "AttributeVarName",value);
+		jsonput(requestPayload, "LOV",jsonpathgetsingle(display,"$..displayValue"));
+		jsonput(requestPayload, "LOVvariablename",jsonpathgetsingle(display,"$..value"));
+		print "requestPayload";
+		print requestPayload;
+		
+		jsonarrayappend(requestJsonArray, requestPayload);
+		print "requestJsonArray";
+		print requestJsonArray;
+		size1 = jsonarraysize(requestJsonArray); 
+		rangeArray = range(size1);
+			for r in rangeArray 
+				{
+			finalJsonPayload = jsonarrayget(requestJsonArray,r,"json");
+			response2 = urldatabypost(table_url, jsontostr(finalJsonPayload), "Error", headers,true,90);
+			print "response2 ";
+		print response2 ;
+			}
+		
+		
+		}
+		
+	}
+	final_string="BML executed successfully";
+}
+
+//print "final_String";
+//print final_string;
+return final_string;

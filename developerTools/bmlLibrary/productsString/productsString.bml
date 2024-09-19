@@ -1,0 +1,83 @@
+retVal = "";
+Productjson = json();
+itemprices1  = 0.0;
+annualPrice = 0.0;
+perUsermonthlyPrice = 0.0;
+PricePerDevicePerMonth = 0.0;
+totalPrice = 0.0;
+quantity1 = atoi(ExtraParameter);
+priceListName = ExtraParam1;
+
+if(partNumber <> "" and ProductName <> "" and partNumber <> "WFC  Managed Svcs (Custom Quoted)" and find(partNumber, "Professional Services")==-1) {
+	producnamePriceList = ProductName + ";" + priceListName;
+	if(partNumber <> "IWG Software Ent") {
+		itempricesFinal = (util.getProductPrice(quantity, producnamePriceList, Term))/ ConvesrionFactor;
+		//itempricesFinal = 0.0;
+	}else {
+		itempricesFinal = (util.getProductPrice(quantity1, producnamePriceList, Term))/ ConvesrionFactor;
+		//itempricesFinal = 0.0;
+	}
+	/*print productName;
+	print quantity;
+	print term;
+	print itempricesFinal;*/
+	//itemprices1 = itempricesFinal *(1-(Discount/100));
+	//itemprices1 = itemprices1+(itemprices1*Itemuplift);
+	itemprices1 = itempricesFinal + (itempricesFinal * Itemuplift);
+	if (maxPartnerdisc > 0){
+		annualTermPrice = 12*((itemprices1) * quantity /Term);
+		PartnerDiscountAmount = annualTermPrice * maxPartnerdisc/100;
+		annualPrice = annualTermPrice - PartnerDiscountAmount;
+	}else {
+		annualPrice = 12*((itemprices1) * quantity /Term);
+	}
+	partnerBaseAnnualPrice = 12*((itemprices1) * quantity /Term);
+	perUsermonthlyPrice = 0.0;
+	//PricePerDevicePerMonth = annualPrice/(12 * howManyDevicesDoYouNeedToConnect_ZS_);
+	PricePerDevicePerMonth = annualPrice/(12 * quantity );
+	totalPrice = (annualPrice * Term)/12;
+}
+if((find(partNumber, "PTT") <> -1 or find(partNumber, "IWG") <> -1) and (find(partNumber, "RTP") == -1 )) {
+	jsonput(Productjson, "parentproductname", "WFC-PTT-PRO");
+	jsonput(Productjson, "product", "PTTPRO");
+}
+if(find(partNumber, "RTP") <> -1) {
+	jsonput(Productjson, "parentproductname", "WFC-PTT-RTP-PORT");
+	jsonput(Productjson, "product", "RTPPort");
+}
+if(find(partNumber, "WFC  Managed Svcs (Custom Quoted)") <> -1) {
+	jsonput(Productjson, "parentproductname", "WFC-GMSS");
+	anuualPrice = 0.0;
+	totalPrice = 0.0 ;
+	PerUsermonthlyPrice = 0.0 ;
+	PricePerDevicePerMonth  = 0.0;
+	configurablePrice_productsprice = 0.0;
+	jsonput(Productjson, "parentproductname", "WFC-PS-IMP");
+	jsonput(Productjson, "product", "WFC  Managed Svcs (Custom Quoted)");
+}
+if(find(partNumber, "Profile") <> -1) {
+	jsonput(Productjson, "parentproductname", "WFC-PROFILE-MGR");
+	jsonput(Productjson, "product", "profileManager");
+}
+if(find(partNumber, "Voice") <> -1) {
+	jsonput(Productjson, "parentproductname", "WFC-VOICE-CLIENT");
+	jsonput(Productjson, "product", "voiceClient");
+}
+if(partNumber <> "") {
+	//print partNumber;
+	jsonput(Productjson, "productname", partNumber);
+	jsonput(Productjson, "configurablePrice", itemprices1);
+	jsonput(Productjson, "AnnualPrice", annualPrice);
+	jsonput(Productjson, "partnerBaseAnnualPrice", partnerBaseAnnualPrice);
+	jsonput(Productjson, "TotalPrice", totalPrice);
+	jsonput(Productjson, "PerUsermonthlyPrice", perUsermonthlyPrice);
+	jsonput(Productjson, "PricePerDevicePerMonth", PricePerDevicePerMonth);
+	jsonput(Productjson, "PartNumber", partNumber);
+	jsonput(Productjson, "Qunatity", quantity);
+	jsonput(Productjson, "PartnerDiscountEligibility", PartnerDiscountEligibility);
+	jsonput(Productjson, "MaxDiscount", MaxDiscount);
+	jsonput(Productjson, "ParenPart", "No");
+}
+	
+retVal = jsontostr(Productjson);
+return retVal;

@@ -1,0 +1,9 @@
+{
+  "name" : "User first Name check",
+  "variableName" : "userFirstNameCheck",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "attributes" : [ "_user_first_name" ]
+}

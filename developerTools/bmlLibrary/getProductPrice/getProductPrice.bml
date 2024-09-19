@@ -1,0 +1,48 @@
+termInYears = 1;
+if(Term == 12) {
+	termInYears = 1;
+} elif(Term == 24) {
+	termInYears = 2;
+} elif(Term == 36) {
+	termInYears = 3;
+} elif(Term == 48) {
+	termInYears = 4;
+}elif(Term == 60) {
+	termInYears = 5;
+}
+
+productsString = split(ProductName, ";");
+prodName = productsString[0];
+priceListName = productsString[1];
+print priceListName;
+results  = recordSet();
+/*results  = bmql("select SKU ,MinQty ,MaxQty ,ListPrice,LumpSum from  WFCPTTModelPrice where  SKU=$prodName and Term = $termInYears");
+for each in results {
+	sku = get(each, "SKU");
+}*/
+if(priceListName == "LA" and prodName == "PTT Pro EMC Software") {
+	print "Vinay";
+	results  = bmql("select SKU ,MinQty ,MaxQty ,ListPrice,LumpSum from  WFCPTTModelPrice where  SKU=$prodName and Term = $termInYears and PriceListName='LA' and Active ='Y'");
+} else {
+	print "Vinay1";
+	results  = bmql("select SKU ,MinQty ,MaxQty ,ListPrice,LumpSum from  WFCPTTModelPrice where  SKU=$prodName and Term = $termInYears and PriceListName IS NULL and Active ='Y'");
+
+}
+returnPrice=0.0;
+for result in  results {
+print "Vinay2";
+	minqty=atoi(get(result,"MinQty"));
+	maxqty=atoi(get(result,"MaxQty"));
+	listprice =get(result,"ListPrice");
+	lumpsum=get(result,"LumpSum");
+	IF( Quantity >= MinQty AND Quantity <= MaxQty){
+	print "Vinay3";
+		if(lumpsum=="Y"){
+			returnPrice=(atof(listprice)/Quantity)*Term/12 ;
+		}else{
+			returnPrice=atof(listprice)*Term/12;
+		}
+	}
+
+}
+return returnPrice;

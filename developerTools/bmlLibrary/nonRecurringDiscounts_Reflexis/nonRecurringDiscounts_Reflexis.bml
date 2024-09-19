@@ -1,0 +1,252 @@
+modelName = "Reflexis";
+headers = dict("string");
+put(headers, "content-type", "application/json");
+bsIdDict = dict("string");
+eachModelDict = dict("string[]");
+eachRecordDict = dict("string[]");
+lineDict = dict("integer");
+quoteLineTableData = json();
+quoteLineItems = json();
+quoteLinejsonBody = json();
+quoteLineJsonArray = jsonarray();
+eachModelDict = dict("string[]");
+transLinejsonBody = json();
+transLinejsonArr = jsonarray();
+datatableJsonArrayData = jsonarray();
+headers = dict("string");
+put(headers, "content-type", "application/json");
+updated = "";
+response=dict("string");
+jsonBody = json();
+responsemessage="";
+tempJson = json();
+transactionData = jsonArray();
+transData = json();
+docDict = dict("string");
+datatableData = json();
+datatableDat = json();
+eachquoteLine = json();
+eachSKUdict =  dict("string[]");
+finalSKUUString = "";
+
+systemUrl = "";
+if(find(_company_name,"dev")<> -1){ 
+systemUrl = "https://devzebra.bigmachines.com";
+}
+elif(find(_company_name,"test")<> -1){
+systemUrl = "https://test-cpq.zebra.com";
+}
+else {
+systemUrl = "https://cpq.zebra.com";
+}
+print systemUrl;
+
+
+resultSet = bmql("select * from NonRecDis_Reflexis where Model= $modelName");
+
+for each in resultSet {
+	quoteLine = json();
+	quote = get(each, "Quote");
+	bsId = get(each, "BSID");
+	//bsId = "121098087";
+	//print bsId;
+	val = atoi(bsId);
+	modelLine = get(each, "ModelLine");
+	record = get(each, "Row");
+	SKU = get(each, "SKU");
+	finalSKUUString = finalSKUUString + "," + SKU;
+	put(bsIdDict, bsId,quote);
+	tempArr = string[];
+	tempArr1 = string[];
+	tempArr2 = string[];
+	if(containskey(eachModelDict, bsId)){
+		tempArr = get(eachModelDict, bsId);
+		append(tempArr, modelLine);
+		put(eachModelDict, bsId,tempArr);
+	} else {
+		append(tempArr, modelLine);
+		put(eachModelDict, bsId, tempArr);
+	}
+
+	if(containskey(eachRecordDict, bsId)){
+		tempArr1 = get(eachRecordDict, bsId);
+		append(tempArr1, record);
+		put(eachRecordDict, bsId,tempArr1);
+	} else {
+		append(tempArr1, record);
+		put(eachRecordDict, bsId, tempArr1);
+	}
+/*if(containskey(eachSKUdict, bsId)){
+		tempArr2 = get(eachSKUdict, bsId);
+		append(tempArr2, SKU);
+		put(eachSKUdict, bsId,tempArr2);
+	} else {
+		append(tempArr2, SKU);
+		put(eachSKUdict, bsId, tempArr2);
+	}*/
+}
+key  = "";
+key1 = String[];
+results1 = bmql("select * from NonRecDis_Reflexis where Model= $modelName");
+for each1 in results1 {
+	modelLine = get(each1, "ModelLine");
+	SKU1 = get(each1, "SKU");
+	results_quoteLines = bmql("select * from QuotePricngReflexis");
+	for each in results_quoteLines{
+			SKU = get(each, "SKU");
+			ModelDoc = get(each, "ModelDoc");
+			LineDoc = get(each, "LineDoc");
+			Model = get(each, "Model");
+			nonRecurringDis = get(each, "nonRecurringDis");
+			
+			
+				if(nonRecurringDis == "Yes" and SKU == SKU1) {
+					LineDoc1 = atoi(get(each, "LineDoc"));
+					Model = get(each, "Model");
+					SKU = get(each, "SKU");
+					ModelDoc1 = atoi(get(each, "ModelDoc"));
+					print SKU;
+					print LineDoc;
+					quote = get(each, "Quote");
+					key = Quote + Model + SKU;
+					if(findinarray(key1, key) ==-1) {
+					
+						jsonput(quoteLinejsonBody, "Quote", quote);
+						jsonput(quoteLinejsonBody, "ModelLine", Model);
+						//jsonput(quoteLinejsonBody, "Row", tempArr1[i]);
+						jsonput(quoteLinejsonBody, "SKU", SKU);
+						jsonput(quoteLinejsonBody, "ModelDoc", ModelDoc1);
+						jsonput(quoteLinejsonBody, "LineDoc", LineDoc1);
+						jsonput(quoteLinejsonBody , "_sync_action","update");
+						jsonarrayappend(quoteLineJsonArray, quoteLinejsonBody);
+						append(key1, key);
+					}
+				}
+		}
+}
+
+print quoteLineJsonArray;
+jsonput(quoteLineItems, "items", quoteLineJsonArray);
+jsonput(quoteLineTableData, "documents", quoteLineItems);
+
+responseData2  = urldata(systemUrl + "/rest/v9/adminCustom" + "NonRecDis_Reflexis" + "/actions/synchronize","POST",headers,jsontostr(quoteLineTableData),5000);
+print responseData2;
+count = 0;
+count1 = 0;
+count2 = 0;
+count3 = 0;
+count4 = 0;
+exeArray = 0;
+resultSet = bmql("select * from NonRecDis_Reflexis where Model= $modelName");
+
+for eachRec in resultSet {
+	quoteLine = json();
+	tempJsonDNames = json();
+	tempJsonArrayDA = jsonarray();
+	tempJsonDevicesArray = json();
+	tempJsonDevicesArrayQ = json();
+	BillingFreqJson = json();
+	RevTypeJson = json();
+	RenewActionJson = json();
+	DiscountTypeJson = json();
+	eachquoteLine = json();
+	transactionLine = json();
+	tempJsonDA = json();
+	count = 0;
+	items = json();
+	quoteLineArray = jsonarray();
+	listPriceJson = json();
+	NetPriceJson = json();
+	DiscountName = get(eachRec, "DiscountName");
+	DiscountType = get(eachRec, "DiscountType");
+	DiscountValue = get(eachRec, "DiscountValue");
+	InvoiceFrom = get(eachRec, "InvoiceFrom");
+	InvoiceTo = get(eachRec, "InvoiceTo");
+	chargeName = get(eachRec, "PeriodFreq");
+	Row =  get(eachRec, "Row");
+	lineDoc = get(eachRec, "LineDoc");
+	print lineDoc;
+	bsId = get(eachRec, "BSID");
+	SaveURL= systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/" + bsId+ "/actions/cleanSave_t";
+	results11 = urldata(SaveURL, "POST", headers);
+	print "testing";
+	print results11;
+	updateLineUrl = systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/" + bsId+ "/transactionLine/" + lineDoc + "/actions/save_l";
+	results10 = urldata(updateLineUrl, "POST", headers);
+	print results1;
+	updateLineUrl = systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/" + bsId+ "/transactionLine/" + lineDoc + "/actions/save_l";
+	/*jsonput(eachquoteLine, "oRCL_manual_adjustmentName_l", DiscountName);
+	jsonput(eachquoteLine, "oRCL_manual_adjustmentType_l", DiscountType);
+	jsonput(eachquoteLine, "oRCL_manual_adjustmentValue_l", DiscountValue);
+	jsonput(eachquoteLine, "oRCL_manual_periodFrom_l", InvoiceFrom);
+	jsonput(eachquoteLine, "oRCL_manual_periodTo_l", InvoiceTo);*/
+	
+	if(DiscountName <> "") {
+		devices1 = split(DiscountName, "~");
+		devices2 = split(DiscountType, "~");
+		devices3 = split(DiscountValue, "~");
+		devices4 = split(InvoiceFrom, "~");
+		//print devices4;
+		/*print "tes";
+		print devices3[1];
+		print "test";*/
+		devices = split(InvoiceTo, "~");
+		charges = split(chargeName, "~");
+		if(find(DiscountName, "~")<>-1) {
+			for records in devices1 {
+			
+				jsonput(tempJsonDA, "_row_number", 0);
+				jsonput(tempJsonDA, "oRCL_manual_adjustmentName_l", records);
+				jsonput(tempJsonDA, "oRCL_manual_adjustmentType_l", devices2[count]);
+				jsonput(tempJsonDA, "oRCL_manual_adjustmentValue_l", atof(devices3[count]));
+				jsonput(tempJsonDA, "oRCL_manual_periodFrom_l", atoi(devices4[count]));
+				jsonput(tempJsonDA, "oRCL_manual_periodTo_l", atoi(devices[count]));
+				jsonput(tempJsonDA, "oRCL_manual_adjustmentChargeName_l", (charges[count]));
+				/*jsonput(tempJsonDA, "oRCL_manual_adjustmentValue_l", (devices3[count]));
+				jsonput(tempJsonDA, "oRCL_manual_periodFrom_l", (devices4[count]));
+				jsonput(tempJsonDA, "oRCL_manual_periodTo_l", (devices[count]));*/
+				jsonarrayappend(tempJsonArrayDA, tempJsonDA);
+				count = count + 1;
+			}
+			
+		} else {
+			jsonput(tempJsonDA, "_row_number", 0);
+			jsonput(tempJsonDA, "oRCL_manual_adjustmentName_l", DiscountName);
+			jsonput(tempJsonDA, "oRCL_manual_adjustmentType_l", DiscountType);
+			jsonput(tempJsonDA, "oRCL_manual_adjustmentValue_l", DiscountValue);
+			jsonput(tempJsonDA, "oRCL_manual_periodFrom_l", InvoiceFrom);
+			jsonput(tempJsonDA, "oRCL_manual_periodTo_l", InvoiceTo);
+			jsonput(tempJsonDA, "oRCL_manual_adjustmentChargeName_l", chargeName);
+			jsonarrayappend(tempJsonArrayDA, tempJsonDA);
+		}
+		
+		jsonput(tempJsonDevicesArray, "items", tempJsonArrayDA);
+		jsonput(eachquoteLine, "oRCL_manualAdjustments", tempJsonDevicesArray); 
+	}
+	jsonput(quoteLine, "documents", eachquoteLine);
+	//print quoteLine;
+	results = urldata(updateLineUrl, "POST", headers, jsontostr(quoteLine));
+	print results;
+	//save = systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/" + bsId+ "/actions/save_l";
+}
+print "MainDOc-->";
+//print datatableData;
+//print responseData1;
+
+print "LineDoc-->";
+//print quoteLineTableData;
+//print responseData2;
+ResultSet2 = bmql("select DISTINCT BSID from QuotePricngReflexis");
+/*for each in ResultSet2 {
+bsId = get(each, "BSID");
+UpdateAssetURL= systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/" + bsId+ "/actions/updateAssets_t";
+UpdateAssetURLResults = urldata(UpdateAssetURL, "POST", headers);
+
+SaveURL= systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/" + bsId+ "/actions/cleanSave_t";
+SaveURLResults = urldata(SaveURL, "POST", headers);
+
+submitOrder_t = systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/" + bsId+ "/actions/submitOrder_t";
+SubmitOrderURLResults = urldata(submitOrder_t , "POST", headers);
+print SubmitOrderURLResults;
+}*/
+return "";

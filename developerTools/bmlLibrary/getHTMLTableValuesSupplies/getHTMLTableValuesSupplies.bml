@@ -1,0 +1,13 @@
+ret = string[];
+strAttribute = AttributeName;
+arrayCategory = string[];
+setJson = jsonarray(suppliesJsonStr);
+arraySize = range(jsonarraysize(setJson));
+for each in arraySize
+{
+	localJson = jsonarrayget(setJson, each);
+	localJsonObj = json(localJson);
+	strValue= jsonget(localJsonObj,strAttribute);
+	append(ret,strValue);
+}
+return ret;

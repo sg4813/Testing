@@ -1,0 +1,15 @@
+{
+  "name" : "SaaS Models Cost",
+  "variableName" : "saaSModelsCost",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "Json",
+  "parameters" : [ {
+    "name" : "Inputs",
+    "type" : "Anytype Dictionary"
+  }, {
+    "name" : "partNumberArray",
+    "type" : "Float[]"
+  } ],
+  "attributes" : [ ]
+}

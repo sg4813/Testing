@@ -1,0 +1,10 @@
+csvId = fileAttachmentPOC;
+file = "";
+url = "https://devzebra.bigmachines.com/servlet/ImageServer?&file_type=fileAttachmentPOC&file_id="+csvId;
+
+if(csvId <> "") {
+	file = urldatabyget(url, "", "");
+}
+print file;
+
+return "";

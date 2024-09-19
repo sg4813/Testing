@@ -1,0 +1,72 @@
+shoppingCartJsonArray = jsonarray(shoppingCartArrayJson);
+retDict = dict("float");
+RaasAnnualReccuringRevenue = 0.0;
+RaasTotalContractValue= 0.0;
+CapexAmount= 0.0;
+TotalContractValue = 0.0;
+FetchCoreAnnualReccuringRevenue = 0.0;
+
+loopArray = range(jsonarraysize(shoppingCartJsonArray));
+
+for each in loopArray{
+	tempJson = jsonarrayget(shoppingCartJsonArray , each , "json" );
+	type = jsonget(tempJson, "Type", "string");
+	ListPrice= jsonget(tempJson, "List Price", "float");
+	NetPrice= jsonget(tempJson, "Net Price", "float");
+	PartNumber= jsonget(tempJson, "Part Number", "string");
+	if(purchasingModel == "Opex" AND type == "Robot" AND (Param6=="" or Param6=="Production")){
+		RaasAnnualReccuringRevenue= RaasAnnualReccuringRevenue + NetPrice*12;		
+		if(Param5== "36 Months"){
+		RaasTotalContractValue= RaasTotalContractValue+ NetPrice*36;	
+		}elif(Param5== "60 Months"){
+		RaasTotalContractValue= RaasTotalContractValue+ NetPrice*60;
+		}elif(Param5== "48 Months"){
+		RaasTotalContractValue= RaasTotalContractValue+ NetPrice*48;
+		}elif(Param5== "1 Month"){
+		RaasTotalContractValue= RaasTotalContractValue+ NetPrice*1;
+		}elif(Param5== "2 Months"){
+		RaasTotalContractValue= RaasTotalContractValue+ NetPrice*2;
+		}elif(Param5== "3 Months"){
+		RaasTotalContractValue= RaasTotalContractValue+ NetPrice*3;
+		}
+	}elif(purchasingModel == "Opex" AND type <> "Robot" ){
+		CapexAmount= CapexAmount+ NetPrice;			
+	}	
+	if(purchasingModel == "Opex" AND type == "Robot" AND Param6=="POC"){
+		if(Param5== "1 Month"){
+		RaasTotalContractValue= RaasTotalContractValue+ NetPrice*1;
+		RaasAnnualReccuringRevenue= RaasAnnualReccuringRevenue + NetPrice*1;
+		}elif(Param5== "2 Months"){
+		RaasTotalContractValue= RaasTotalContractValue+ NetPrice*2;
+		RaasAnnualReccuringRevenue= RaasAnnualReccuringRevenue + NetPrice*2;
+		}elif(Param5== "3 Months"){
+		RaasTotalContractValue= RaasTotalContractValue+ NetPrice*3;
+		RaasAnnualReccuringRevenue= RaasAnnualReccuringRevenue + NetPrice*3;			
+		}
+	}
+	if(purchasingModel == "Capex" AND find(lower(PartNumber), "900-00178") >=0){
+		FetchCoreAnnualReccuringRevenue = FetchCoreAnnualReccuringRevenue + NetPrice;
+	}elif(purchasingModel == "Capex" ){
+		CapexAmount= CapexAmount+ NetPrice;			
+	}
+
+	
+}
+if(purchasingModel == "Capex" ){
+	TotalContractValue = FetchCoreAnnualReccuringRevenue  + CapexAmount;
+}elif(purchasingModel == "Opex" ){
+	TotalContractValue = RaasTotalContractValue + CapexAmount;
+}
+
+put(retDict, "RaasAnnualReccuringRevenue", RaasAnnualReccuringRevenue );
+put(retDict, "RaasTotalContractValue", RaasTotalContractValue );
+put(retDict, "CapexAmount", CapexAmount );
+put(retDict, "TotalContractValue", TotalContractValue );
+put(retDict, "FetchCoreAnnualReccuringRevenue", FetchCoreAnnualReccuringRevenue  );
+
+
+if(retType <> ""){
+	return get(retDict, retType );
+}
+
+return 0.0;

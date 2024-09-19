@@ -1,0 +1,264 @@
+ret = json();
+requestJson = json();
+requestProductJson = jsonarray();
+strpurchasingModel  = "";
+strSolutionBundle  = "";
+strUseCase = "";
+strProductDetails  = "";
+bSurgepeakperiodonly = "";
+bExistingcustomer = "";
+totalContractTerm = "";
+raaSSurgePeakSeasonContractPeriod  = "";
+jsonSurgeQuantity = json();
+
+dictUnit = dict("string");
+put(dictUnit,"RAAS Robot","Per Robot/Per Month");
+put(dictUnit,"Hardware","Each");
+dictProductType = dict("string");
+dictParent = dict("string");
+put(dictParent,"Accessories","Accessories");
+put(dictParent,"Software","Software");
+put(dictParent,"Parts","Parts");
+strQuoteType = "";
+arrayRobot = string[];
+for line in transactionLine
+{
+	if(line._part_number == "")
+	{
+		strQuoteType = line.oRCL_ABO_ActionCode_l;
+	}
+	elif(line.parentSKU_l == "Mobile Robotics")
+	{
+		append(arrayRobot,line._part_number);
+	}
+	
+}
+append(arrayRobot,"");
+rs = bmql("Select * from FetchBillingSKU where BundleName IN $arrayRobot");
+for each in rs
+{    
+    put(dictParent,get(each,"BillingSKU"),get(each,"BundleName"));
+    
+}
+
+//print dictParent;
+dictLineId = dict("string");
+tempParent ="";
+tempOnsiteParent = "";
+for line in transactionLine
+{
+	
+	if(tempOnsiteParent == "" AND line._part_number <> "")
+	{
+		tempOnsiteParent = line._part_number;		
+	}
+
+	if((containskey(dictParent,line.parentSKU_l) OR line.parentSKU_l == "FETCH-PS")  AND strQuoteType <> "Renew")
+	{
+		if(line.parentSKU_l == "FETCH-PS")
+		{
+			print "abhi123";
+			tempBundleName = "Software"+ line._part_number;
+			put(dictLineId,tempBundleName,line._document_number);
+		}
+		else
+		{
+		
+			tempOnsiteParent = get(dictParent,line.parentSKU_l);
+			tempBundleName = get(dictParent,line.parentSKU_l) + line._part_number;
+			put(dictLineId,tempBundleName,line._document_number);
+		}
+		
+	}
+	elif(containskey(dictParent,line.parentSKU_l) AND strQuoteType == "Renew" AND line.renewalType_l == "Do not renew")
+	{
+		tempBundleName = get(dictParent,line.parentSKU_l) + line._part_number;
+		put(dictLineId,tempBundleName,line._document_number);
+	}
+}
+print dictLineId;
+rs = bmql("Select * from Fetch_Unit");
+for each in rs
+{
+	put(dictUnit,get(each,"Product_Code"),get(each,"Unit"));
+	if(get(each,"Type") <> "")
+	{
+		put(dictProductType,get(each,"Product_Code"),get(each,"Type"));
+	}
+}
+
+for line in transactionLine{
+strpurchasingModel = getconfigattrvalue(line._document_number, "purchasingModel");
+strSolutionBundle = getconfigattrvalue(line._document_number, "solBundleType");
+strUseCase = getconfigattrvalue(line._document_number, "useCase");
+//strProductDetails = getconfigattrvalue(line._document_number, "shoppingCartArrayJson");
+strProductDetails = getconfigattrvalue(line._document_number, "sFProductJson");
+if(strProductDetails == "" OR len(strProductDetails) == 0)
+{
+	strProductDetails = getconfigattrvalue(line._document_number, "shoppingCartArrayJson");
+}
+bSurgepeakperiodonly = getconfigattrvalue(line._document_number, "isThisForSurgePeakPeriodOnly");
+bExistingcustomer = getconfigattrvalue(line._document_number, "isThisForAnExistingRoboticsCust");
+totalContractTerm = getconfigattrvalue(line._document_number, "contractTerm");
+raaSSurgePeakSeasonContractPeriod = getconfigattrvalue(line._document_number, "raaSSurgePeakSeasonContractPeriod");
+if(getconfigattrvalue(line._document_number, "surgeContractPeriod1") <> "")
+{
+	jsonSurgeQuantity = json(getconfigattrvalue(line._document_number, "surgeContractPeriod1"));
+}
+break;
+}
+//print strProductDetails;
+//productdetails":[{"parts":"90793","quantity":"2","price":"200","listPrice":"100","description":"dummy","bundleName":"F500","cost":"100"}],"quoteid":"121741796","solutionsubtype":"capex","usecase":"milkrun~dunnage","raastcv":"0","raasarr":"0","capextcv":"0","capexamount":"0"};
+configProductArray = jsonarray(strProductDetails);
+//print strProductDetails;
+//print strpurchasingModel;
+productCount = range(jsonarraysize(configProductArray));
+for each in productCount
+{
+	tempJson = json(jsonarrayget(configProductArray,each));
+	tempJson1 = json();
+	strPartNumber = jsonget(tempJson,"Part Number");
+	strBundleName = jsonget(tempJson,"Bundle Name");
+	tempBundleLineId = "";
+	if(bSurgepeakperiodonly ==  "true")	
+	{
+		tempBundleLineId = strBundleName + strPartNumber;
+		tempBundleLineId = replace(tempBundleLineId,"RaaS Surge","RaaS - Surge");
+	}
+	else
+	{
+		tempBundleLineId  = strBundleName + strPartNumber;
+	}
+	print tempBundleLineId;
+	if(jsonget(tempJson,"ShowPart","boolean") AND containskey(dictLineId,tempBundleLineId) AND jsonget(tempJson,"Net Price","float") > 0.0)
+	//if(jsonget(tempJson,"ShowPart","boolean"))
+	{
+		strType = jsonget(tempJson,"Type");		
+		jsonput(tempJson1 ,"parts",strPartNumber);
+		jsonput(tempJson1 ,"quantity",jsonget(tempJson,"Quantity"));
+		floatPrice = atof(jsonget(tempJson,"Net Price"))/atof(jsonget(tempJson,"Quantity"));
+		jsonput(tempJson1 ,"discountedprice",floatPrice);
+		jsonput(tempJson1 ,"listprice",jsonget(tempJson,"List Price"));
+		jsonput(tempJson1 ,"description",jsonget(tempJson,"Description"));
+		if(strPartNumber == "900-00180")
+		{
+			jsonput(tempJson1 ,"bundle","Service");
+		}
+		else
+		{
+			jsonput(tempJson1 ,"bundle",strBundleName);
+		}
+		jsonput(tempJson1 ,"upliftcost",jsonget(tempJson,"Cost"));
+		strTempLine = 	get(dictLineId,(strBundleName + strPartNumber));
+		jsonput(tempJson1 ,"oracleLineId",strTempLine);
+		
+		if(strpurchasingModel == "Capex" OR (strType <> "Robot" AND strpurchasingModel == "Opex"))
+		{
+			jsonput(tempJson1,"totalcontractterm","1");
+			jsonput(tempJson1,"surgecontractterm","1");
+		}
+		else
+		{
+			if(UPPER(bSurgepeakperiodonly) == "TRUE" AND strType == "Robot")
+			{
+				totalContractTermArray = split(totalContractTerm," ");
+				totalContract = string(atoi(totalContractTermArray[0])/12*atoi(raaSSurgePeakSeasonContractPeriod));
+				jsonput(tempJson1,"totalcontractterm",totalContract);
+				jsonput(tempJson1,"surgecontractterm",raaSSurgePeakSeasonContractPeriod);
+			}
+			elif(strType == "Robot" AND find(strBundleName,"Surge") <> -1 AND findinarray(jsonkeys(jsonSurgeQuantity),strPartNumber) <> -1)
+			{
+				totalContractTermArray = split(totalContractTerm," ");
+				tempSurge = jsonget(jsonSurgeQuantity,strPartNumber);
+				totalContract = string(atoi(totalContractTermArray[0])/12*atoi(tempSurge));
+				jsonput(tempJson1,"totalcontractterm",totalContract);
+				jsonput(tempJson1,"surgecontractterm",tempSurge);				
+			}
+			else
+			{
+				totalContractTermArray = split(totalContractTerm," ");
+				jsonput(tempJson1,"totalcontractterm",totalContractTermArray[0]);
+				jsonput(tempJson1,"surgecontractterm","1");
+			}		
+			
+		}
+		
+				
+		if(strType == "Hardware" OR (strType == "Robot" AND strpurchasingModel == "Capex"))
+		{
+			if(containskey(dictUnit,strPartNumber))
+			{
+				jsonput(tempJson1,"unit",get(dictUnit,strPartNumber));
+			}
+			else
+			{
+				jsonput(tempJson1,"unit",get(dictUnit,"Hardware"));
+			}
+		}
+		elif(strType == "Robot" AND strpurchasingModel == "Opex")
+		{
+			jsonput(tempJson1,"unit","Per Robot/Per Month");			
+		}
+		else
+		{
+			jsonput(tempJson1,"unit",get(dictUnit,jsonget(tempJson,"Part Number")));
+		}
+		
+		if(strType == "Robot" AND strpurchasingModel == "Opex")
+		{
+			jsonput(tempJson1,"producttype","RaaS");
+		}
+		else
+		{
+			if(containskey(dictProductType,jsonget(tempJson,"Part Number")))
+			{
+				jsonput(tempJson1,"producttype",get(dictProductType,jsonget(tempJson,"Part Number")));
+			}
+			else
+			{
+				jsonput(tempJson1,"producttype","");
+			}
+		}
+			
+		
+		jsonarrayappend(requestProductJson,tempJson1); 
+	}
+}
+jsonput(requestJson,"quoteid",bs_id);
+jsonput(requestJson,"solutionsubtype",strSolutionBundle);
+jsonput(requestJson,"usecase",strUseCase);
+if(status_t == "PENDING")
+{
+
+	jsonput(requestJson,"productdetails",requestProductJson);
+}
+else
+{
+	requestProductJson = jsonarray();
+	tempJson = json();
+	//jsonarrayappend(requestProductJson,tempJson);
+	jsonput(requestJson,"productdetails",requestProductJson );
+}
+jsonput(requestJson,"surgepeakperiodonly",bSurgepeakperiodonly);
+jsonput(requestJson,"existingcustomer",bExistingcustomer );
+jsonput(requestJson,"oracleQuoteNumber",transactionID_t);
+jsonput(requestJson,"oracleQuoteStatus",status_t);
+jsonput(requestJson,"psaBillingType",ZEB_PSBillType_t);
+if(strpurchasingModel == "Capex")
+{
+	jsonput(requestJson,"purchasingmodel","Capex");
+}
+else
+{
+	jsonput(requestJson,"purchasingmodel","RaaS");
+}
+//jsonput(requestJson,"purchasingmodel",strpurchasingModel);
+//strOutput = jsontostr(requestJson);
+Inputs =  json();
+jsonput(Inputs,"ObjectId",fetchRecordId);
+print requestJson;
+jsonput(Inputs,"Request",requestJson);
+jsonput(Inputs,"fetchSFDCObject",fetchSFDCObject);
+response = util.productSynchToSF(Inputs);
+
+return "1~fetchSFJson~"+ jsontostr(requestJson) + "|1~fetchSFProductResponse~" + response + "|";

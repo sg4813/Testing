@@ -1,0 +1,159 @@
+retStr = "";
+tableColumn = "";
+BundleJson = Json();
+BundleJsonArray = jsonarray();
+localTable = "";
+record =  recordset();
+recSet = bmql("Select Table, Column1, Column2, Column3, Column4, Column5, Column6, Column7, Column8, Column9, Column10, Column11, Column12, Column13, Column14, Column15 from ModelColumns where Model = $modelID AND BundledKit = 'Yes'");
+for each in recSet{
+	localTable = get(each,"Table");
+	//localBundle = get(each,"BundledKit");
+	localColumn1 = get(each, "Column1");
+	localColumn2 = get(each, "Column2");
+	localColumn3 = get(each, "Column3");
+	localColumn4 = get(each, "Column4");
+	localColumn5 = get(each, "Column5");
+	localColumn6 = get(each, "Column6");
+	localColumn7 = get(each, "Column7");
+	localColumn8 = get(each, "Column8");
+	localColumn9 = get(each, "Column9");
+	localColumn10 = get(each, "Column10");
+	localColumn11 = get(each, "Column11");
+	localColumn12 = get(each, "Column12");
+	localColumn13 = get(each, "Column13");
+	localColumn14 = get(each, "Column14");
+	localColumn15 = get(each, "Column15");
+	if(localTable <> ""){
+		/*if(localBundle == "Yes"){
+		tableColumn = tableColumn + localTable + "." + "BundledKit" + ", ";
+		//tableColumn = tableColumn + localTable + "." + "ChildSKU" + ", ";
+		}*/
+		if(localColumn1 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn1 + ", ";
+		}
+		if(localColumn2 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn2 + ", ";
+		}
+		if(localColumn3 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn3 + ", ";
+		}
+		if(localColumn4 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn4 + ", ";
+		}
+		if(localColumn5 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn5 + ", ";
+		}
+		if(localColumn6 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn6 + ", ";
+		}
+		if(localColumn7 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn7 + ", ";
+		}
+		if(localColumn8 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn8 + ", ";
+		}
+		if(localColumn9 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn9 + ", ";
+		}
+		if(localColumn10 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn10 + ", ";
+		}
+		if(localColumn11 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn11 + ", ";
+		}
+		if(localColumn12 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn12 + ", ";
+		}
+		if(localColumn13 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn13 + ", ";
+		}
+		if(localColumn14 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn14 + ", ";
+		}
+		if(localColumn15 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn15 + ", ";
+		}
+		
+	}
+	tableColumn = tableColumn + "Pricing.ListPrice,";
+	tableColumn = tableColumn + "Pricing.ItemID";
+}
+
+if(endswith(tableColumn, ", ")){
+tableColumn = substring(tableColumn,0,len(tableColumn)-2);
+}
+if(localTable=="SKU_Rugged_Scanner"){
+record = bmql("Select $tableColumn from SKU_Rugged_Scanner INNER JOIN Pricing ON SKU_Rugged_Scanner.StdConfiguration = Pricing.ItemID WHERE SKU_Rugged_Scanner.Model = $modelID AND SKU_Rugged_Scanner.ChildSKU = $skuID AND Pricing.AccountID = $accountID ORDER BY SKU_Rugged_Scanner.StdConfiguration");
+}
+for each in record
+{
+	for Val in recSet{
+		localColumn1 = get(Val, "Column1");
+		localColumn2 = get(Val, "Column2");
+		localColumn3 = get(Val, "Column3");
+		localColumn4 = get(Val, "Column4");
+		localColumn5 = get(Val, "Column5");
+		localColumn6 = get(Val, "Column6");
+		localColumn7 = get(Val, "Column7");
+		localColumn8 = get(Val, "Column8");
+		localColumn9 = get(Val, "Column9");
+		localColumn10 = get(Val, "Column10");
+		localColumn11 = get(Val, "Column11");
+		localColumn12 = get(Val, "Column12");
+		localColumn13 = get(Val, "Column13");
+		localColumn14 = get(Val, "Column14");
+		localColumn15 = get(Val, "Column15");
+		if(localColumn1 <> ""){
+		jsonput(BundleJson, localColumn1, get(each,localColumn1));
+		}
+		if(localColumn2 <> ""){
+		jsonput(BundleJson, localColumn2, get(each,localColumn2));
+		}
+		if(localColumn3 <> ""){
+		jsonput(BundleJson, localColumn3, get(each,localColumn3));
+		}
+		if(localColumn4 <> ""){
+		jsonput(BundleJson, localColumn4, get(each,localColumn4));
+		}
+		if(localColumn5 <> ""){
+		jsonput(BundleJson, localColumn5, get(each,localColumn5));
+		}
+		if(localColumn6 <> ""){
+		jsonput(BundleJson, localColumn6, get(each,localColumn6));
+		}
+		if(localColumn7 <> ""){
+		jsonput(BundleJson, localColumn7, get(each,localColumn7));
+		}
+		if(localColumn8 <> ""){
+		jsonput(BundleJson, localColumn8, get(each,localColumn8));
+		}
+		if(localColumn9 <> ""){
+		jsonput(BundleJson, localColumn9, get(each,localColumn9));
+		}
+		if(localColumn10 <> ""){
+		jsonput(BundleJson, localColumn10, get(each,localColumn10));
+		}
+		if(localColumn11 <> ""){
+		jsonput(BundleJson, localColumn11, get(each,localColumn11));
+		}
+		if(localColumn12 <> ""){
+		jsonput(BundleJson, localColumn12, get(each,localColumn12));
+		}
+		if(localColumn13 <> ""){
+		jsonput(BundleJson, localColumn13, get(each,localColumn13));
+		}
+		if(localColumn14 <> ""){
+		jsonput(BundleJson, localColumn14, get(each,localColumn14));
+		}
+		if(localColumn15 <> ""){
+		jsonput(BundleJson, localColumn15, get(each,localColumn15));
+		}
+		//jsonput(BundleJson, "BundledKit", get(each,"BundledKit"));
+		//jsonput(BundleJson, "ChildSKU", get(each,"ChildSKU"));
+		jsonput(BundleJson,"Pricing", get(each,"ListPrice"));
+		jsonput(BundleJson,"SkuId", get(each,"ItemID"));
+	}
+	jsonarrayappend(BundleJsonArray, BundleJson);
+}
+retStr = jsonarraytostr(BundleJsonArray);
+return retStr;

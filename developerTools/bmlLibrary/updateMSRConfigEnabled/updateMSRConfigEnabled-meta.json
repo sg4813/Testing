@@ -1,0 +1,9 @@
+{
+  "name" : "Update MSR Config Enabled",
+  "variableName" : "updateMSRConfigEnabled",
+  "description" : "",
+  "libraryFunctions" : [ "util.getTableId" ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "attributes" : [ ]
+}

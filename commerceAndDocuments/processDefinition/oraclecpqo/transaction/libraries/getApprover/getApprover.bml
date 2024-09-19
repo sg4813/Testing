@@ -1,0 +1,9 @@
+approver ="";
+
+rs = bmql("Select SFDCPCApprovalId from ApprovalMatrix where User= $ownerLogin_t");
+for each in rs
+	{
+		approver = get(each,"SFDCPCApprovalId");
+	}
+	
+return approver ;

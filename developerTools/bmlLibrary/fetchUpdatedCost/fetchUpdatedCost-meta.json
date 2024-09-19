@@ -1,0 +1,15 @@
+{
+  "name" : "Fetch Updated Cost",
+  "variableName" : "fetchUpdatedCost",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "Float",
+  "parameters" : [ {
+    "name" : "Inputs",
+    "type" : "Anytype Dictionary"
+  }, {
+    "name" : "fetchCost",
+    "type" : "JsonArray"
+  } ],
+  "attributes" : [ ]
+}

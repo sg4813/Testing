@@ -1,0 +1,18 @@
+{
+  "name" : "quote Approval Email Notifications",
+  "variableName" : "quoteApprovalEmailNotificationsnew",
+  "description" : "This is developed as part of CCZC-6226",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "transID",
+    "type" : "String"
+  }, {
+    "name" : "emailid",
+    "type" : "String"
+  }, {
+    "name" : "owner",
+    "type" : "String"
+  } ],
+  "attributes" : [ "_company_name" ]
+}

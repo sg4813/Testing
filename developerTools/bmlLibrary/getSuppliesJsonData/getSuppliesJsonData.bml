@@ -1,0 +1,151 @@
+//New Logic
+retStr = "";
+tableColumn = "";
+ModelJson = Json();
+ModelJsonArray = jsonarray();
+arrayStandardRibbonID = string[];
+arrayHighDurableRibbon = string[];
+record =  recordset();
+RegionID = printerID;
+print RegionID;
+tableColumn = "RegionID,ModelName,ProductType,PrintTechnology,MaterialType,WidthMetric,LengthMetric,WidthInches,LengthInches,ItemNumber,Name,StandardRibbonID,HighDurabRibbonID,Industry,Adhesive,Perforations,Color,AmountOrderUnit,ShortDesc,DetailedSpec,NA,APAC,LATAM,EMEA";
+//tableColumn="ModelName,RegionID,ProductType,PrintTechnology,MaterialType,WidthMetric,LengthMetric,WidthInches,LengthInches,ItemNumber,Name,StandardRibbonID,HighDurabRibbonID,Industry,Adhesive,Perforations,Color,OrderUnit,ShortDesc,AmountOrderUnit";
+//record = bmql("Select $tableColumn from SuppliesSelector WHERE ModelName = $ModelName");
+record = bmql("Select $tableColumn from SuppliesSelector WHERE NA = $printerID AND (Status = 'Active' OR Status = '' OR Status IS NULL) AND (APAC = $printerID OR LATAM = $printerID OR EMEA = $printerID)");
+
+print record;
+	for Val in record{	
+		jsonput(ModelJson, "RegionID", get(Val,"RegionID"));
+		jsonput(ModelJson, "NA", get(Val,"NA"));
+		jsonput(ModelJson, "ModelName", get(Val,"ModelName"));
+		jsonput(ModelJson, "ProductType", get(Val,"ProductType"));
+		jsonput(ModelJson, "PrintTechnology", get(Val,"PrintTechnology"));
+		jsonput(ModelJson, "MaterialType", get(Val,"MaterialType"));
+		jsonput(ModelJson, "WidthMetric", get(Val,"WidthMetric"));
+		jsonput(ModelJson, "LengthMetric", get(Val,"LengthMetric"));
+		jsonput(ModelJson, "WidthInches", get(Val,"WidthInches"));
+		jsonput(ModelJson, "LengthInches", get(Val,"LengthInches"));
+		jsonput(ModelJson, "ItemNumber", get(Val,"ItemNumber"));
+		jsonput(ModelJson, "MaterialName", get(Val,"MaterialName"));
+		jsonput(ModelJson, "StandardRibbonID", get(Val,"StandardRibbonID"));
+		print get(Val,"StandardRibbonID");
+		/*if(get(Val,"StandardRibbonID") <> "")
+		{
+			print "hi";
+			if(find(get(Val,"StandardRibbonID"),",") ==-1)
+			{
+				append(arrayStandardRibbonID,get(Val,"StandardRibbonID"));
+			}
+			else
+			{
+				arraySplit = split(get(Val,"StandardRibbonID"),",");
+				for each in arraySplit
+				{
+					print each;
+					if(each <> "")
+					{
+						append(arrayStandardRibbonID,each);
+					}
+				}
+			}
+		}*/
+		//jsonput(ModelJson, "MaterialName", get(Val,"StandardRibbonID"));
+		jsonput(ModelJson, "HighDurabRibbonID", get(Val,"HighDurabRibbonID"));
+		/*if(find(get(Val,"HighDurabRibbonID"),",") ==-1)
+		{
+			
+			append(arrayHighDurableRibbon,get(Val,"HighDurabRibbonID"));
+		}
+		else
+		{
+			arraySplit = split(get(Val,"HighDurabRibbonID"),",");
+			for each in arraySplit
+			{
+				append(arrayHighDurableRibbon,each);
+			}
+		}*/
+		jsonput(ModelJson, "Industry", get(Val,"Industry"));
+		jsonput(ModelJson, "Adhesive", get(Val,"Adhesive"));
+		jsonput(ModelJson, "Perforations", get(Val,"Perforations"));
+		jsonput(ModelJson, "Color", get(Val,"Color"));
+		jsonput(ModelJson, "AmountOrderUnit", get(Val,"AmountOrderUnit"));
+		jsonput(ModelJson, "ShortDesc", get(Val,"ShortDesc"));
+		jsonput(ModelJson, "DetailedSpec", get(Val,"DetailedSpec"));
+		jsonarrayappend(ModelJsonArray, ModelJson);
+}
+//print arrayStandardRibbonID;
+//print util.zebraExternalPricing(arrayStandardRibbonID, "395");
+retStr = jsonarraytostr(ModelJsonArray);
+return retStr;
+/*
+//OLD logic
+retStr = "";
+tableColumn = "";
+ModelJson = Json();
+ModelJsonArray = jsonarray();
+arrayStandardRibbonID = string[];
+arrayHighDurableRibbon = string[];
+record =  recordset();
+tableColumn = "PrinterID,RegionID,ProductType,PrintTechnology,MaterialType,WidthMetric,LengthMetric,WidthInches,LengthInches,PartID,MaterialName,StandardRibbonID,HighDurableRibbon,Industry,Adhesive,Perforations,Color,QuantityPerRoll,Description";
+record = bmql("Select $tableColumn from SuppliesData WHERE PrinterID = $printerID");
+	for Val in record{		
+		jsonput(ModelJson, "PrinterID", get(Val,"PrinterID"));
+		jsonput(ModelJson, "RegionID", get(Val,"RegionID"));
+		jsonput(ModelJson, "ProductType", get(Val,"ProductType"));
+		jsonput(ModelJson, "PrintTechnology", get(Val,"PrintTechnology"));
+		jsonput(ModelJson, "MaterialType", get(Val,"MaterialType"));
+		jsonput(ModelJson, "WidthMetric", get(Val,"WidthMetric"));
+		jsonput(ModelJson, "LengthMetric", get(Val,"LengthMetric"));
+		jsonput(ModelJson, "WidthInches", get(Val,"WidthInches"));
+		jsonput(ModelJson, "LengthInches", get(Val,"LengthInches"));
+		jsonput(ModelJson, "PartID", get(Val,"PartID"));
+		jsonput(ModelJson, "MaterialName", get(Val,"MaterialName"));
+		jsonput(ModelJson, "StandardRibbonID", get(Val,"StandardRibbonID"));
+		print get(Val,"StandardRibbonID");
+		if(get(Val,"StandardRibbonID") <> "")
+		{
+			print "hi";
+			if(find(get(Val,"StandardRibbonID"),",") ==-1)
+			{
+				append(arrayStandardRibbonID,get(Val,"StandardRibbonID"));
+			}
+			else
+			{
+				arraySplit = split(get(Val,"StandardRibbonID"),",");
+				for each in arraySplit
+				{
+					print each;
+					if(each <> "")
+					{
+						append(arrayStandardRibbonID,each);
+					}
+				}
+			}
+		}
+		//jsonput(ModelJson, "MaterialName", get(Val,"StandardRibbonID"));
+		jsonput(ModelJson, "HighDurableRibbon", get(Val,"HighDurableRibbon"));
+		if(find(get(Val,"HighDurableRibbon"),",") ==-1)
+		{
+			
+			append(arrayHighDurableRibbon,get(Val,"HighDurableRibbon"));
+		}
+		else
+		{
+			arraySplit = split(get(Val,"HighDurableRibbon"),",");
+			for each in arraySplit
+			{
+				append(arrayHighDurableRibbon,each);
+			}
+		}
+		jsonput(ModelJson, "Industry", get(Val,"Industry"));
+		jsonput(ModelJson, "Adhesive", get(Val,"Adhesive"));
+		jsonput(ModelJson, "Perforations", get(Val,"Perforations"));
+		jsonput(ModelJson, "Color", get(Val,"Color"));
+		jsonput(ModelJson, "QuantityPerRoll", get(Val,"QuantityPerRoll"));
+		jsonput(ModelJson, "Description", get(Val,"Description"));
+		jsonarrayappend(ModelJsonArray, ModelJson);
+}
+print arrayStandardRibbonID;
+print util.zebraExternalPricing(arrayStandardRibbonID, "395");
+retStr = jsonarraytostr(ModelJsonArray);
+return retStr;*/

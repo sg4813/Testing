@@ -1,0 +1,15 @@
+{
+  "name" : "Get Template Location",
+  "variableName" : "oRCL_INT_GetTemplateLocation",
+  "description" : "This BML is copied from CPQ-CDM Integration. This BML fetches the template file location from Db",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "system",
+    "type" : "String"
+  }, {
+    "name" : "operation",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

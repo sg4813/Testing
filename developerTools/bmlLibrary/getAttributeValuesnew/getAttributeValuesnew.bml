@@ -1,0 +1,39 @@
+ret= jsonarray();
+
+//if(find(configurationmodeljson,AttributeName,0,len(configurationmodeljson))==-1)
+//{
+  print "hi";
+  splitAttributeNameArray = split(AttributeName,"$$");  
+  arrayPartNumber = string[];
+  configurationjson=jsonarray(configurationmodeljson);
+  configjsonsize=range(jsonarraysize(configurationjson));
+  for each in configjsonsize
+  {
+     configarray=jsonarrayget(configurationjson,each);     
+     configarrayobj = json(configarray);
+     jCount = 0;
+     for eacharray in splitAttributeNameArray 
+     {
+     	arrayConfigValue = split(AttibuteValue,"$$");
+     //	print arrayConfigValue[jCount];
+     	arrayAttributeValue = split(arrayConfigValue[jCount],"~");
+     	print arrayAttributeValue;
+     	configValue = jsonget(configarrayobj,eacharray);
+     	strPartNumber = jsonget(configarrayobj,"SkuId");
+     //	print strPartNumber;
+     //	print configValue;
+     	if(findinarray(arrayAttributeValue,configValue) <> -1 )
+     	{
+	     	tempJson = json();
+	     	jsonput(tempJson,"Part Number",strPartNumber );
+	     	jsonput(tempJson,"Description",jsonget(configarrayobj,"Description"));
+	     	jsonput(tempJson,"Price",jsonget(configarrayobj,"Pricing"));
+	     	jsonarrayappend(ret,tempJson);
+	     	append(arrayPartNumber,strPartNumber);
+    	 }
+    	 jCount = jCount + 1;
+    }
+  }
+
+//}
+ return ret;

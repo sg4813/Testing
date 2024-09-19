@@ -1,0 +1,15 @@
+{
+  "name" : "Find Bundle Availability",
+  "variableName" : "findBundleAvailability",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "bundleNameArray",
+    "type" : "String[]"
+  }, {
+    "name" : "currentBundle",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

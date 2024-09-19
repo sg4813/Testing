@@ -1,0 +1,9 @@
+{
+  "name" : "Get Partner Discount",
+  "variableName" : "getPartnerDiscount",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "Float",
+  "parameters" : [ ],
+  "attributes" : [ ]
+}

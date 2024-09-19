@@ -1,0 +1,74 @@
+ret = "";
+retArray = string[];
+
+localAttribute = AttributeName;
+arrayColumnSequence = split(ServicesColumnSequence,"~");
+arrayColumn = string[];
+
+for each in arrayColumnSequence 
+{
+	
+	if(each == localAttribute OR each == "")
+	{
+		break;
+	}
+	else
+	{
+		append(arrayColumn,each);
+	}
+}
+
+
+
+jsonPrecedent = json(PrecedentValue);
+setJson = jsonarray(ServicesJson);
+arraySize = range(jsonarraysize(setJson));
+for each in arraySize
+{
+	localJsonStr = jsonarrayget(setJson, each);
+	localJsonObj = json(localJsonStr);
+	localCount = 0;
+	for column1 in arrayColumn
+	{
+		if(find(jsonget(jsonPrecedent,column1),"~") <> -1 OR column1 == "DeviceAge"){
+		localValArr = split(jsonget(jsonPrecedent,column1),"~");
+		if(column1 == "DeviceAge")
+		{
+			append(localValArr,"Any");
+		}
+			for eachVal in localValArr{
+				if(jsonget(localJsonObj,column1) == eachVal){
+				localCount = localCount + 1;
+				}
+			}
+		}else{
+			if(jsonget(localJsonObj,column1) == jsonget(jsonPrecedent,column1))
+			{
+	    		    localCount = localCount + 1;
+			}
+			else
+			{
+				break;
+			}
+		}	
+	}
+	if(localCount == sizeofarray(arrayColumn))
+	{
+		if(findinarray(retArray,jsonget(localJsonObj,localAttribute)) == -1)
+		{
+			append(retArray,jsonget(localJsonObj,localAttribute));
+		}
+	}
+	if(localCount > sizeofarray(arrayColumn))
+	{
+		if(findinarray(retArray,jsonget(localJsonObj,localAttribute)) == -1)
+		{
+			localAttrArr = split(jsonget(localJsonObj,localAttribute), "~");
+			for eachVal in localAttrArr{
+			append(retArray,eachVal);
+			}
+		}
+	}
+	
+}
+return retArray;

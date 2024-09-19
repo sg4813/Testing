@@ -1,0 +1,1045 @@
+//Tejasvi
+
+headers = dict("string");
+put(headers, "content-type", "application/json");
+updated = "";
+response=dict("string");
+jsonBody = json();
+responsemessage="";
+tempJson = json();
+transactionData = jsonArray();
+transData = json();
+docDict = dict("string");
+datatableData = json();
+	datatableDat = json();
+	transLinejsonArr = jsonarray();
+datatableJsonArrayData = jsonarray();
+testArr = string[];
+//modelName = "WorkForceConnect";
+modelName = "Reflexis";
+lineDict = dict("integer");
+quoteLineTableData = json();
+quoteLineItems = json();
+quoteLinejsonBody = json();
+quoteLineJsonArray = jsonarray();
+eachModelDict = dict("string[]");
+transLinejsonBody = json();
+
+
+
+bsIdDict = dict("string");
+modelLineDict = dict("string");
+
+/*prodFamVarName = 
+prodLineVarName =
+modelVarName =*/
+dataJson = json();
+quoteDataJson = json();
+resultSet = bmql("select * from Reflexis_QuoteLines where Model= $modelName");
+//print resultSet;
+
+//print resultSet;
+exeArray = 0;
+exArrayCount = 5;
+EXCFlag = false; 
+allPartNumbers = "";
+
+systemUrl = "";
+if(find(_company_name,"dev")<> -1){ 
+systemUrl = "https://devzebra.bigmachines.com";
+}
+elif(find(_company_name,"test")<> -1){
+systemUrl = "https://test-cpq.zebra.com";
+}
+else {
+systemUrl = "https://cpq.zebra.com";
+}
+print systemUrl;
+excom = "";
+
+for each in resultset {
+	jsonBody = json();
+	responsemessage="";
+	tempJson = json();
+	transactionData = jsonArray();
+	transData = json();
+	tableJsonArrayData = jsonarray();
+	tableDat = json();
+	tableDataFinal = json();
+	tableDataFinal = json();
+	tableDataFina2 = json();
+	tableDataFinalpl =json();
+	tableDataFinalpm = json();
+	tempJson = json();
+	tempJsonArray = jsonArray();
+	tempJson1 = json();
+	tempJsonemp = json();
+	tempJsonD = json();
+	tempJsonArrayD = jsonarray();
+	tempJsonDevices = json();
+	tempJsonDA = json();
+	tempJsonDNames = json();
+	tempJsonArrayDA = jsonarray();
+	tempJsonDevicesArray = json();
+	tempJsonDevicesArrayQ = json();
+	finalArrayset = json();
+	q1Json = json();
+	q2Json = json();
+	q3Json = json();
+	q4Json = json();
+	q5Json = json();
+	q6Json = json();
+	q7Json = json();
+	q8Json = json();
+	paymentTerms = json();
+	
+	tempJsonQ = json();
+	tempJsonDNamesQ = json();
+	tempJsonArrayQ = jsonarray();
+	
+	tempJsonRI = json();
+	tempJsonDNamesRI = json();
+	tempJsonArrayRI = jsonarray();
+	tempJsonDevicesArrayRI = json();
+	
+	tempJsonRA = json();
+	tempJsonDNamesRA = json();
+	tempJsonArrayRA = jsonarray();
+	tempJsonDevicesArrayRA = json();
+	
+	tempJsonClocks = json();
+	tempJsonDNamesClocks = json();
+	tempJsonArrayClocks = jsonarray();
+	tempJsonDevicesArrayClocks = json();
+	
+	tempJsonWS = json();
+	tempJsonDNamesWS = json();
+	tempJsonArrayWS = jsonarray();
+	tempJsonDevicesArrayWS = json();
+	
+	count = 0;
+	counter = 0;
+	count1 = 0;
+	transId = get(each, "QuoteNumber");
+	quote = get(each, "Quote");
+	bsId = get(each, "BSID");
+	//print bsId;
+	val = atoi(bsId);
+	//val = 120295416;
+	stores = atoi(get(each, "store"));
+	countryName = get(each, "CountryName");
+	//countryName = "Unitedstates~Mexico";
+	empCount = atoi(get(each, "emp"));
+	ContractTerms = get(each, "contractTerminMonths");
+	BillingFrequency = get(each, "paymentTermscommon");
+	typeOfRetailer = get(each, "typeOfRetailer");
+	netProfitMargin = get(each, "netProfitMargin");
+	support = get(each, "support");
+	hosting = get(each, "hosting");
+	contractTerminMonths = get(each, "contractTerminMonths");
+	multiLanguagePack = get(each, "multiLanguagePack");
+	revenueFromRetail  = get(each, "revenueFromRetail");
+	store = get(each, "store");
+	emp = get(each, "emp");
+	ExecutionCommun  =  get(each, "ExecutionCommun");
+	ExecCommunication2 = get(each, "ExecCommunication2");
+	ReflexisQsuite = get(each, "ReflexisQsuite");
+	Appointments = get(each, "Appointments");
+	WorkForceManagement = get(each, "WorkForceManagement");
+	//WorkForceManagement2 = get(each, "WorkForceManagement2");
+	Clocks = get(each, "Clocks");
+	ReflexisAI = get(each, "ReflexisAI");
+	nooFbannaers = get(each, "NumberOfBanners");
+	if(nooFbannaers <> "") {
+		NumberOfBanners = atoi(get(each, "NumberOfBanners"));
+	}
+	noOfWeeks = get(each, "AddHypercareWeeks");
+	if(noOfWeeks <> "") {
+		Additionalcareweeks = atoi(get(each, "AddHypercareWeeks"));
+	}
+	AddProductToExit  = get(each, "AddProductToExit");
+	languages = get(each, "Languages");
+	customProfSer = get(each, "CusProfessionalSer");
+	professioanlServices = get(each, "ProfessionalServices");
+	
+	addProductJson = json();
+	bannerJson = json();
+	addHyperWeekJosn = json();
+	languageJson = json();
+	languageJsonArray = jsonarray();
+	lanJson = json();
+	applyJosn = json();
+	updateJson = json();
+	tempJsonC = json();
+	tempJsonDNamesC = json();
+	tempJsonArrayC = jsonarray();
+	tempJsonDevicesArrayC = json();
+	profserMessage = "";
+	exComMessage = "";
+	clockMessage = "";
+	wfmSchMessage = "";
+	qsuiteMessage = "";
+	appointmentMessage = "";
+	reflexisAImessage = "";
+	
+	jsonput(applyJosn, "value", true);
+	jsonput(applyJosn, "locked", true);
+	
+	jsonput(updateJson, "value", true);
+	jsonput(updateJson, "locked", true);
+	
+	if(multiLanguagePack == "Yes" and languages <> "") {
+		if(find(languages,"~")<>-1) {
+				languages1 = split(languages, "~");
+				for lan in languages1 {
+				
+					jsonput(languageJson, "value", languages1[count]);
+					jsonput(languageJson, "displayValue", languages1[count]);
+					jsonarrayappend(languageJsonArray, languageJson);
+					count = count + 1;
+				}
+				
+				jsonput(lanJson, "items", languageJsonArray);
+				//print tempJson1;
+			}
+			else {
+					jsonput(languageJson, "value", languages);
+					jsonput(languageJson, "displayValue", languages);
+					jsonarrayappend(languageJsonArray, languageJson);
+					jsonput(lanJson, "items", languageJsonArray);
+					//print tempJson1;
+			}
+		jsonput(jsonBody, "languagesOtherThanEnglishRef", lanJson);
+	}
+	
+	if((NumberOfBanners > 10 or Additionalcareweeks > 10 or AddProductToExit == "Yes") and customProfSer <> "") {
+		jsonput(tempJsonC, "_index", 0);
+		jsonput(tempJsonDNamesC, "value", true);
+		jsonput(tempJsonDNamesC, "locked", true);
+		jsonput(tempJsonC, "addRef", tempJsonDNamesC);
+		jsonarrayappend(tempJsonArrayC, tempJsonC);
+
+		jsonput(tempJsonDevicesArrayC, "items", tempJsonArrayC);
+		jsonput(jsonBody, "_setprofessionalServiceArrayRef", tempJsonDevicesArrayC); 
+		
+	} elif(professioanlServices <> "") {
+		totalSizeC = range(15);
+		for eachC in totalSizeC {
+			jsonput(tempJsonC, "_index",eachC);
+			jsonput(tempJsonDNamesC, "value", false);
+			jsonput(tempJsonDNamesC, "locked", true);
+			jsonput(tempJsonC, "addRef", tempJsonDNamesC);
+			jsonarrayappend(tempJsonArrayC, tempJsonC);
+		}
+		if(find(professioanlServices,"~")<>-1) {
+			profSer = split(professioanlServices, "~");
+			for proSer in profSer {
+				if(proSer == "RFX-TM-PS") {
+					exeArray = 0;
+				}
+				if(proSer == "RFX-PULSE-PS") {
+					exeArray = 1;
+				}
+				if(proSer == "RFX-RTTM-PS") {
+					exeArray = 3;
+				}
+				if(proSer == "RFX-Q-WALK-PS") {
+					exeArray = 4;
+				}
+				if(proSer == "RFX-Q-COMM-PS") {
+					exeArray = 5;
+				}
+				if(proSer == "RFX-Q-DOC-PS") {
+					exeArray = 6;
+				}
+				if(proSer == "RFX-Q-VISUAL-PS") {
+					exeArray = 7;
+				}
+				if(proSer == "RFX-Q-CHECK-PS") {
+					exeArray = 8;
+				}
+				if(proSer == "RFX-AAR-PS") {
+					exeArray = 9;
+				}
+				if(proSer == "RFX-WFM-PS") {
+					exeArray = 10;
+				}
+				if(proSer == "RFX-APPOINTMENTS-PS") {
+					exeArray = 11;
+				}
+				if(proSer == "RFX-AI-PS") {
+					exeArray = 12;
+				}
+				if(proSer == "RFX-INTEGRATION-PS") {
+					exeArray = 13;
+				}
+				if(proSer == "RFX-CUSTOM-PS") {
+					exeArray = 13;
+				}
+				if(proSer <> "RFX-RTTM-PS" AND proSer <> "RFX-TM-PS" AND proSer <>  "RFX-CUSTOM-PS" AND proSer <> "RFX-INTEGRATION-PS" AND proSer <> "RFX-AI-PS" AND proSer <> "RFX-APPOINTMENTS-PS" AND proSer <> "RFX-WFM-PS" AND proSer <> "RFX-AAR-PS" AND proSer <> "RFX-Q-CHECK-PS" AND proSer <> "RFX-Q-VISUAL-PS" AND proSer <> "RFX-Q-DOC-PS" AND proSer <> "RFX-Q-COMM-PS" AND proSer <> "RFX-Q-WALK-PS" AND proSer <> "RFX-PULSE-PS") {
+					print "ProfessionalServices column Inavlid Values - Start";
+						print quote;
+						profserMessage =  profserMessage + proSer + "is not a avalid value in column Professional Services in" + quote;
+						print profserMessage;
+					print "ProfessionalServices column Inavlid Values - End";
+				}
+				recordSetq = bmql("select * from  _parts where part_display_number =$proSer");
+				for record in recordSetq {
+					allPartNumbers = allPartNumbers + "," + get(record, "part_number");
+				}				
+				jsonput(tempJsonC, "_index",exeArray);
+				jsonput(tempJsonDNamesC, "value", true);
+				jsonput(tempJsonDNamesC, "locked", true);
+				jsonput(tempJsonC, "addRef", tempJsonDNamesC);
+				jsonarrayappend(tempJsonArrayC, tempJsonC);
+				count1 = count1 + 1;
+			}
+			//print tempJsonArrayQ;
+				
+		} else {
+		if(professioanlServices == "RFX-TM-PS") {
+					exeArray = 0;
+				}
+				if(professioanlServices == "RFX-PULSE-PS") {
+					exeArray = 1;
+				}
+				if(professioanlServices == "RFX-RTTM-PS") {
+					exeArray = 3;
+				}
+				if(professioanlServices == "RFX-Q-WALK-PS") {
+					exeArray = 4;
+				}
+				if(professioanlServices == "RFX-Q-COMM-PS") {
+					exeArray = 5;
+				}
+				if(professioanlServices == "RFX-Q-DOC-PS") {
+					exeArray = 6;
+				}
+				if(professioanlServices == "RFX-Q-VISUAL-PS") {
+					exeArray = 7;
+				}
+				if(professioanlServices == "RFX-Q-CHECK-PS") {
+					exeArray = 8;
+				}
+				if(professioanlServices == "RFX-AAR-PS") {
+					exeArray = 9;
+				}
+				if(professioanlServices == "RFX-WFM-PS") {
+					exeArray = 10;
+				}
+				if(professioanlServices == "RFX-APPOINTMENTS-PS") {
+					exeArray = 11;
+				}
+				if(professioanlServices == "RFX-AI-PS") {
+					exeArray = 12;
+				}
+				if(professioanlServices == "RFX-INTEGRATION-PS") {
+					exeArray = 13;
+				}
+				if(professioanlServices == "RFX-CUSTOM-PS") {
+					exeArray = 13;
+				}
+				if(professioanlServices <> "RFX-RTTM-PS" AND professioanlServices <> "RFX-TM-PS" AND professioanlServices <>  "RFX-CUSTOM-PS" AND professioanlServices <> "RFX-INTEGRATION-PS" AND professioanlServices <> "RFX-AI-PS" AND professioanlServices <> "RFX-APPOINTMENTS-PS" AND professioanlServices <> "RFX-WFM-PS" AND professioanlServices <> "RFX-AAR-PS" AND professioanlServices <> "RFX-Q-CHECK-PS" AND professioanlServices <> "RFX-Q-VISUAL-PS" AND professioanlServices <> "RFX-Q-DOC-PS" AND professioanlServices <> "RFX-Q-COMM-PS" AND professioanlServices <> "RFX-Q-WALK-PS" AND professioanlServices <> "RFX-PULSE-PS") {
+					print " ProfessionalServices column Inavlid Values - Start";
+						print quote;
+						profserMessage =  profserMessage + professioanlServices + "is not a avalid value in column Professional Services in" + quote;
+						print profserMessage;
+					print "ProfessionalServices column Inavlid Values - End";
+				}
+				recordSetq = bmql("select * from  _parts where part_display_number =$professioanlServices");
+				for record in recordSetq {
+					allPartNumbers = allPartNumbers + "," + get(record, "part_number");
+				}
+				jsonput(tempJsonC, "_index",exeArray);
+				jsonput(tempJsonDNamesC, "value", true);
+				jsonput(tempJsonDNamesC, "locked", true);
+				jsonput(tempJsonC, "addRef", tempJsonDNamesC);
+				jsonarrayappend(tempJsonArrayC, tempJsonC);
+			}
+				
+			jsonput(tempJsonDevicesArrayC, "items", tempJsonArrayC);
+			jsonput(jsonBody, "_setprofessionalServiceArrayRef", tempJsonDevicesArrayC); 
+	}
+	
+	
+	jsonput(jsonBody, "applyPS", applyJosn);
+	jsonput(jsonBody, "updatePS", updateJson);
+	
+	jsonput(bannerJson, "value", NumberOfBanners);
+	jsonput(bannerJson, "locked", true);
+	
+	jsonput(addHyperWeekJosn, "value", Additionalcareweeks);
+	jsonput(addHyperWeekJosn, "locked", true);
+	
+	jsonput(addProductJson, "value", AddProductToExit);
+	
+	modelLine = get(each, "ModelLine");
+	
+	jsonput(jsonBody, "additionalHypercareWeeksRef", addHyperWeekJosn);
+	if(nooFbannaers <> "") {
+		jsonput(jsonBody, "numberOfBannersInSameApplicationRef", bannerJson);
+	}
+	if(noOfWeeks <> "") {
+		jsonput(jsonBody, "isThisAnAddonProductForAnExistingClient", addProductJson);
+	}
+	jsonput(jsonBody, "typeOfRetailerDummyRef", typeOfRetailer);
+	jsonput(jsonBody, "netProfitMarginDummyRef", netProfitMargin);
+	jsonput(jsonBody, "supportDummyRef", support); 
+	jsonput(jsonBody, "hostingDummyRef", hosting);
+	jsonput(jsonBody, "contractTerminMonthsddummy", contractTerminMonths);
+	jsonput(jsonBody, "multiLanguagePackDummyRef", multiLanguagePack);
+	jsonput(paymentTerms, "value", BillingFrequency);
+	jsonput(jsonBody, "paymentTermscommon", paymentTerms);
+	jsonput(jsonBody, "selectProductRef", true);
+	jsonput(jsonBody, "storeDummyRef", stores);
+	jsonput(jsonBody, "empDummyRef", emp);
+	
+	//Country Selection
+	if(find(countryName,"~")<>-1) {
+		countryNames = split(countryName, "~");
+		for countries in countryNames {
+		
+			jsonput(tempJson, "value", countryNames[count]);
+			jsonput(tempJson, "displayValue", countryNames[count]);
+			jsonarrayappend(tempJsonArray, tempJson);
+			count = count + 1;
+		}
+		
+		jsonput(tempJson1, "items", tempJsonArray);
+		//print tempJson1;
+	}
+	else {
+			jsonput(tempJson, "value", countryName);
+			jsonput(tempJson, "displayValue", countryName);
+			jsonarrayappend(tempJsonArray, tempJson);
+			jsonput(tempJson1, "items", tempJsonArray);
+			//print tempJson1;
+	}
+	
+//ExecutionCommun arrayset Selection
+if(ExecutionCommun <> "") {
+	totalSize1 = range(12);
+	for each1 in totalSize1 {
+		jsonput(tempJsonDA, "_index", each1);
+		jsonput(tempJsonDNames, "value", false);
+		jsonput(tempJsonDNames, "locked", true);
+		jsonput(tempJsonDA, "addECRef", tempJsonDNames);
+		jsonarrayappend(tempJsonArrayDA, tempJsonDA);
+	}
+	if(find(ExecutionCommun,"~")<>-1) {
+			devices1 = split(ExecutionCommun, "~");
+			for deviceNames1 in devices1 {
+				if(deviceNames1 == "RFX-RTTM") {
+					exeArray = 0;
+				}
+				if(deviceNames1 == "RFX-AAR-RTTM") {
+					exeArray = 3;
+				}
+				if(deviceNames1 == "RFX-TM") {
+					exeArray = 4;
+				}
+				if(deviceNames1 == "RFX-AAR-EC")  {
+					exeArray = 6;
+				}
+				if(deviceNames1 == "RFX-MOBILITY-EC") {
+					exeArray = 7;
+				}
+				if(deviceNames1 == "RFX-PULSE") {
+					exeArray = 9;
+					print 9;
+				}
+				if(deviceNames1 == "RFX-ST-RTTM-INT") {
+					exeArray = 12;
+					print "12";
+				}
+				if(deviceNames1 <> "RFX-RTTM" AND deviceNames1 <> "RFX-AAR-EC" AND deviceNames1 <> "RFX-TM" AND deviceNames1 <> "RFX-AAR-RTTM" AND deviceNames1 <> "RFX-ST-RTTM-INT" AND deviceNames1 <> "RFX-PULSE" AND deviceNames1 <> "RFX-MOBILITY-EC") {
+					print "ExecutionCommun column Inavlid Values - Start";
+						print quote;
+						exComMessage  =  exComMessage  + deviceNames1 + "is not a avalid value in column ExecutionCommun in" + quote;
+						print exComMessage;
+					print "ExecutionCommun column Inavlid Values - End";
+				}
+				recordSetq = bmql("select * from  _parts where part_display_number =$deviceNames1");
+				for record in recordSetq {
+					allPartNumbers = allPartNumbers + "," + get(record, "part_number");
+				}
+				jsonput(tempJsonDA, "_index", exeArray);
+				jsonput(tempJsonDNames, "value", true);
+				jsonput(tempJsonDNames, "locked", true);
+				jsonput(tempJsonDA, "addECRef", tempJsonDNames);
+				jsonarrayappend(tempJsonArrayDA, tempJsonDA);
+				count1 = count1 + 1;
+			}
+			
+			
+	} else {
+		if(ExecutionCommun == "RFX-RTTM") {
+					exeArray = 0;
+				}
+				if(ExecutionCommun == "RFX-AAR-RTTM") {
+					exeArray = 3;
+				}
+				if(ExecutionCommun == "RFX-TM") {
+					exeArray = 4;
+				}
+				if(ExecutionCommun == "RFX-AAR-EC")  {
+					exeArray = 6;
+				}
+				if(ExecutionCommun == "RFX-MOBILITY-EC") {
+					exeArray = 7;
+				}
+				if(ExecutionCommun == "RFX-PULSE") {
+					exeArray = 9;
+					print 9;
+				}
+				if(ExecutionCommun == "RFX-ST-RTTM-INT") {
+					exeArray = 12;
+					print "12";
+				}
+				if(ExecutionCommun <> "RFX-RTTM" AND ExecutionCommun <> "RFX-AAR-EC" AND ExecutionCommun <> "RFX-TM" AND ExecutionCommun <> "RFX-AAR-RTTM" AND ExecutionCommun <> "RFX-ST-RTTM-INT" AND ExecutionCommun <> "RFX-PULSE" AND ExecutionCommun <> "RFX-MOBILITY-EC") {
+					print "ExecutionCommun column Inavlid Values - Start";
+						print quote;
+						exComMessage  =  exComMessage  + ExecutionCommun + "is not a avalid value in column ExecutionCommun in" + quote;
+						print exComMessage;
+					print "ExecutionCommun column Inavlid Values - End";
+				}
+				recordSetq = bmql("select * from  _parts where part_display_number =$ExecutionCommun");
+				for record in recordSetq {
+					allPartNumbers = allPartNumbers + "," + get(record, "part_number");
+				}
+				jsonput(tempJsonDA, "_index", exeArray);
+				jsonput(tempJsonDNames, "value", true);
+				jsonput(tempJsonDNames, "locked", true);
+				jsonput(tempJsonDA, "addECRef", tempJsonDNames);
+				jsonarrayappend(tempJsonArrayDA, tempJsonDA);
+				count1 = count1 + 1;
+	}
+			jsonput(tempJsonDevicesArray, "items", tempJsonArrayDA);
+			jsonput(jsonBody, "_setexecutionAndCommunicationArray", tempJsonDevicesArray); 
+}
+	
+	//// Q-Suite
+if(ReflexisQsuite <> "") {
+//print ReflexisQsuite;
+	totalSize = range(16);
+	for each2 in totalSize {
+		jsonput(tempJsonQ, "_index", each2);
+		jsonput(tempJsonDNamesQ, "value", false);
+		jsonput(tempJsonDNamesQ, "locked", true);
+		jsonput(tempJsonQ, "addQSuiteRef", tempJsonDNamesQ);
+		jsonarrayappend(tempJsonArrayQ, tempJsonQ);
+	}
+	if(find(ReflexisQsuite,"~")<>-1) {
+			qProducts = split(ReflexisQsuite, "~");
+			for qProducts1 in qProducts {
+				if(qProducts1 == "RFX-Q-FORMS") {
+					exeArray = 0;
+				}
+				if(qProducts1 == "RFX-Q-WALK") {
+					exeArray = 3;
+				}
+			if(qProducts1 == "RFX-AAR-Q-WALK")  {
+					exeArray = 5;
+				}
+				if(qProducts1 == "RFX-Q-WALK-OL-MOBAPP") {
+					exeArray = 6;
+				}
+				if(qProducts1 == "RFX-Q-COMM")  {
+					exeArray = 8;
+				}
+				if(qProducts1 == "RFX-Q-CHECK")  {
+					exeArray = 9;
+					print 9;
+				}
+				if(qProducts1 == "RFX-Q-DOCS") {
+					exeArray = 11;
+					print "12";
+				}
+				if(qProducts1 == "RFX-Q-VISUAL") {
+					exeArray = 14;
+					print "12";
+				}
+				if(qProducts1 <> "RFX-Q-VISUAL" AND qProducts1 <> "RFX-Q-DOCS" AND qProducts1 <> "RFX-Q-CHECK" AND qProducts1 <> "RFX-Q-COMM" AND qProducts1 <> "RFX-Q-WALK-OL-MOBAPP" AND qProducts1 <> "RFX-AAR-Q-WALK" AND qProducts1 <> "RFX-Q-WALK" AND qProducts1 <> "RFX-Q-FANDMS") {
+					print " ReflexisQsuite  column Inavlid Values - Start";
+						print quote;
+						qsuiteMessage   =  qsuiteMessage + qProducts1 + "is not a avalid value in column  ReflexisQsuite  is" + quote;
+						print qsuiteMessage;
+					print " ReflexisQsuite  column Inavlid Values - End";
+				}
+				recordSetq = bmql("select * from  _parts where part_display_number =$qProducts1");
+				for record in recordSetq {
+					allPartNumbers = allPartNumbers + "," + get(record, "part_number");
+				}
+				jsonput(tempJsonQ, "_index", exeArray);
+				jsonput(tempJsonDNamesQ, "value", true);
+				jsonput(tempJsonDNamesQ, "locked", true);
+				jsonput(tempJsonQ, "addQSuiteRef", tempJsonDNamesQ);
+				jsonarrayappend(tempJsonArrayQ, tempJsonQ);
+				count1 = count1 + 1;
+			}
+			//print tempJsonArrayQ;
+				
+		} else {
+		if(ReflexisQsuite == "RFX-Q-FORMS") {
+					exeArray = 0;
+				}
+				if(ReflexisQsuite == "RFX-Q-WALK") {
+					exeArray = 3;
+				}
+			if(ReflexisQsuite == "RFX-AAR-Q-WALK")  {
+					exeArray = 5;
+				}
+				if(ReflexisQsuite == "RFX-Q-WALK-OL-MOBAPP") {
+					exeArray = 6;
+				}
+				if(ReflexisQsuite == "RFX-Q-COMM")  {
+					exeArray = 8;
+				}
+				if(ReflexisQsuite == "RFX-Q-CHECK")  {
+					exeArray = 9;
+					print 9;
+				}
+				if(ReflexisQsuite == "RFX-Q-DOCS") {
+					exeArray = 11;
+					print "12";
+				}
+				if(ReflexisQsuite == "RFX-Q-VISUAL") {
+					exeArray = 14;
+					print "12";
+				}
+				if(ReflexisQsuite <> "RFX-Q-VISUAL" AND ReflexisQsuite <> "RFX-Q-DOCS" AND ReflexisQsuite <> "RFX-Q-CHECK" AND ReflexisQsuite <> "RFX-Q-COMM" AND ReflexisQsuite <> "RFX-Q-WALK-OL-MOBAPP" AND ReflexisQsuite <> "RFX-AAR-Q-WALK" AND ReflexisQsuite <> "RFX-Q-WALK" AND ReflexisQsuite <> "RFX-Q-FANDMS") {
+					print " ReflexisQsuite  column Inavlid Values - Start";
+						print quote;
+						qsuiteMessage   =  qsuiteMessage + ReflexisQsuite + "is not a avalid value in column  ReflexisQsuite is " + quote;
+						print qsuiteMessage;
+					print " ReflexisQsuite  column Inavlid Values - End";
+				}
+								recordSetq = bmql("select * from  _parts where part_display_number =$ReflexisQsuite");
+				for record in recordSetq {
+					allPartNumbers = allPartNumbers + "," + get(record, "part_number");
+				}
+				jsonput(tempJsonQ, "_index", exeArray);
+				jsonput(tempJsonDNamesQ, "value", true);
+				jsonput(tempJsonDNamesQ, "locked", true);
+				jsonput(tempJsonQ, "addQSuiteRef", tempJsonDNamesQ);
+				jsonarrayappend(tempJsonArrayQ, tempJsonQ);	
+			}
+				
+			jsonput(tempJsonDevicesArrayQ, "items", tempJsonArrayQ);
+			//print tempJsonDevicesArrayQ;
+			
+			jsonput(jsonBody, "_setqSuiteArrayRef", tempJsonDevicesArrayQ); 
+	}
+//RI Array
+if(ReflexisAI <> "") {
+	totalSize2 = range(4);
+	for each3 in totalSize2 {
+		jsonput(tempJsonRI, "_index", each3);
+		jsonput(tempJsonDNamesRI, "value", false);
+		jsonput(tempJsonDNamesRI, "locked", true);
+		jsonput(tempJsonRI, "addAIRef", tempJsonDNamesRI);
+		jsonarrayappend(tempJsonArrayRI, tempJsonRI);
+	}
+	if(find(ReflexisAI,"~")<>-1) {
+			RI = split(ReflexisAI, "~");
+			for RINames in RI {
+				if(RINames == "RFX-AI-STAFF-PLAN") {
+					exeArray = 0;
+				}
+				if(RINames == "RFX-AI-BUDGET-PLAN") {
+					exeArray = 1;
+				}
+				if(RINames == "RFX-AI-PERF-MGR") {
+					exeArray = 2;
+				}
+				if(RINames == "RFX-AI DECISIONS")  {
+					exeArray = 3;
+				}
+				/*if(RINames == "RFX-AI DECISIONS") {
+					exeArray = 3;
+				}*/
+				if(RINames <> "RFX-AI-STAFF-PLAN" AND RINames <> "RFX-AI-BUDGET-PLAN" AND RINames <> "RFX-AI-PERF-MGR" AND RINames <> "RFX-AI DECISIONS") {
+					print "ReflexisAI  column Inavlid Values - Start";
+						print quote;
+						reflexisAImessage    =  reflexisAImessage  + RINames + "is not a avalid value in column  ReflexisAI  in" + quote;
+						print reflexisAImessage;
+					print " ReflexisAI  column Inavlid Values - End";
+				}
+					recordSetq = bmql("select * from  _parts where part_display_number =$RINames");
+				for record in recordSetq {
+					allPartNumbers = allPartNumbers + "," + get(record, "part_number");
+				}
+				jsonput(tempJsonRI, "_index", exeArray);
+				jsonput(tempJsonDNamesRI, "value", true);
+				jsonput(tempJsonDNamesRI, "locked", true);
+				jsonput(tempJsonRI, "addAIRef", tempJsonDNamesRI);
+				jsonarrayappend(tempJsonArrayRI, tempJsonRI);
+				count1 = count1 + 1;
+			}
+	} else {
+		if(ReflexisAI == "RFX-AI-STAFF-PLAN") {
+					exeArray = 0;
+				}
+				if(ReflexisAI == "RFX-AI-PERF-MGR") {
+					exeArray = 2;
+				}
+				if(ReflexisAI == "RFX-AI-BUDGET-PLAN") {
+					exeArray = 1;
+				}
+				if(ReflexisAI == "RFX-AI DECISIONS")  {
+					exeArray = 3;
+				}
+				/*if(ReflexisAI == "RFX-AI DECISIONS") {
+					exeArray = 3;
+				}*/
+				if(ReflexisAI <> "RFX-AI-STAFF-PLAN" AND ReflexisAI <> "RFX-AI-BUDGET-PLAN" AND ReflexisAI <> "RFX-AI-PERF-MGR" AND ReflexisAI <> "RFX-AI DECISIONS") {
+					print "ReflexisAI  column Inavlid Values - Start";
+						print quote;
+						reflexisAImessage    =  reflexisAImessage  + ReflexisAI + "is not a avalid value in column  ReflexisAI  in" + quote;
+						print reflexisAImessage;
+					print " ReflexisAI  column Inavlid Values - End";
+				}
+					recordSetq = bmql("select * from  _parts where part_display_number =$ReflexisAI");
+				for record in recordSetq {
+					allPartNumbers = allPartNumbers + "," + get(record, "part_number");
+				}
+				jsonput(tempJsonRI, "_index", exeArray);
+				jsonput(tempJsonDNamesRI, "value", true);
+				jsonput(tempJsonDNamesRI, "locked", true);
+				jsonput(tempJsonRI, "addAIRef", tempJsonDNamesRI);
+				jsonarrayappend(tempJsonArrayRI, tempJsonRI);
+			}
+				
+			
+			jsonput(tempJsonDevicesArrayRI, "items", tempJsonArrayRI);
+			jsonput(jsonBody, "_setreflexisAIArrayRef", tempJsonDevicesArrayRI); 
+}
+//Appointments
+if(Appointments <> "") {
+		jsonput(tempJsonRA, "_index", 0);
+		jsonput(tempJsonDNamesRI, "value", true);
+		jsonput(tempJsonDNamesRI, "locked", true);
+		jsonput(tempJsonRA, "addRefAppRef", tempJsonDNamesRI);
+		jsonarrayappend(tempJsonArrayRA, tempJsonRA);
+		
+		jsonput(tempJsonDevicesArrayRA, "items", tempJsonArrayRA);
+		jsonput(jsonBody, "_setreflexisAppointmentArrayRef", tempJsonDevicesArrayRA); 
+		if(Appointments <> "RFX-APPOINTMENTS") {
+				appointmentMessage = Appointments + "is not a valid value for" + quote;
+		}
+		recordSetq = bmql("select * from  _parts where part_display_number = 'RFX-APPOINTMENTS'");
+				for record in recordSetq {
+					allPartNumbers = allPartNumbers + "," + get(record, "part_number");
+				}
+	}
+	
+//Clocks Array
+
+
+if(Clocks <> "") {
+	totalSize5 = range(7);
+	for each3 in totalSize5 {
+		jsonput(tempJsonClocks, "_index", each3);
+		jsonput(tempJsonDNamesClocks, "value", false);
+		jsonput(tempJsonDNamesClocks, "locked", true);
+		jsonput(tempJsonClocks, "addClocks1Ref", tempJsonDNamesClocks);
+		jsonarrayappend(tempJsonArrayClocks , tempJsonClocks);
+	}
+	if(find(Clocks,"~")<>-1) {
+			clocks1 = split(Clocks, "~");
+			for RINames in clocks1 {
+				if(RINames == "RFX-TCLOCKS-FAC-REC")  {
+					exeArray = 0;
+				}
+				if(RINames == "RFX-MOB-CLOCKS") {
+					exeArray = 2;
+				}
+				if(RINames == "RFX-SW-PC-CLOCKS") {
+					exeArray = 3;
+				}
+				if(RINames == "RFX-WEB-CLOCKS") {
+					exeArray = 5;
+				}
+				if(RINames <> "RFX-TCLOCKS-FAC-REC" AND RINames <> "RFX-MOB-CLOCKS" AND RINames <> "RFX-SW-PC-CLOCKS" AND RINames <> "RFX-WEB-CLOCKS") {
+					print "Clocks  column Inavlid Values - Start";
+						print quote;
+						clockMessage     =  clockMessage   + RINames + "is not a avalid value in column  Clocks  in" + quote;
+						print clockMessage ;
+					print " Clocks  column Inavlid Values - End";
+				}
+				recordSetq = bmql("select * from  _parts where part_display_number =$RINames");
+				for record in recordSetq {
+					allPartNumbers = allPartNumbers + "," + get(record, "part_number");
+				}
+				jsonput(tempJsonClocks, "_index", exeArray);
+				jsonput(tempJsonDNamesClocks, "value", true);
+				jsonput(tempJsonDNamesClocks, "locked", true);
+				jsonput(tempJsonClocks, "addClocks1Ref", tempJsonDNamesClocks);
+				jsonarrayappend(tempJsonArrayClocks, tempJsonClocks);
+				count1 = count1 + 1;
+			}
+	} else {
+		if(Clocks == "RFX-TCLOCKS-FAC-REC")  {
+					exeArray = 0;
+				}
+				if(Clocks == "RFX-MOB-CLOCKS") {
+					exeArray = 2;
+				}
+				if(Clocks == "RFX-SW-PC-CLOCKS") {
+					exeArray = 3;
+				}
+				if(Clocks == "RFX-WEB-CLOCKS") {
+					exeArray = 5;
+				}
+				if(Clocks <> "RFX-TCLOCKS-FAC-REC" AND Clocks <> "RFX-MOB-CLOCKS" AND Clocks <> "RFX-SW-PC-CLOCKS" AND Clocks <> "RFX-WEB-CLOCKS") {
+					print "Clocks  column Inavlid Values - Start";
+						print quote;
+						clockMessage     =  clockMessage   + Clocks + "is not a avalid value in column  Clocks  in" + quote;
+						print clockMessage ;
+					print " Clocks  column Inavlid Values - End";
+				}
+				recordSetq = bmql("select * from  _parts where part_display_number =$Clocks");
+				for record in recordSetq {
+					allPartNumbers = allPartNumbers + "," + get(record, "part_number");
+				}
+				jsonput(tempJsonClocks, "_index", exeArray);
+				jsonput(tempJsonDNamesClocks, "value", true);
+				jsonput(tempJsonDNamesClocks, "locked", true);
+				jsonput(tempJsonClocks, "addClocks1Ref", tempJsonDNamesClocks);
+				jsonarrayappend(tempJsonArrayClocks, tempJsonClocks);
+			}
+				
+			
+			jsonput(tempJsonDevicesArrayClocks, "items", tempJsonArrayClocks);
+			jsonput(jsonBody, "_setclocksArrayRef", tempJsonDevicesArrayClocks); 
+}
+ //WorkForce Management ArraySet
+ if(WorkForceManagement <> "") {
+	totalSize7 = range(8);
+	for each7 in totalSize7 {
+		jsonput(tempJsonWS, "_index", each7);
+		jsonput(tempJsonDNamesWS, "value", false);
+		jsonput(tempJsonDNamesWS, "locked", true);
+		jsonput(tempJsonWS, "addWMRef", tempJsonDNamesWS);
+		jsonarrayappend(tempJsonArrayWS, tempJsonWS);
+	}
+	if(find(WorkForceManagement,"~")<>-1) {
+			WorkForceManag = split(WorkForceManagement, "~");
+			for wfc in WorkForceManag {
+				if(wfc == "RFX-WFM-SCHEDULER") {
+					exeArray = 0;
+					
+				}
+				if(wfc == "RFX-AAR-WFM") {
+					exeArray = 1;
+				}
+				if(wfc == "RFX-TA") {
+					exeArray = 2;
+				}
+				if(wfc == "RFX-AAR-TA") {
+					exeArray = 3;
+				}
+				if(wfc == "RFX-MOBILITY-WFM")  {
+					exeArray = 4;
+				}
+				if(wfc == "RFX-ESS-IOS-ANDROID")  {
+					exeArray = 6;
+				}
+				if(wfc == "RFX-ESS")  {
+					exeArray = 7;
+				}
+				if(wfc <> "RFX-AAR-WFM" AND wfc <> "RFX-WFM-SCHEDULER" AND wfc <> "RFX-TA" AND wfc <> "RFX-AAR-TA" AND wfc <> "RFX-MOBILITY-WFM" AND wfc <> "RFX-ESS-IOS-ANDROID" AND wfc <> "RFX-ESS") {
+					print "WorkForceManagement  column Inavlid Values - Start";
+						print quote;
+						wfmSchMessage     =  wfmSchMessage   + wfc + "is not a avalid value in column  WorkForceManagement  in" + quote;
+						print wfmSchMessage;
+					print " WorkForceManagement  column Inavlid Values - End";
+				}
+								recordSetq = bmql("select * from  _parts where part_display_number =$wfc");
+				for record in recordSetq {
+					allPartNumbers = allPartNumbers + "," + get(record, "part_number");
+				}
+				jsonput(tempJsonWS, "_index", exeArray);
+				jsonput(tempJsonDNamesWS, "value", true);
+				jsonput(tempJsonDNamesWS, "locked", true);
+				jsonput(tempJsonWS, "addWMRef", tempJsonDNamesWS);
+				jsonarrayappend(tempJsonArrayWS, tempJsonWS);
+				count1 = count1 + 1;
+			}
+	} else {
+				if(WorkForceManagement == "RFX-WFM-SCHEDULER") {
+					exeArray = 0;
+					print "Model";
+				}
+				if(WorkForceManagement == "RFX-AAR-WFM") {
+					exeArray = 1;
+				}
+				if(WorkForceManagement == "RFX-TA") {
+					exeArray = 2;
+				}
+				if(WorkForceManagement == "RFX-AAR-TA") {
+					exeArray = 3;
+				}
+				if(WorkForceManagement == "RFX-MOBILITY-WFM")  {
+					exeArray = 4;
+				}
+				if(WorkForceManagement == "RFX-ESS-IOS-ANDROID")  {
+					exeArray = 6;
+				}
+				if(WorkForceManagement == "RFX-ESS")  {
+					exeArray = 7;
+				}
+				if(WorkForceManagement <> "RFX-AAR-WFM" AND WorkForceManagement <> "RFX-WFM-SCHEDULER" AND WorkForceManagement <> "RFX-TA" AND WorkForceManagement <> "RFX-AAR-TA" AND WorkForceManagement <> "RFX-MOBILITY-WFM" AND WorkForceManagement <> "RFX-ESS-IOS-ANDROID" AND WorkForceManagement <> "RFX-ESS") {
+					print "WorkForceManagement  column Inavlid Values - Start";
+						print quote;
+						wfmSchMessage     =  wfmSchMessage   + WorkForceManagement + "is not a avalid value in column  WorkForceManagement  in" + quote;
+						print wfmSchMessage;
+					print " WorkForceManagement  column Inavlid Values - End";
+				}
+				recordSetq = bmql("select * from  _parts where part_display_number =$WorkForceManagement");
+				for record in recordSetq {
+					allPartNumbers = allPartNumbers + "," + get(record, "part_number");
+				}
+				jsonput(tempJsonWS, "_index", exeArray);
+				jsonput(tempJsonDNamesWS, "value", true);
+				jsonput(tempJsonDNamesWS, "locked", true);
+				jsonput(tempJsonWS, "addWMRef", tempJsonDNamesWS);
+				jsonarrayappend(tempJsonArrayWS, tempJsonWS);
+			}
+				
+			
+			jsonput(tempJsonDevicesArrayWS, "items", tempJsonArrayWS);
+			jsonput(jsonBody, "_setworkforceManagementArrayRef", tempJsonDevicesArrayWS); 
+}
+
+	
+	jsonput(jsonBody, "whereAreTheProductsBeingUsed_multiselectmenu", tempJson1);
+	
+	jsonput(tableDataFinal, "productFamily","zebraSaaS_ZS");
+	jsonput(tableDataFinal, "productLine" , "saasProducts_SP");
+	jsonput(tableDataFinal, "model", "reflexis");
+	jsonput(tableDataFinal, "configData", jsonBody);
+	jsonarrayappend(tableJsonArrayData, tableDataFinal);
+	jsonput(tableDat, "bsId", val);
+	jsonput(tableDat, "documentId", 68789581);
+	jsonput(tableDat, "items", tableJsonArrayData);
+	
+	print tableDat;
+	
+    	addModel = systemUrl + "/rest/v12/config/actions/_bulkAddToTxn";
+	results = urldata(addModel, "POST", headers, jsontostr(tableDat));
+	print results;
+	put(bsIdDict, bsId,quote);
+	tempArr = string[];
+	if(containskey(eachModelDict, bsId)){
+		tempArr = get(eachModelDict, bsId);
+		append(tempArr, modelLine);
+		put(eachModelDict, bsId,tempArr);
+	}else{
+		append(tempArr, modelLine);
+		put(eachModelDict, bsId, tempArr);
+	}
+	put(modelLineDict, modelLine + "###" + transId, bsId);
+	//print results;
+	/*linelevelurl = systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/"+ string(val) + "/transactionLine";
+	//saveUrl = systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/" + string(val) + "/actions/cleanSave_t";
+	results = urldata(linelevelurl, "GET", headers);
+	docNoArr = jsonpathgetmultiple(json(get(results,"Message-Body")), "$.items[?(@._model_segment_name == 'Zebra SaaS')]._document_number");
+	loop = range(jsonarraysize(docNoArr));
+	print "docNoArr-->";
+	print docNoArr;
+	for i in loop {
+		print docDict;
+			if(NOT(containskey(docDict, quote + jsonarrayget(docNoArr, i, "string")))){// AND findinarray(get(docDict, quote), modelLine) == -1){
+			append(testArr,modelLine);
+			put(docDict, quote + jsonarrayget(docNoArr, i, "string"), modelLine);
+			jsonput(transLinejsonBody, "Quote", get(each, "Quote"));
+			jsonput(transLinejsonBody, "ModelLine", modelLine);
+			jsonput(transLinejsonBody, "ModelDoc", jsonarrayget(docNoArr, i, "integer"));
+			jsonput(transLinejsonBody , "_sync_action","update");
+			jsonarrayappend(transLinejsonArr, transLinejsonBody);
+		}
+	}*/
+}
+			/*jsonput(datatableDat, "items", transLinejsonArr);
+			jsonput(datatableData, "documents", datatableDat);
+			responseData1  = urldata(systemUrl + "/rest/v9/adminCustom" + "TransactionLineData" + "/actions/synchronize","POST",headers,jsontostr(datatableData),5000);
+print "tableData-->";
+print datatableData;*/
+
+allQuotes = keys(bsIdDict);
+for eachId in allQuotes {
+	linelevelurl = systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/"+ eachId + "/transactionLine";
+	results = urldata(linelevelurl, "GET", headers);
+	parentdocNoArr = jsonpathgetmultiple(json(get(results,"Message-Body")), "$.items[?(@._model_segment_name == 'Zebra SaaS')]._document_number");
+	loop = range(jsonarraysize(parentdocNoArr));
+	tempArr = get(eachModelDict, eachId);
+	for i in loop{
+		quote = get(bsIdDict, eachId);
+		sublinedocNoArr = jsonpathgetmultiple(json(get(results,"Message-Body")), "$.items[?(@._parent_doc_number == " + jsonarrayget(parentdocNoArr, i, "string") + ")]._document_number");
+		print sublinedocNoArr;
+		lineloop = range(jsonarraysize(sublinedocNoArr));
+		for j in lineloop{
+			linedocNoArr = jsonpathgetmultiple(json(get(results,"Message-Body")), "$.items[?(@._parent_doc_number == " + jsonarrayget(sublinedocNoArr, j, "string") + ")]._document_number");
+			linepartNoArr = jsonpathgetmultiple(json(get(results,"Message-Body")), "$.items[?(@._parent_doc_number == " + jsonarrayget(sublinedocNoArr, j, "string") + ")]._part_number");
+			print linedocNoArr;
+			doclineloop = range(jsonarraysize(linedocNoArr));
+			for linedoc in doclineloop{
+				put(lineDict, quote + jsonarrayget(sublinedocNoArr, j, "string"), jsonarrayget(linedocNoArr, linedoc, "integer"));
+				jsonput(quoteLinejsonBody, "Quote", quote);
+				jsonput(quoteLinejsonBody, "Model", tempArr[i]);
+				jsonput(quoteLinejsonBody, "SKU", jsonarrayget(linepartNoArr, linedoc, "string"));
+				//jsonput(quoteLinejsonBody, "ModelName", "WorkForceConnect");
+				jsonput(quoteLinejsonBody, "ModelDoc", jsonarrayget(parentdocNoArr, i, "integer"));
+				jsonput(quoteLinejsonBody, "LineDoc", jsonarrayget(linedocNoArr, linedoc, "integer"));
+				
+				jsonput(quoteLinejsonBody , "_sync_action","update");
+				jsonarrayappend(quoteLineJsonArray, quoteLinejsonBody);
+			}
+		}
+		jsonput(transLinejsonBody, "Quote", quote);
+		jsonput(transLinejsonBody, "ModelLine", tempArr[i]);
+		jsonput(transLinejsonBody, "ModelDoc", jsonarrayget(parentdocNoArr, i, "integer"));
+		jsonput(transLinejsonBody , "_sync_action","update");
+		jsonarrayappend(transLinejsonArr, transLinejsonBody);
+	}	
+}
+jsonput(datatableDat, "items", transLinejsonArr);
+jsonput(datatableData, "documents", datatableDat);
+responseData1  = urldata(systemUrl + "/rest/v9/adminCustom" + "Reflexis_QuoteLines" + "/actions/synchronize","POST",headers,jsontostr(datatableData),5000);
+
+jsonput(quoteLineItems, "items", quoteLineJsonArray);
+jsonput(quoteLineTableData, "documents", quoteLineItems);
+
+responseData2  = urldata(systemUrl + "/rest/v9/adminCustom" + "QuotePricngReflexis" + "/actions/synchronize","POST",headers,jsontostr(quoteLineTableData),5000);
+print lineDict;
+
+print "MainDOc-->";
+print datatableData;
+//print responseData1;
+
+print "LineDoc-->";
+print quoteLineTableData;
+print responseData2;
+sizeArray = range(jsonarraysize(quoteLineJsonArray));
+displaynum = "";
+print allPartNumbers ;
+reSet = bmql("select * from QuotePricngReflexis");
+for each in reSet {
+	//localJson = jsonarrayget(quoteLineJsonArray, each, "json");
+	//SKU = jsonget(localJson ,"SKU");
+	//quote1 = jsonget(localJson ,"Quote");
+	SKU = get(each, "SKU");
+	quote1  = get(each, "Quote");
+	quote2 = SKU + quote1;
+	if(find(allPartNumbers , quote2) == -1) {
+	//print quote2;
+		recordSet = bmql("select * from  _parts where part_number =$SKU");
+		for record in recordSet{
+			displaynum = displaynum + "," + get(record, "part_display_number");
+		}
+		message = quote2 + "is not valid Part/not exist in Quote Pricing Table";
+		print message;
+	}
+}
+return "";

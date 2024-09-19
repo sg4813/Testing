@@ -1,0 +1,11 @@
+{
+  "name" : "Transaction Currency",
+  "variableName" : "transactionCurrency",
+  "description" : "Sets the value for the transaction currency to the internal currency value set at the time of transaction creation. Subsequent modification of the transaction currency is not supported in the BASE Reference Application.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ "_system_current_document_currency_pref" ]
+}

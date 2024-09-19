@@ -1,0 +1,35 @@
+/*
+xmlString	(string)
+tag			(string)
+*/
+result = "";
+
+//tag = "bm:success";
+//xmlString = "12345<bm:success>true</bm:success>12345";
+
+openTag = "<" + tag + ">";
+closeTag = "</" + tag + ">";  
+tagValue = "";
+
+startIndex = 0;
+endIndex = 0;
+
+if(find(xmlString, openTag) > -1){
+	startIndex = find(xmlString, openTag) + len(openTag);
+}
+if(find(xmlString, openTag) > -1){
+	endIndex = find(xmlString, closeTag);
+}
+
+print "startIndex: " + string(startIndex);
+print "endIndex: " + string(endIndex);
+
+if(endIndex > startIndex){
+	tagValue = substring(xmlString, startIndex, endIndex);
+}
+
+print "tagValue: " + tagValue;
+
+result = tagValue;
+
+return result;

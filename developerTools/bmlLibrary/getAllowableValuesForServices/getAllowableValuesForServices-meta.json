@@ -1,0 +1,21 @@
+{
+  "name" : "Get Allowable Values for Services",
+  "variableName" : "getAllowableValuesForServices",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String[]",
+  "parameters" : [ {
+    "name" : "AttributeName",
+    "type" : "String"
+  }, {
+    "name" : "ServicesJson",
+    "type" : "String"
+  }, {
+    "name" : "ServicesColumnSequence",
+    "type" : "String"
+  }, {
+    "name" : "PrecedentValue",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

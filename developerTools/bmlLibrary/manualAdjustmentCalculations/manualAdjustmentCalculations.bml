@@ -1,0 +1,37 @@
+/*
+*@description = FinalDiscount Based on Billing Frequency
+*@return = String
+*@author = Tejasvi
+*/
+
+indices = range(jsonarraysize(inputJsonArray));
+finalJsonArray = jsonarray();
+basePrice = get(inputDict, "BasePrice");
+yearDict = dict("string");
+put(yearDict, 1, "Year1");
+put(yearDict, 2, "Year2");
+put(yearDict, 3, "Year3");
+put(yearDict, 4, "Year4");
+put(yearDict, 5, "Year5");
+
+for index in indices {
+	inputJson = jsonarrayget(inputJsonArray, index, "json");
+	discountType = jsonget(inputJson, "oRCL_manual_adjustmentType_l");
+	discountValue = jsonget(inputJson, "oRCL_manual_adjustmentValue_l", "float");
+	finalPrice = atof(basePrice);
+	
+	if(discountType == "ORA_DISCOUNT_PERCENT") {
+		finalPrice = finalPrice * (1 - (discountValue / 100));
+	} elif(discountType == "ORA_PRICE_OVERRIDE") {
+		finalPrice = discountValue;
+	} elif(discountType == "ORA_MARKUP_PERCENT") {
+		finalPrice = finalPrice * ((discountValue/100) + 1);
+	} 
+	jsonput(inputJson, "finalPrice_l", finalPrice);
+	jsonput(inputJson, "oRCL_manual_adjustmentYear_l", get(yearDict, index + 1));
+	
+	jsonarrayappend(finalJsonArray, inputJson);
+}
+retStr = jsonarraytostr(finalJsonArray);
+//retStr = jsonarrayrefid(finalJsonArray);
+return retStr;

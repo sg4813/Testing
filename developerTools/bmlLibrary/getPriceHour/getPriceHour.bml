@@ -1,0 +1,12 @@
+listprice_hour=0.0;
+
+ results = bmql("select List_Price from PS_PerHour_Price WHERE Role_Type=$emprole and Org= $Location ");
+ 
+ 
+    for result in results {
+        listprice_hour=atof( get(result, "List_Price"));
+        
+       
+    }
+    
+return listprice_hour;

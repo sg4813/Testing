@@ -1,0 +1,15 @@
+{
+  "name" : "Get HTML table values-Supplies",
+  "variableName" : "getHTMLTableValuesSupplies",
+  "description" : "Created by: Jayaram\nDescription: To get the values for the HTML table from Supplies Json data",
+  "libraryFunctions" : [ ],
+  "returnType" : "String[]",
+  "parameters" : [ {
+    "name" : "AttributeName",
+    "type" : "String"
+  }, {
+    "name" : "suppliesJsonStr",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

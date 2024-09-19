@@ -1,0 +1,16 @@
+lineItemJson = json();
+lineItemJsonArray = jsonArray();
+retVal = "";
+
+for each in transactionLine {
+	if(each._part_custom_field11 == "Shell") {
+		partNumber = each._part_number;
+		actionCode = each.oRCL_ABO_ActionCode_l;
+		jsonput(lineItemJson, "partNumber",  partNumber);
+		jsonput(lineItemJson, "actionCode",  actionCode);
+		jsonarrayappend(lineItemJsonArray, lineItemJson);
+	}
+}
+finalVal = jsonarraytoStr(lineItemJsonArray);
+retVal = retVal + "1~partNumber_actionCode_string~" + finalVal + "|";
+return retVal;

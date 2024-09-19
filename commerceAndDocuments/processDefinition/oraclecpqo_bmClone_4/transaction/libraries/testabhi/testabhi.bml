@@ -1,0 +1,7 @@
+for each in transactionLine
+{
+	print getconfigattrvalue("2", "partNumberShoppingCart");
+	//print each._document_number;
+
+}
+return "";

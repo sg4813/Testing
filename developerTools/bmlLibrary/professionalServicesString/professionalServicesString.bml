@@ -1,0 +1,29 @@
+retVal = "";
+Productjson = json();
+
+jsonput(Productjson, "parentproductname", "WFC Professional Services");
+jsonput(Productjson, "productname", PartNumber);
+jsonput(Productjson, "configurablePrice", 0);
+
+jsonput(Productjson, "AnnualPrice", Price);
+jsonput(Productjson, "partnerBaseAnnualPrice", PartnerBasePrice);
+jsonput(Productjson, "TotalPrice", Price);
+jsonput(Productjson, "PerUsermonthlyPrice", 0);
+jsonput(Productjson, "PricePerDevicePerMonth", 0);
+jsonput(Productjson, "PartNumber", PartNumber);
+jsonput(Productjson, "Qunatity", 1);
+jsonput(Productjson, "ParenPart", "No");
+jsonput(Productjson, "PartnerDiscountEligibility", DiscountEligibility);
+jsonput(Productjson, "MaxDiscount", MaxDiscount);
+if(PartNumber == "WFC Custom Professional Services") {
+	jsonput(Productjson, "CustomQuote", "Custom Quote Required");
+} else {
+	jsonput(Productjson, "CustomQuote", "No");
+}
+if(PartNumber == "WFC Voice & PTT Professional Services") {
+	jsonput(Productjson, "product", "ProfessionalServicespv");
+} else {
+	jsonput(Productjson, "product", "ProfessionalServices");
+}
+
+return jsontostr(Productjson);

@@ -1,0 +1,14 @@
+{
+  "name" : "Email Trigger For Quote Owner",
+  "variableName" : "emailTriggerForQuoteOwner",
+  "description" : "JIRA Reference\t: CCZC-6226\nDescription  : This function is to trigger email to quote owner during every approval flow",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "Action_Code",
+    "type" : "String"
+  } ],
+  "subDocAttributes" : [ ],
+  "mainDocAttributes" : [ "ownerLogin_t", "createdByEmail", "approval_history_submit_t", "bs_id", "testAttributeForApprovalUser", "region_t", "approval_status_submit_t", "status_t", "fetchPrerelease", "optyLogin" ],
+  "systemAttributes" : [ "_system_supplier_company_name" ]
+}

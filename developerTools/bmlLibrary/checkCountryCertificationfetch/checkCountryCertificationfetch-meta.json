@@ -1,0 +1,21 @@
+{
+  "name" : "Check Country Certification -- Fetch",
+  "variableName" : "checkCountryCertificationfetch",
+  "description" : "Abhishek: 11/17/19:Added for new country certification logic.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "AccountNumber",
+    "type" : "String"
+  }, {
+    "name" : "shipToCountry",
+    "type" : "String"
+  }, {
+    "name" : "additionalItems",
+    "type" : "String[]"
+  }, {
+    "name" : "AccountType",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

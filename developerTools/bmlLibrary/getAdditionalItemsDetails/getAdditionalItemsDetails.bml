@@ -1,0 +1,157 @@
+ret = json();
+arraySku = string[];
+jsonarrayAccessories = jsonarray();
+jsonarraySoftware = jsonarray();
+
+strJsonModel = get(ConfigurationData,"Accessories");
+if(strJsonModel <> "")
+{ 
+	jsonArrayModel = jsonarray(strJsonModel);
+	jsonArrayModelOutput = Jsonarray();
+	nCount = range(jsonarraysize(jsonArrayModel));
+	print "Accessories";
+	print nCount;
+	
+	for each in nCount
+	{
+		jsonTemp = json(jsonarrayget(jsonArrayModel,each));	
+		print "inside loop";
+		print jsonTemp;
+		strSku = jsonget(jsonTemp,"Sku Number");
+		jsonTemp1 = json();
+		print strSku;
+		
+		if(containskey(ItemData,strSku))
+		{
+			append(arraySku,strSku);
+		}
+	}
+}
+
+strJsonModel = get(ConfigurationData,"Software");
+if(strJsonModel  <> "")
+{
+	jsonArrayModel = jsonarray(strJsonModel);
+	jsonArrayModelOutput = Jsonarray();
+	nCount = range(jsonarraysize(jsonArrayModel));
+	
+	for each in nCount
+	{
+		jsonTemp = json(jsonarrayget(jsonArrayModel,each));	
+		print jsonTemp;
+		strSku = jsonget(jsonTemp,"Sku Number");
+		jsonTemp1 = json();
+		print strSku;
+		
+		if(containskey(ItemData,strSku))
+		{
+			append(arraySku,strSku);
+		}
+	}
+}
+print "Aditional Item";
+print get(ConfigurationData,"Software");
+print get(ConfigurationData,"Accessories");
+print arraySku;
+strJsonModel = get(ConfigurationData,"Accessories");
+jsonArrayModelAccess  = jsonarray();
+if(strJsonModel  <> "")
+{
+	jsonArrayModelAccess = jsonarray(strJsonModel);
+}
+
+strJsonModel = get(ConfigurationData,"Software");
+jsonArrayModelSoftware = jsonarray();
+if(strJsonModel  <> "")
+{
+	jsonArrayModelSoftware = jsonarray(strJsonModel);
+}
+
+jsonTemp = json();
+jsonTemp1 = json();
+
+rs = bmql("Select Category,SubCategory,Description,StdConfiguration from AdditionalItems_ML where StdConfiguration IN $arraySku AND Language = $Language");
+
+for each in rs
+{
+	strPartNumber = get(each,"StdConfiguration");
+	strCategory = get(each,"Category");
+	
+	if(strCategory == "Accessories")
+	{
+		nCount = range(jsonarraysize(jsonArrayModelAccess));
+		
+		for each1 in nCount
+		{
+			jsonTemp = json();
+			jsonTemp = json(jsonarrayget(jsonArrayModelAccess,each1));
+			if(jsonget(jsonTemp,"Sku Number") == strPartNumber)
+			{
+				jsonput(jsonTemp1,"Parent Sku", jsonget(jsonTemp,"Parent Sku"));
+				jsonput(jsonTemp1,"Part Number",strPartNumber);
+				jsonput(jsonTemp1,"Recommended", jsonget(jsonTemp,"Recommended"));
+				jsonput(jsonTemp1,"Accessories","Accessories");
+				jsonput(jsonTemp1,"SubCategory",jsonget(jsonTemp,"SubCategory"));
+				jsonput(jsonTemp1,"SubCategory Language", get(each,"SubCategory"));
+				jsonput(jsonTemp1,"Description", get(each,"Description"));
+				if(containskey(ItemData,strPartNumber))
+				{
+					tempPricingDict = get(ItemData,strPartNumber);
+					jsonput(jsonTemp1,"Price",get(tempPricingDict,"PriceList"));
+					jsonput(jsonTemp1,"ErrorCode",get(tempPricingDict,"ErrorCode"));
+				}
+				jsonarrayappend(jsonarrayAccessories,jsonTemp1);
+				
+			}
+		}
+	}
+	elif(strCategory == "Software")
+	{
+		nCount = range(jsonarraysize(jsonArrayModelSoftware));
+		
+		for each1 in nCount
+		{
+			jsonTemp = json();
+			jsonTemp = json(jsonarrayget(jsonArrayModelSoftware,each1));
+			if(jsonget(jsonTemp,"Sku Number") == strPartNumber)
+			{
+				jsonput(jsonTemp1,"Parent Sku", jsonget(jsonTemp,"Parent Sku"));
+				jsonput(jsonTemp1,"Part Number",strPartNumber);
+				jsonput(jsonTemp1,"Recommended", jsonget(jsonTemp,"Recommended"));
+				jsonput(jsonTemp1,"Accessories","Software");
+				jsonput(jsonTemp1,"SubCategory",jsonget(jsonTemp,"SubCategory"));
+				jsonput(jsonTemp1,"SubCategory Language", get(each,"SubCategory"));
+				jsonput(jsonTemp1,"Description", get(each,"Description"));
+				if(containskey(ItemData,strPartNumber))
+				{
+					tempPricingDict = get(ItemData,strPartNumber);
+					jsonput(jsonTemp1,"Price",get(tempPricingDict,"PriceList"));
+					jsonput(jsonTemp1,"ErrorCode",get(tempPricingDict,"ErrorCode"));
+				}
+				jsonarrayappend(jsonarraySoftware,jsonTemp1);
+				
+			}
+		}
+	}
+	
+}
+
+if(jsonarraysize(jsonarraySoftware) > 0)
+{
+	jsonput(ret,"Software",jsonarraytostr(jsonarraySoftware));
+}
+else
+{
+	jsonput(ret,"Software","");
+}
+
+if(jsonarraysize(jsonarrayAccessories) > 0)
+{
+	jsonput(ret,"Accessories",jsonarraytostr(jsonarrayAccessories));
+}
+else
+{
+	jsonput(ret,"Accessories","");
+}
+
+return ret;

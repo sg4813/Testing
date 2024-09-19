@@ -1,0 +1,24 @@
+ret = string[];
+strCountryISO = get(Inputs,"CountryISO");
+strCountry = "";
+strRegion = "";
+eligibleProductFamily = string[];
+strOrganization  = get(Inputs,"Organization");
+strSource = get(Inputs,"Source");
+rs = recordset();
+
+rs = bmql("Select Country,Region from Region_Country_Rel where ISO_Code = $strCountryISO");
+for each in rs
+{
+	strCountry = get(each,"Country");
+	strRegion = get(each,"Region");	
+}
+rs = bmql("Select * from DREligibilityRel where ProductFamily IN $ProductFamily AND Organization = $strOrganization  AND (Eligible = '1' OR Eligible = 'TRUE') AND (Country = $strCountry OR Region = $strRegion)");
+
+for each in rs
+{
+	append(ret,get(each,"ProductFamily"));
+}
+
+
+return ret;

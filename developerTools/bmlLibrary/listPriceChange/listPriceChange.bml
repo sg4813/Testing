@@ -1,0 +1,18 @@
+retString = "";
+ret = jsonarray();
+retInput = jsonarray(Inputs);
+nCount = range(jsonarraysize(retInput));
+
+for each in nCount
+{
+	tempJson = json(jsonarrayget(retInput,each));
+	tempListPrice = jsonget(tempJson,ListPrice);
+	jsonput(tempJson,NetPrice,tempListPrice);
+	jsonarrayappend(ret,tempJson);	
+}
+if(jsonarraysize(ret) > 0)
+{
+	retString = jsonarraytostr(ret);
+}
+
+return retString;

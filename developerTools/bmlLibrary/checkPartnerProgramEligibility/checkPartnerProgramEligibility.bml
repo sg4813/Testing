@@ -1,0 +1,293 @@
+ret = dict("dict<string>");
+PricingSkuArray = string[];
+strjsonArraySkuDetails = get(ItemDetails,"Sku Details");
+jsonArraySkuDetails = jsonarray();
+if(len(strjsonArraySkuDetails) > 0)
+{
+	jsonArraySkuDetails = jsonarray(strjsonArraySkuDetails);	
+}
+else
+{
+	return ret;
+}
+arrayPG = string[];
+arraySku = string[];
+strPurchasingMethod = get(Account,"Purchasing Method");
+strDirectMembership = get(Account,"Direct Membership");
+strIndirectMembership = get(Account,"Indirect Membership");
+strPriceList = get(Account,"Price List");
+strOrganization = get(Account,"Organization");
+strTerritory = get(Account,"Territory");
+arrayQuery = string[];
+arrayDirect = string[];
+arrayIndirect = string[];
+NetPriceSku = string[]; 
+if(strPurchasingMethod == "Direct")
+{
+	arrayDirect = split(strDirectMembership,"|^|");
+	arrayQuery = split(strDirectMembership,"|^|");
+}
+elif(strPurchasingMethod == "Both")
+{
+	arrayDirect = split(strDirectMembership,"|^|");
+	arrayQuery = split(strDirectMembership,"|^|");
+	arrayIndirect = split(strIndirectMembership,"|^|");
+	for each in arrayIndirect
+	{
+		append(arrayQuery,each);
+	}
+}
+elif(strPurchasingMethod == "Indirect")
+{
+	arrayIndirect = split(strIndirectMembership,"|^|");
+	for each in arrayIndirect
+	{
+		append(arrayQuery,each);
+	}
+}
+elif(strPurchasingMethod == "Internal User")
+{
+	print "inside internal user";
+	ret = util.getListPriceSKU(Account,ItemDetails,NetPriceSku,"");
+	return ret;
+}
+elif(strPurchasingMethod == "End User")
+{
+	print "inside End user";
+	ret = util.getPriceForEndUserNew(Account,ItemDetails);
+	return ret;
+}
+else
+{
+	return ret;
+}
+
+strjsonArrayChkProgElig = get(ItemDetails,"Check Elig");
+jsonArrayChkProgElig = jsonarray();
+print "len(strjsonArrayChkProgElig)";
+print len(strjsonArrayChkProgElig);
+if(len(strjsonArrayChkProgElig) == 0)
+{
+	//jsonArrayChkProgElig = jsonarray(strjsonArrayChkProgElig);
+	
+	ret = util.sKUPriceCalculation(Account,ItemDetails,PricingSkuArray);
+	return ret;
+}
+ChkProgEligSku = string[];
+outputChkProgEligSku = dict("dict<string>");
+nCount = range(jsonarraysize(jsonArraySkuDetails));
+for each in nCount
+{
+	jsonTemp = json(jsonarrayget(jsonArraySkuDetails,each));
+	strPG = jsonget(jsonTemp,"Price Group");
+	strChkProgElig = jsonget(jsonTemp,"Program Eligibility");
+	strSku = jsonget(jsonTemp,"Sku Number");
+	print strSku;
+	print strChkProgElig;
+	if(strChkProgElig == "Y")
+	{
+		if(findinarray(arrayPG,strPG) == -1)
+		{
+			append(arrayPG,strPG);
+		}
+		if(findinarray(arraySku,strSku) == -1)
+		{
+			append(arraySku,strSku);
+		}
+	}
+	else
+	{
+		if(findinarray(NetPriceSku,strSku) == -1)
+		{
+			append(NetPriceSku,strSku);
+		}
+	}
+	
+}
+print "NetPriceSku";
+print NetPriceSku;
+print "arraySku";
+print arraySku;
+// array for ChkProgEligSku = "N";
+if(sizeofarray(NetPriceSku) > 0 AND sizeofarray(arrayPG) == 0)
+{
+	outputChkProgEligSku = util.sKUPriceCalculation(Account,ItemDetails,ChkProgEligSku);
+	return outputChkProgEligSku;
+}
+dCurrentDate = getDate();
+rs = bmql("Select PartnerProgram,PriceGroup,EffectiveFrom,EffectiveTo from Eligibility_Matrix where PriceGroup IN $arrayPG Order by PriceGroup");
+bFlag = true;
+QueryPG = string[];
+for each in rs
+{
+		dStartDate = strtojavadate(get(each,"EffectiveFrom"), "MM/dd/yyyy HH:mm:ss","America/New_York");
+		dEndDate = getdate();
+		strEndDate = get(each,"EffectiveTo");
+		if(strEndDate <> "")
+		{
+			dEndDate = strtojavadate(strEndDate, "MM/dd/yyyy HH:mm:ss","America/New_York");
+		}
+		if(comparedates(dCurrentDate,dStartDate ) <> -1 AND (strEndDate == "" OR comparedates(dEndDate,dCurrentDate ) <> -1))
+		{
+			bFlag = false;
+			if(findinarray(QueryPG,get(each,"PriceGroup")) == -1)
+			{
+				append(QueryPG,get(each,"PriceGroup"));
+			}
+		}
+}
+//when no active records present for Price group
+print "bFlag";
+print bFlag;
+if(bFlag)
+{
+	print "inside PG is not availble.";
+	ret = util.sKUPriceCalculation(Account,ItemDetails,PricingSkuArray);
+	return ret;
+}
+// PG for those no active record is present
+notfoundQueryPG = string[];
+for each in arrayPG
+{
+	if(findinarray(QueryPG,each) == -1)
+	{
+		append(notfoundQueryPG,each);
+	}
+}
+dictPG = dict("dict<string>");
+arrayListPricePG = string[];
+arrayNetPricePG = string[];
+arrayIndirectListPricePG = string[];
+for PG in QueryPG
+{
+	arrayTempPP = string[];
+	for each in rs
+	{
+		dStartDate = strtojavadate(get(each,"EffectiveFrom"), "MM/dd/yyyy HH:mm:ss","America/New_York");
+		dEndDate = getdate();
+		strEndDate = get(each,"EffectiveTo");
+		if(strEndDate <> "")
+		{
+			dEndDate = strtojavadate(strEndDate, "MM/dd/yyyy HH:mm:ss","America/New_York");
+		}
+		if(comparedates(dCurrentDate,dStartDate ) <> -1 AND (strEndDate == "" OR comparedates(dEndDate,dCurrentDate ) <> -1) AND get(each,"PriceGroup") == PG)
+		{
+			if(findinarray(arrayQuery,get(each,"PartnerProgram")) > -1 AND findinarray(arrayTempPP,get(each,"PartnerProgram")) == -1)
+			{
+				append(arrayTempPP,get(each,"PartnerProgram"));
+			}
+			
+		}
+	}
+	print "arrayTempPP";
+	print arrayTempPP;
+	// arrayTempPP of Partner program which have active records.
+	if(sizeofarray(arrayTempPP) > 0)
+	{
+		bIndirect = true;
+		for each1 in arrayTempPP
+		{
+			if(findinarray(arrayDirect,each1) <> -1)
+			{
+				append(arrayNetPricePG,PG);
+				bIndirect = false;			
+			}
+		}
+		if(bIndirect)
+		{
+			append(arrayListPricePG,PG);
+		}
+		print arrayListPricePG;
+	}
+	else
+	{
+		append(arrayIndirectListPricePG,PG);
+	}
+}
+
+notfoundQuerysku = string[];
+notEligListPriceSku = string[];
+IndirectListPriceSku = string[];
+print "arrayIndirectListPricePG";
+print arrayIndirectListPricePG;
+print "notfoundQueryPG";
+print notfoundQueryPG;
+print "arrayIndirectListPricePG";
+
+nCount = range(jsonarraysize(jsonArraySkuDetails));
+for each in nCount
+{
+	jsonTemp = json(jsonarrayget(jsonArraySkuDetails,each));
+	strSku = jsonget(jsonTemp,"Sku Number");
+	strPG = jsonget(jsonTemp,"Price Group");
+	print "sku distribution";
+	print strPG;
+	print findinarray(arrayListPricePG,strPG);
+	if(findinarray(arraySku,strSku) <> -1)
+	{
+		if(findinarray(notfoundQueryPG,strPG) <> -1)
+		{
+			append(NetPriceSku,strSku);
+		}
+		//in this case, no combination found between PG and membership
+		elif(findinarray(arrayIndirectListPricePG,strPG) <> -1)
+		{
+			append(notEligListPriceSku,strSku);			
+		}
+		//in this case, Indirect combination found between PG and membership
+		elif(findinarray(arrayListPricePG,strPG) <> -1)
+		{
+			append(IndirectListPriceSku,strSku);
+		}
+		else
+		{
+			append(NetPriceSku,strSku);
+		}
+	}
+	
+}
+print "IndirectListPriceSku";
+print IndirectListPriceSku;
+print "notEligListPriceSku";
+print notEligListPriceSku;
+print "NetPriceSku";
+print NetPriceSku;
+output = dict("dict<string>");
+if(sizeofarray(NetPriceSku) > 0)
+{
+	output = dict("dict<string>");
+	output = util.sKUPriceCalculation(Account,ItemDetails,NetPriceSku);
+	for each in NetPriceSku
+	{
+		tempdict = get(output,each);
+		put(ret,each,tempdict);
+	}
+	print "inside net price sku";
+	print ret;
+}
+if(sizeofarray(notEligListPriceSku) > 0)
+{
+	output = dict("dict<string>");
+	output = util.getListPriceSKU(Account,ItemDetails,notEligListPriceSku,"Different");
+	for each in notEligListPriceSku
+	{
+		tempdict = get(output,each);
+		put(ret,each,tempdict);
+	}
+	print "inside notEligListPriceSku";
+	print ret;
+}
+if(sizeofarray(IndirectListPriceSku) > 0)
+{
+	output = dict("dict<string>");
+	output = util.getListPriceSKU(Account,ItemDetails,IndirectListPriceSku,"Same");
+	for each in IndirectListPriceSku
+	{
+		tempdict = get(output,each);
+		put(ret,each,tempdict);
+	}
+	print "inside IndirectListPriceSku";
+	print ret;
+}
+
+return ret;

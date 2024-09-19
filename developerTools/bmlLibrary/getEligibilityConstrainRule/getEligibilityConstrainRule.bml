@@ -1,0 +1,52 @@
+strWhere = string[];
+arrayColumn = string[];
+
+rs = recordset();
+if(Source == "CPQ")
+{
+	rs = bmql("Select ColumnName, ColumnValue from Item_Eligibility where CPQ = 'Y' Order by ColumnName");
+}
+elif(Source == "OCC")
+{
+	rs = bmql("Select ColumnName, ColumnValue from Item_Eligibility where OCC = 'Y' Order by ColumnName");
+}
+for each in rs
+{
+	strColumnName = get(each,"ColumnName");
+	
+	if(findinarray(arrayColumn,strColumnName) == -1)
+	{
+		append(arrayColumn,strColumnName);		
+	}
+	
+}
+
+
+
+for each in arrayColumn
+{
+	sbTemp = stringbuilder();
+	for each1 in rs
+	{
+		strColumnName = get(each1,"ColumnName");
+		if(each == strColumnName)
+		{
+			if(sbtostring(sbTemp) == "")
+			{
+				//strTemp = each + " = '" + get(each1,"ColumnValue") +"'";
+				sbappend(sbTemp,each," = '" ,get(each1,"ColumnValue"),"'");
+			}
+			else
+			{
+				//strTemp = strTemp + " OR " + each + " = '" + get(each1,"ColumnValue") +"'";
+				sbappend(sbTemp," OR ",each," = '" ,get(each1,"ColumnValue"),"'");
+			}
+		}
+	}
+	//strTemp = "( " + strTemp + " )";
+	strTemp = "(" + sbtostring(sbTemp) + ")";
+	append(strWhere,strTemp);
+}
+
+//print strWhere;
+return strWhere;

@@ -1,0 +1,24 @@
+{
+  "name" : "Get IC Cabinet Details",
+  "variableName" : "getICCabinetDetails",
+  "description" : "",
+  "libraryFunctions" : [ "util.zebraExternalPricingnew" ],
+  "returnType" : "Json",
+  "parameters" : [ {
+    "name" : "ConfigurationData",
+    "type" : "String"
+  }, {
+    "name" : "SkuTypeDictArray",
+    "type" : "Integer[] Dictionary"
+  }, {
+    "name" : "CabinetSize",
+    "type" : "String[]"
+  }, {
+    "name" : "Region",
+    "type" : "String"
+  }, {
+    "name" : "AccountId",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

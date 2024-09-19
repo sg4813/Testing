@@ -1,0 +1,487 @@
+retVal = "";
+actionCodeFlag = false;
+flag = false;
+flag1 = false;
+discountFlagReflixis = false;
+flag2 = false;
+flag3 = false;
+parentFlag = false;
+refFlag = false;
+psFlag = false;
+//ZEB_parentLevelFlagReflexis = false;
+actionCodeFlagps = false;
+sowFlagReflexis = false;
+setRenewFlagDictionary = dict("string");
+setRenewFlagDictionary1 = dict("string");
+bilVal = 0.0;
+psOfferingWfc = "";
+part = "";
+part1 = "";
+
+//gold silver bronze
+
+pttGoldFlag=false;
+pttSilverFlag=false;
+pttBronzeFlag=false;
+
+voiceGoldFlag=false;
+voiceSilverFlag=false;
+voiceBronzeFlag=false;
+
+pttVoiceGoldFlag=false;
+pttVoiceSilverFlag=false;
+pttVoiceBronzeFlag=false;
+
+pttBasicFlag = false;
+voiceBasicFlag = false;
+pttVoiceBasicFlag = false;
+
+
+for each in transactionLine {
+	orgDocNum = 0;
+	val = each.oRCL_ABO_ActionCode_l;
+	val1 = each._document_number;
+	valDocNum = each._document_number;
+	rfxParentDocNum = each._document_number;
+	rfxDocNum = each._document_number;
+	rootDocNum  = each._document_number;
+	rfxParentDocNum1  = each._document_number;
+	parentDocNum = each._document_number;
+	ParentZPAdocNum = each._document_number;
+	docZPANum = each._document_number;
+	fetchParentDocNum = each._document_number;
+	fetchDocNum = each._document_number;
+	fetchParentDocNum1  = each._document_number;
+	
+	wfcParentDocNum1= each._document_number;
+	numDoc = each._document_number;
+	wfcDocNum = each._document_number;
+	//parentFlagRefixis = false;
+	//print rootDocNum;
+	if(each.billingFrequency == "HYR"){
+		bilVal = each.annualCloudNetPrice_l/2;
+	}
+	elif(each.billingFrequency == "QRT"){
+		bilVal = each.annualCloudNetPrice_l/4;
+	}
+	elif(each.billingFrequency == "MON"){
+		bilVal = each.annualCloudNetPrice_l/12;
+	}
+	retVal = retVal +"|" + each._document_number + "~ZEB_monthlyPrice~" + string(bilVal) + "|";
+	if(actionCodeFlag == false) {
+		if(val == "RENEW" and(each._model_variable_name <> "" or each. _part_number <> "") and find(each._model_variable_name, "Professional Services") == -1 and find(each._part_number, "Professional Services") == -1) {
+			actionCodeFlag = true;
+		}
+	}
+	if(flag == false) {
+		if( NOT isNull(each.oRCL_manualAdjustments) and jsonarraysize(each.oRCL_manualAdjustments)>0 and each._part_custom_field11 == "Billing" and find(each. _part_number, "Workforce Connect") <>-1){	
+			flag = true;
+			
+		}
+		
+	}
+	if( NOT isNull(each.oRCL_manualAdjustments) and jsonarraysize(each.oRCL_manualAdjustments)>0 and each._part_custom_field11 == "Shell" and find(each.modelName_l, "WorkForce Connect") <>-1){
+		flag1 = true;
+		print flag1;
+		//print each.modelName_l;
+		
+		retVal = retVal + each._document_number + "~ZEB_discountNameFlag~" + string(flag1) + "|";
+		numDoc = each._parent_doc_number;
+		wfcDocNum = each._document_number;
+		retVal = retVal + numDoc + "~ZEB_discountNameFlag~" + string(flag1) + "|";
+
+	} if(each.ZEB_discountNameFlag == true and each._part_custom_field11 == "Billing") {
+		wfcParentDocNum1 = each._parent_doc_number;
+		flag1 = true;
+		retVal = retVal + wfcParentDocNum1 + "~ZEB_discountNameFlag~" + string(flag1) + "|";
+	}
+	if(each._document_number <> wfcParentDocNum1 or each._parent_doc_number <> numDoc or each._document_number <> wfcDocNum) {
+		flag1 = false;
+		//print each._document_number;
+		retVal = retVal + each._document_number + "~ZEB_discountNameFlag~" + string(flag1) + "|";
+	}
+	if(discountFlagReflixis == false) {
+		if( NOT isNull(each.oRCL_manualAdjustments) and jsonarraysize(each.oRCL_manualAdjustments)>0 and each._part_custom_field11 == "Shell") {	
+			discountFlagReflixis = true;
+			
+		}
+	}
+	if( NOT isNull(each.oRCL_manualAdjustments) and jsonarraysize(each.oRCL_manualAdjustments)>0 and each._part_custom_field11 == "Shell" and find(each._part_display_number, "RFX") <> -1){
+		parentDocNum = each._parent_doc_number;
+		flag2 = true;
+		retVal = retVal + each._document_number + "~ZEB_discountNameFlag1~" + string(flag2 ) + "|";
+		retVal = retVal + parentDocNum + "~ZEB_discountNameFlag1~" + string(flag2 ) + "|";
+	}
+	elif(each._parent_doc_number <> parentDocNum) {
+		flag2 = false;
+		retVal = retVal + each._document_number + "~ZEB_discountNameFlag1~" + string(flag2 ) + "|";
+	}
+
+	//Start: Adding below code by Sampath for Fetch Proposal Document user story.
+	if( NOT isNull(each.oRCL_manualAdjustments) and jsonarraysize(each.oRCL_manualAdjustments)>0 and each._part_custom_field11 == "Shell" and find(each.modelName_l, "Robotic") <> -1){
+		parentDocNum = each._parent_doc_number;
+		flag3 = true;
+		retVal = retVal + each._document_number + "~Fetch_discountNameFlag~" + string(flag3) + "|";
+		retVal = retVal + parentDocNum + "~Fetch_discountNameFlag~" + string(flag3) + "|";
+	}
+	elif(each._parent_doc_number <> parentDocNum) {
+		flag3 = false;
+		retVal = retVal + each._document_number + "~Fetch_discountNameFlag~" + string(flag3) + "|";
+	}
+	//End: Adding code by Sampath for Fetch Proposal Document user story.
+	
+	/*if( NOT isNull(each.oRCL_manualAdjustments) and jsonarraysize(each.oRCL_manualAdjustments)>0 and each._part_custom_field11 == "Billing" and (find(each. _part_number, "Workforce Connect") <>-1 or find(each. _part_number, "WorkForce Connect") <>-1)){
+		val1 = each._parent_doc_number;
+		valDocNum = each._document_number;
+		parentFlag = true;
+		//print "Tejasvi";
+		retVal = retVal + val1 + "~ZEB_parentLevelFlag~" + string(parentFlag) + "|";
+		retVal = retVal + valDocNum + "~ZEB_parentLevelFlag~" + string(parentFlag) + "|";
+	} elif(each._parent_doc_number <> val1 or each._document_number <> valDocNum) {
+		retVal = retVal + each._document_number + "~ZEB_parentLevelFlag~" + string(false) + "|";
+	}*/
+	if(NOT isNull(each.oRCL_manualAdjustments) and jsonarraysize(each.oRCL_manualAdjustments)>0 and each._part_custom_field11 == "Shell" and (find(each. _part_number, "Workforce Connect") == -1 and find(each. _part_number, "WorkForce Connect") == -1)and find( each._part_display_number, "RFX") <> -1){
+		rfxParentDocNum = each._parent_doc_number;
+		rfxDocNum = each._document_number;
+		rootDocNum = each.root_doc_num;
+		parentFlagRefixis = true;
+		//print each._line_bom_parent_id;
+		//print rootDocNum;
+		//print each.modelName_l;
+		retVal = retVal + rfxParentDocNum + "~ZEB_parentLevelFlagReflexis~" + string(parentFlagRefixis) + "|";
+		retVal = retVal + rfxDocNum + "~ZEB_parentLevelFlagReflexis~" + string(parentFlagRefixis) + "|";
+		//retVal = retVal + (rootDocNum) + "~ZEB_parentLevelFlagReflexis~" + string(parentFlagRefixis) + "|";
+		refFlag = true;
+	}
+	if(each.ZEB_parentLevelFlagReflexis == true and each._part_custom_field11 == "Billing") {
+		rfxParentDocNum1 = each._parent_doc_number;
+		parentFlagRefixis = true;
+		retVal = retVal + rfxParentDocNum1 + "~ZEB_parentLevelFlagReflexis~" + string(parentFlagRefixis) + "|";
+	}
+	if(each._document_number <> rfxParentDocNum1 or each._parent_doc_number <> rfxParentDocNum or each._document_number <> rfxDocNum) {
+		parentFlagRefixis = false;
+		//print each._document_number;
+		retVal = retVal + each._document_number + "~ZEB_parentLevelFlagReflexis~" + string(parentFlagRefixis) + "|";
+	}
+	
+	//Start: Adding below code by Sampath for Fetch Proposal Document user story.
+	if(NOT isNull(each.oRCL_manualAdjustments) and jsonarraysize(each.oRCL_manualAdjustments)>0 and each._part_custom_field11 == "Shell" and find( each.modelName_l, "Robotic") <> -1)
+	{
+		fetchParentDocNum = each._parent_doc_number;
+		fetchDocNum = each._document_number;
+		parentFlagFetch = true;
+
+		retVal = retVal + fetchParentDocNum + "~FetchParentLevelFlag_l~" + string(parentFlagFetch) + "|";
+		retVal = retVal + fetchDocNum + "~FetchParentLevelFlag_l~" + string(parentFlagFetch) + "|";
+		fetchFlag = true;
+	}
+	if(each.FetchParentLevelFlag_l == true and each._part_custom_field11 == "Billing") {
+		fetchParentDocNum1 = each._parent_doc_number;
+		parentFlagFetch = true;
+		retVal = retVal + fetchParentDocNum1 + "~FetchParentLevelFlag_l~" + string(parentFlagFetch) + "|";
+	}
+	if(each._document_number <> fetchParentDocNum1 or each._parent_doc_number <> fetchParentDocNum or each._document_number <> fetchDocNum) {
+		parentFlagFetch = false;
+		//print each._document_number;
+		retVal = retVal + each._document_number + "~FetchParentLevelFlag_l~" + string(parentFlagFetch) + "|";
+	}
+	//End: Adding code by Sampath for Fetch Proposal Document user story.	
+	
+	if(NOT isNull(each.oRCL_manualAdjustments) and jsonarraysize(each.oRCL_manualAdjustments)>0 and find(each._part_display_number, "ZPA") <>-1 and each._parent_line_item == "Prescriptive Analytics") {
+		ParentZPAdocNum = each._parent_doc_number;
+		docZPANum = each._document_number;
+		print ParentZPAdocNum ;
+		retVal = retVal + ParentZPAdocNum + "~ZEB_parentLevelFlagZPA~" + string(true) + "|";
+		retVal = retVal + docZPANum + "~ZEB_parentLevelFlagZPA~" + string(true) + "|";
+	} elif(each._parent_doc_number <> ParentZPAdocNum or each._document_number <> docZPANum) {
+			retVal = retVal + each._document_number + "~ZEB_parentLevelFlagZPA~" + string(false) + "|";
+	}
+	if(actionCodeFlagps == false) {
+		if(val == "RENEW" and (find(each._model_variable_name, "Professional Services") <> -1 OR find(each._part_number, "Professional Services") <> -1)) {
+			actionCodeFlagps = true;
+		}
+	}
+	if(psFlag == false) {
+		//if((find(each._model_variable_name, "Professional Services") <> -1 OR find(each._part_number, "Professional Services") <> -1)) {
+			//if(find(each._part_number, "Custom Professional Services") <> -1) {
+			if(each._part_custom_field2 == "Y") {
+				psFlag = true;
+			}
+	}
+	if(sowFlagReflexis == false) {
+		if(find(each._model_variable_name, "reflexis") <> -1){
+				sowFlagReflexis = true;
+		}
+	}
+	
+	if(each._part_number == "" AND (each.oRCL_ABO_ActionCode_l == "RENEW" OR each.originalTransactionNumber_l <> "")) {
+		//print each._part_number;
+		//print each._document_number;
+		
+		print each.oRCL_ABO_ActionCode_l;
+		print each.originalTransactionNumber_l;
+		retVal = retVal + each._document_number + "~orgtxnWFCFlag~" + string(true) + "|";
+		put(setRenewFlagDictionary, each._document_number, "true");
+		//print setRenewFlagDictionary;
+	} else {
+		retVal = retVal + each._document_number + "~orgtxnWFCFlag~" + string(false) + "|";
+		put(setRenewFlagDictionary, each._document_number, "false");
+	}
+		if(containskey(setRenewFlagDictionary, each._parent_doc_number)) {
+		print 1;
+		retVal = retVal + each._document_number + "~orgtxnWFCFlag~" + get(setRenewFlagDictionary,  each._parent_doc_number) + "|";
+		//put(setRenewFlagDictionary, each._document_number, "true");
+		put(setRenewFlagDictionary, each._document_number, get(setRenewFlagDictionary,  each._parent_doc_number));
+		//print setRenewFlagDictionary;
+	}
+	if(each._part_number <> "" AND each.oRCL_ABO_ActionCode_l == "DELETE" AND each._part_custom_field11 == "Billing") {
+		//print each._part_number;
+		//print each._document_number;
+		retVal = retVal + each._document_number + "~actionCodeVal~" + string(false) + "|";
+		put(setRenewFlagDictionary1, each._document_number, "false");
+		//print setRenewFlagDictionary;
+	}
+	else {
+		retVal = retVal + each._document_number + "~actionCodeVal~" + string(true) + "|";
+	}
+		if(containskey(setRenewFlagDictionary1, each._parent_doc_number)) {
+		print 1;
+		retVal = retVal + each._document_number + "~actionCodeVal~" + get(setRenewFlagDictionary1,  each._parent_doc_number) + "|";
+		put(setRenewFlagDictionary1, each._document_number, "false");
+		//print setRenewFlagDictionary;
+	}
+	
+	if(pttVoiceSilverFlag == false){
+		if(each._part_number == "WFC Voice & PTT Professional Services" and each.ZEB_pSOfferings == "Silver" and each.oRCL_ABO_ActionCode_l <> "DELETE" ){
+			pttVoiceSilverFlag = true;
+			
+		}
+	}
+	
+	if(pttVoiceGoldFlag == false){
+		if(each._part_number == "WFC Voice & PTT Professional Services" and each.ZEB_pSOfferings == "Gold" and each.oRCL_ABO_ActionCode_l <> "DELETE"){
+			pttVoiceGoldFlag = true;
+		}
+	}
+	
+	if(pttVoiceBronzeFlag == false){
+		if(each._part_number == "WFC Voice & PTT Professional Services" and each.ZEB_pSOfferings == "Bronze" and each.oRCL_ABO_ActionCode_l <> "DELETE"){
+			pttVoiceBronzeFlag = true;
+			
+		}
+	}
+	
+	if(voiceGoldFlag == false){
+		if(each._part_number == "WFC Voice Professional Services" and each.ZEB_pSOfferings == "Gold" and each.oRCL_ABO_ActionCode_l <> "DELETE"){
+			voiceGoldFlag = true;
+		}
+	}
+	
+	if(voiceSilverFlag == false){
+		if(each._part_number == "WFC Voice Professional Services" and each.ZEB_pSOfferings == "Silver" and each.oRCL_ABO_ActionCode_l <> "DELETE"){
+			voiceSilverFlag = true;
+		}
+	}
+	
+	if(voiceBronzeFlag == false){
+		if(each._part_number == "WFC Voice Professional Services" and each.ZEB_pSOfferings == "Bronze" and each.oRCL_ABO_ActionCode_l <> "DELETE"){
+			voiceBronzeFlag = true;
+		}
+	}
+	
+	if(pttGoldFlag == false){
+		if(each._part_number == "WFC PTT Pro Professional Services" and each.ZEB_pSOfferings == "Gold" and each.oRCL_ABO_ActionCode_l <> "DELETE"){
+			pttGoldFlag = true;
+		}
+	}
+	
+	if(pttSilverFlag == false){
+		if(each._part_number == "WFC PTT Pro Professional Services" and each.ZEB_pSOfferings == "Silver" and each.oRCL_ABO_ActionCode_l <> "DELETE"){
+			pttSilverFlag = true;
+		}
+	}
+	
+	if(pttBronzeFlag == false){
+		if(each._part_number == "WFC PTT Pro Professional Services" and each.ZEB_pSOfferings == "Bronze" and each.oRCL_ABO_ActionCode_l <> "DELETE"){
+			pttBronzeFlag = true;
+		}
+	}
+	
+	if(pttGoldFlag == true and voiceGoldFlag == true){
+		pttVoiceGoldFlag = true;
+	}
+	
+	if(pttSilverFlag == true and voiceSilverFlag == true){
+		pttVoiceSilverFlag = true;
+	}
+	
+	if(pttBronzeFlag == true and voiceBronzeFlag == true){
+		pttVoiceBronzeFlag = true;
+	}
+	
+	if(each._part_custom_field11 == "Shell" and (each.modelName_l == "WorkForce Connect" OR each.modelName_l == "WorkForce Connect PS")){
+		psOfferingWfc  = psOfferingWfc + "," + each.ZEB_pSOfferings;
+		part = part + "," + each._part_number;
+	}
+	
+	if(find(each._part_number,"Professional Services") == -1 and each.modelName_l == "WorkForce Connect"){
+		part1 = part1 + "," + each._part_number;
+	}
+	
+}
+print psOfferingWfc;
+
+if(find(psOfferingWfc ,"Gold") == -1 and find(psOfferingWfc ,"Silver") == -1 and find(psOfferingWfc , "Bronze") == -1 and find(psOfferingWfc ,"No PS Required") <> -1){
+	print psOfferingWfc;
+	if(find(part1, "Workforce Connect PTT Pro") <> -1 and find(part1, "Workforce Connect Voice Client") <> -1){
+		pttVoiceBasicFlag = true;
+	}
+
+	elif(find(part1, "Workforce Connect PTT Pro") <> -1 and find(part1,"Workforce Connect Voice Client" ) == -1){
+		pttBasicFlag = true;
+	} 
+	elif(find(part1, "Workforce Connect PTT Pro") == -1 and find(part1, "Workforce Connect Voice Client") <> -1){
+		voiceBasicFlag = true;
+	}
+} else {
+	pttVoiceBasicFlag = false;
+	pttBasicFlag = false;
+	voiceBasicFlag = false;
+}
+
+retVal = retVal + "1~wFCPTT_VoiceBasicFlag_t~" + string(pttVoiceBasicFlag) + "|";
+retVal = retVal + "1~wFCPTTBasicFlag_t~" + string(pttBasicFlag) + "|";
+retVal = retVal + "1~wFCVoiceBasicFlag_t~" + string(voiceBasicFlag) + "|";
+
+
+
+if(ZEB_professionalServicesSOW == "") {
+	retVal = retVal + "1~ZEB_Fileattachment_SOW~" + string(false) + "|";
+} else{
+	retVal = retVal + "1~ZEB_Fileattachment_SOW~" + string(true) + "|";
+}
+
+for each in transactionLine 
+{
+	if(each._part_number=="ZBRA-TRNG")
+	{
+		psFlag = true;
+	}
+}
+
+retVal = retVal + "1~ZEB_professionalServices_pdf_t~" + string(psFlag) + "|";
+retVal = retVal + "1~ZEB_sowFlagReflexis_t~" + string(sowFlagReflexis) + "|";
+retVal = retVal + "1~ZEB_actionCodeFlag~" + string(actionCodeFlag) + "|";
+retVal = retVal + "1~ZEB_actionCodeFlagps~" + string(actionCodeFlagps) + "|";
+retVal = retVal + "1~ZEB_extraDiscountsFlag~" + string(flag) + "|";
+retVal = retVal + "1~zEB_extraDiscountsFlagReflexis~" + string(discountFlagReflixis) + "|";
+
+retVal = retVal + "1~wFCPTT_VoiceSilverFlag_t~" + string(pttVoiceSilverFlag) + "|";
+retval = retval + "1~wFCPTT_VoiceGoldFlag_t~" + string(pttVoiceGoldFlag) + "|";
+retval = retval + "1~wFCPTT_VoiceBronzeFlag_t~" + string(pttVoiceBronzeFlag) + "|";
+
+retval = retval + "1~wFCVoiceGoldFlag_t~" + string(voiceGoldFlag) + "|";
+retval = retval + "1~wFCVoiceSilverFlag_t~" + string(voiceSilverFlag) + "|";
+retval = retval + "1~wFCVoiceBronzeFlag_t~" + string(voiceBronzeFlag) + "|";
+
+retval = retval + "1~wFCPTTGoldFlag_t~" + string(pttGoldFlag) + "|";
+retval = retval + "1~wFCPTTSilverFlag_t~" + string(pttSilverFlag) + "|";
+retval = retval + "1~wFCPTTBronzeFlag_t~" + string(pttBronzeFlag) + "|";
+
+
+
+footAdd = "Zebra Technologies Asia Pacific Pte. Ltd.182 Cecil Street, #08-01 Frasers Tower, Singapore 069547";
+
+if(region_t == "Zebra EMEA") {
+	footAdd = "Zebra Technologies Europe Limited Dukes Meadow, Millboard Road, Bourne End, Buckinghamshire SL8 5XF, United Kingdom";
+} elif(region_t == "Zebra NALA") {
+	footAdd = "Zebra Technologies International, LLC, 3 Overlook Point, Lincolnshire, IL, 60069"; //Added comma's based on Margaret comments.
+} elif(region_t == "Zebra Australia") {
+	footAdd = "Zebra Technologies International, LLC, 3 Overlook Point, Lincolnshire IL 60069";
+}
+ elif(region_t == "Zebra APAC RMB") {
+	footAdd = "Genuine Zebra Technologies Trading (Shanghai) Co., Ltd.2801 & 2808-2812, HKRI Centre Two, HKRI Taikoo Hui, No. 288 Shimen Yi Road, Jingan District, Shanghai 200041, China";
+} else {
+	footAdd = "Zebra Technologies Asia Pacific Pte. Ltd.182 Cecil Street, #08-01 Frasers Tower, Singapore 069547";
+}
+retVal = retVal + "1~footerAddress_t~" + footAdd + "|";
+retVal = retVal + commerce.refZPAAmountRollup();
+docNum = "";
+count = 0;
+for each in transactionLine {
+	count = 0;
+	if(each._model_variable_name == "reflexis") {
+		docNum = each._document_number;
+		print "docNum-start";
+		print docNum;
+		print "docNum-end";
+		
+	}
+	for line1 in transactionLine {
+		if (docNum <> "" and line1._parent_doc_number == docNum and each._part_custom_field11 == "Billing" and find(line1.modelName_l, "Reflexis")<> -1) {
+			print "docNum-start1";
+			print docNum;
+			print line1.modelName_l;
+			print count;
+			print "docNum-end1";
+			if(count > 1) {
+				retVal = retVal + line1._parent_doc_number + "~modelReflexisPS~" + string(true) + "|";
+			} elif(count == 0 and find(line1._part_number, "Reflexis Professional Services") <> -1 and each._part_custom_field11 == "Billing"){
+			print "count";
+				retVal = retVal + line1._parent_doc_number + "~modelReflexisPS~" + string(false) + "|";
+			}elif(count == 0 and line1.modelName_l == "Reflexis" and each._part_custom_field11 == "Billing"){
+				retVal = retVal + line1._parent_doc_number + "~modelReflexisPS~" + string(true) + "|";
+			}
+			count = count + 1;
+		}
+		
+	}
+	
+}
+/*billingDict = dict("string");
+modelDict = dict("string");
+billingModelDict = dict("string");
+
+for each in transactionLine {
+	parentDocNum = each._parent_doc_number;
+	
+	if(each._part_custom_field11 == "Billing" and each.modelName_l == "WorkForce Connect") {
+		put(billingModelDict, each._document_number, parentDocNum);
+	}
+		if( each.oRCL_ABO_ActionCode_l <> "DELETE" AND NOT isNull(each.oRCL_manualAdjustments) and jsonarraysize(each.oRCL_manualAdjustments)>0 and each._part_custom_field11 == "Shell" and each.modelName_l == "WorkForce Connect"){
+			
+			put(billingDict, parentDocNum, "true");
+			retVal = retVal + each._document_number + "~ZEB_discountNameFlag~" + "true" + "|";
+		} else {
+			put(billingDict, parentDocNum, "false");
+			retVal = retVal + each._document_number + "~ZEB_discountNameFlag~" + "false" + "|";
+		
+	}
+}
+print billingModelDict;
+billingKeys = keys(billingDict);
+for eachKey in billingKeys {
+	retVal = retVal + eachKey + "~ZEB_discountNameFlag~" + (get(billingDict, eachKey)) + "|";
+}
+billingModelKeys = keys(billingModelDict);
+for eachModelKey in billingModelKeys {
+	print eachModelKey;
+	modelKey = get(billingModelDict, eachModelKey);
+	print modelKey;
+	if(containskey(modelDict, modelKey)) {
+		value = get(modelDict, modelKey);
+		put(modelDict, modelKey, get(billingDict, eachModelKey));
+	} else {
+		put(modelDict, modelKey, get(billingDict, eachModelKey));
+	}
+}
+modelKeys = keys(modelDict);
+for modelKey in modelKeys {
+	retVal = retVal + modelKey + "~ZEB_discountNameFlag~" + (get(modelDict, modelKey)) + "|";
+}
+print modelDict;
+
+print billingDict;*/
+
+
+return retVal;

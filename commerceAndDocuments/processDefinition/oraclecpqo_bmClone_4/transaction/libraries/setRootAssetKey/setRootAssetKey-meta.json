@@ -1,0 +1,11 @@
+{
+  "name" : "Set Root Asset Key",
+  "variableName" : "setRootAssetKey",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "rootAssetKey_l", "oRCL_ABO_ActionCode_l", "itemInstanceId_l" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

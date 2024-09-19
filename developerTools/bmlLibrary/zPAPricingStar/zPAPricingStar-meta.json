@@ -1,0 +1,24 @@
+{
+  "name" : "ZPAPricing Starlight",
+  "variableName" : "zPAPricingStar",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "Float",
+  "parameters" : [ {
+    "name" : "rUM",
+    "type" : "Float"
+  }, {
+    "name" : "monthlyHosting",
+    "type" : "Float"
+  }, {
+    "name" : "hostingForMoreHistory",
+    "type" : "Float"
+  }, {
+    "name" : "numberOfStores",
+    "type" : "Integer"
+  }, {
+    "name" : "numberOfYearsCommitted",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

@@ -1,0 +1,126 @@
+ret = dict("dict<string>");
+tempJsonArray = jsonarray();
+sbWhere = stringbuilder();
+sbSkuNumber = stringbuilder();
+arraySkuNumber = string[];
+dictPrice = dict("string");
+IndirectarraySkuNumber = string[];
+IndirectEligible = dict("string");
+dictAccessCode = dict("string");
+
+arraySkuJsonArray = jsonarray(AccountSku);
+nCount = range(jsonarraysize(arraySkuJsonArray));
+for each in nCount		
+{
+	jsonObjTemp = json(jsonarrayget(arraySkuJsonArray,each));
+	strSkuTemp = jsonget(jsonObjTemp,"Sku Number");
+	strListPrice = jsonget(jsonObjTemp,"List Price");
+	strAccessCode = jsonget(jsonObjTemp,"Access Code");
+	put(dictPrice,strSkuTemp,strListPrice);
+	put(dictAccessCode,strSkuTemp,strAccessCode);
+	jsonObjTemp = json();
+}
+
+strListPrice = "";
+strSkuTemp = "";
+arraySkuJsonArray = jsonarray();
+
+sbappend(sbWhere,"AccountNumber = '",AccountId, "'");  
+sbappend(sbWhere," AND (Eligible = 'Y' OR Eligible = '' OR Eligible IS NULL)");
+
+if(NOT(isempty(SkuNumber)))
+{
+	bFlag = true;
+	for each in SkuNumber
+	{
+		if(bFlag)
+		{
+			sbappend(sbSkuNumber,"( SkuNumber = '",each,"')");
+			bFlag = false;
+			
+		}
+		else
+		{
+			sbappend(sbSkuNumber," OR ( SkuNumber = '",each,"')");
+		}
+		
+	}
+	
+	sbappend(sbWhere," AND (", sbtostring(sbSkuNumber), ")"); 
+}
+
+strWhere = sbtostring(sbWhere);
+
+rs = bmql("Select SkuNumber, DiscountPrice, PurchaseMethod, Eligible from AccountCatalog where $strWhere");
+print rs;
+for each in rs
+{
+	strPurchaseMethod = get(each,"PurchaseMethod");
+	if(strPurchaseMethod == "Direct" OR strPurchaseMethod == "")
+	{
+		dictTemp = dict("string");
+		put(dictTemp,"PriceList",get(each,"DiscountPrice"));
+		put(dictTemp,"ErrorCode","");	
+		put(dictTemp,"Purchase Method",strPurchaseMethod);
+		put(dictTemp,"Eligible Flag",get(each,"Eligible"));
+		put(ret,get(each,"SkuNumber"),dictTemp);
+		append(arraySkuNumber,get(each,"SkuNumber"));
+	}
+	else
+	{
+		append(IndirectarraySkuNumber,get(each,"SkuNumber"));
+		put(IndirectEligible,get(each,"SkuNumber"),get(each,"Eligible"));
+	}
+}
+
+arraySkuJsonArray = jsonarray(AccountSku);
+nCount = range(jsonarraysize(arraySkuJsonArray));
+print IndirectarraySkuNumber;
+print nCount;
+print arraySkuJsonArray;
+for each in nCount		
+{
+	dictTemp = dict("string");
+	print each;
+	strErrorCode  = "";
+	strTemp = jsonarrayget(arraySkuJsonArray,each);
+	jsonObjTemp = json(strTemp);
+	strSkuTemp = jsonget(jsonObjTemp,"Sku Number");
+	print strSkuTemp;
+	if(findinarray(IndirectarraySkuNumber,strSkuTemp) <> -1)
+	{
+		print "inside loop";
+		put(dictTemp,"PriceList",get(dictPrice,strSkuTemp));
+		put(dictTemp,"ErrorCode","");	
+		put(dictTemp,"Purchase Method","Indirect");
+		put(dictTemp,"Eligible Flag",get(IndirectEligible,strSkuTemp));
+		put(ret,strSkuTemp,dictTemp);
+	}
+	elif(findinarray(IndirectarraySkuNumber,strSkuTemp) == -1 AND findinarray(arraySkuNumber,strSkuTemp) == -1)
+	{
+		put(dictTemp,"PriceList",get(dictPrice,strSkuTemp));
+		put(dictTemp,"Purchase Method","Indirect");
+		put(dictTemp,"Eligible Flag","N");
+		strAccessCodeTemp = "";
+		strAccessCodeTemp = get(dictAccessCode,strSkuTemp);
+		strErrorCode = "CPQ-Indirect";
+		if(atoi(strAccessCodeTemp) == 4)
+		{
+			strErrorCode  = "CPQ-Err-004";
+		}
+		elif(atoi(strAccessCodeTemp) == 3)
+		{
+			strErrorCode  = "CPQ-Err-003";
+		}
+		elif(atoi(strAccessCodeTemp) == 5)
+		{
+			strErrorCode  = "CPQ-Err-005";
+		}
+		
+		put(dictTemp,"ErrorCode",strErrorCode);
+		put(ret,strSkuTemp,dictTemp);
+	}
+}
+
+print ret;
+return ret;

@@ -1,0 +1,40 @@
+ret = "";
+strAccessToken = util.salesforceAuthenticationAccessToken();
+strAuthorization = "Bearer "+ strAccessToken;
+sfUrl = "";
+headers=dict("string");
+requestJson = json();
+output = json();
+output1 = jsonarray();
+rs = recordset();
+if(jsonget(Inputs,"fetchSFDCObject") == "Opportunity")
+{
+	rs = bmql("Select * from SF_Int_Details where Type LIKE 'SF Opportunity Product API%'");
+}
+else
+{
+	rs = bmql("Select * from SF_Int_Details where Type LIKE 'SF PC Line Item API'");
+}
+for each in rs
+{
+	sfUrl = get(each,"URL");
+}
+ObjectId = jsonget(Inputs,"ObjectId");
+sfUrl = sfUrl + ObjectId;
+print sfUrl;
+put(headers,"Content-Type","application/json");
+put(headers,"Authorization",strAuthorization);
+requestJson = json(jsonget(Inputs,"Request"));
+print requestJson;
+Responsedict = urldata(sfUrl,"Post",headers,jsontostr(requestJson));
+Responsedict1 = get(Responsedict,"Status-Code");
+if(Responsedict1 == "200")
+{
+	ret = "Success Response Code: " + Responsedict1 + " Message: " + get(Responsedict,"Message-Body");
+}
+else
+{
+	ret = "Error Response Code: " + Responsedict1 + get(Responsedict,"Message-Body");
+}
+print Responsedict ;
+return ret ;

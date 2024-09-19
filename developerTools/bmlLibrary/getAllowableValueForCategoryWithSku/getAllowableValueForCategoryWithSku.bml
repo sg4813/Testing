@@ -1,0 +1,63 @@
+ret = "";
+retArray = string[];
+arrayCategory = string[];
+iCount = 0;
+setJson = jsonarray(JsonStr);
+arraySize = range(jsonarraysize(setJson));
+strParentSku = Model;
+strCategory = "";
+for each in arraySize
+{
+	localJson = jsonarrayget(setJson, each);
+	localJsonObj = json(localJson);
+	strParentTemp = jsonget(localJsonObj,"Parent Sku");
+	if(strParentTemp == Sku)
+	{
+		strParentSku = Sku;
+		break;
+	}
+
+}
+
+for each in arraySize
+{
+	localJsonObj = json(jsonarrayget(setJson,each));
+	strCategory = jsonget(localJsonObj,"Accessories");
+	if(ISNULL(strCategory)){
+	strCategory = jsonget(localJsonObj,"Software");
+	}
+	strSubCategory = jsonget(localJsonObj,"SubCategory");
+	strParentTemp = jsonget(localJsonObj,"Parent Sku");
+	setRec = jsonget(localJsonObj,"Recommended");
+	if(strParentSku == strParentTemp)
+	{
+		//if(findinarray(retArray,strSubCategory) == -1 AND strSubCategory <> "" AND  setRec == "N" )
+		if(findinarray(retArray,strSubCategory) == -1 AND strSubCategory <> "")
+		{
+			append(retArray,strSubCategory);
+		}
+	}
+	
+}
+if( NOT isempty(retArray))
+{
+	for each in retArray
+	{
+			ret = ret + "|^|" + each;
+			iCount = iCount  + 1;
+	}
+}
+if(iCount > 1)
+{
+	if(strCategory == "Accessories"){
+	ret = ret + "|^|" + "SelectAll_Accessories";
+	}else{
+	ret = ret + "|^|" + "SelectAll_Software";
+	}
+}
+//if(startswith(ret, "|^|")){
+//ret = substring(ret,3,len(ret));
+//}
+
+
+return ret;

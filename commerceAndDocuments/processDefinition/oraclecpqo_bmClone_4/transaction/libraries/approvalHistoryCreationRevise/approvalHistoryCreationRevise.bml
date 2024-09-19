@@ -1,0 +1,190 @@
+jsonArrayObj  = jsonarray(approvalHistory);
+nCountrange = range(jsonarraysize(jsonArrayObj));
+strFinalArray = jsonarray();
+localCount = 4;
+strReason  = "";
+iCount = 1;
+jCount = jsonarraysize(jsonArrayObj);
+jsonTemp1 = json();
+arrayReason = string[];
+RevisedCount = 1;
+for each in nCountrange 
+{
+	jsonTemp1 = json(jsonarrayget(jsonArrayObj,each));
+	print jsonTemp1;
+	if(jsonget(jsonTemp1,"Reason") == "Revised")
+	{
+			arrayReason = string[];
+			print "hi";
+			RevisedCount  = RevisedCount + 1;
+	}
+	if(iCount < jCount)
+	{
+		jsonarrayappend(strFinalArray,jsonTemp1);
+		
+		append(arrayReason,jsonget(jsonTemp1,"Reason"));
+	}
+	else
+	{
+		strReason = jsonget(jsonTemp1,"Reason");
+		append(arrayReason,strReason);
+	}
+	iCount = iCount + 1;
+}
+
+if(strReason == "Revised" AND ApprovalHistrory == "Save")
+{
+	return approvalHistory;
+}
+	
+//print ApprovalHistrory;
+//print "Save";
+//print jsonTemp1;
+if(ApprovalHistrory == "Request"  OR ApprovalHistrory == "Approve")
+{
+	
+	if(strReason == "Revised" or strReason == "Reject")
+	{
+		jsontemp = json();
+		jsonput(jsonTemp,"User",_system_user_name);
+		jsonput(jsonTemp,"Time",datetostr(getdate(true)));
+		jsonput(jsonTemp,"Type","Submit");
+		jsonput(jsonTemp,"Comment","");
+		jsonput(jsonTemp,"Reason","Submit for Approval");
+		jsonput(jsonTemp,"Revision",quoteRevisionNew_t);
+		jsonarrayappend(jsonArrayObj,jsonTemp);
+	}
+	elif(strReason == "Submit for Approval")
+	{
+		jsontemp = json();
+		jsonput(jsonTemp,"User",_system_user_name);
+		jsonput(jsonTemp,"Time",datetostr(getdate(true)));
+		jsonput(jsonTemp,"Type","Approve");
+		jsonput(jsonTemp,"Comment","");
+		if(isThisCustomerAMultiNationalOrGlobalAccount_t == "Yes")
+		{
+			jsonput(jsonTemp,"Reason","priceRequiresApproval");
+		}
+		else
+		{
+			jsonput(jsonTemp,"Reason","lEVEL1MANAGER");
+		}
+		jsonput(jsonTemp,"Revision",quoteRevisionNew_t);
+		jsonarrayappend(jsonArrayObj,jsonTemp);
+	}
+	//added isThisCustomerAMultiNationalOrGlobalAccount_t =="" for Jira CCZC- 6876 by triveni
+	elif(strReason == "lEVEL1MANAGER" AND (isThisCustomerAMultiNationalOrGlobalAccount_t== "No" OR isThisCustomerAMultiNationalOrGlobalAccount_t== ""))
+	{
+		jsontemp = json();
+		jsonput(jsonTemp,"User",_system_user_name);
+		jsonput(jsonTemp,"Time",datetostr(getdate(true)));
+		jsonput(jsonTemp,"Type","Approve");
+		jsonput(jsonTemp,"Comment","");
+		jsonput(jsonTemp,"Revision",quoteRevisionNew_t);
+		print "Abhishek";
+		print arrayReason;
+		jsonput(jsonTemp,"Reason","dealDesk");
+		jsonarrayappend(jsonArrayObj,jsonTemp);
+	}
+	else
+	{
+		dictTemp = dict("string");
+		put(dictTemp,"dealDesk","lEVEL2MANAGER");
+		put(dictTemp,"lEVEL2MANAGER","lEVEL3MANAGER");
+		put(dictTemp,"lEVEL3MANAGER","bUVPBUSVP");
+		put(dictTemp,"bUVPBUSVP","sVP");
+		put(dictTemp,"sVP","pC4");
+		
+		jsontemp = json();
+		jsonput(jsonTemp,"User",_system_user_name);
+		jsonput(jsonTemp,"Time",datetostr(getdate(true)));
+		jsonput(jsonTemp,"Type","Approve");
+		jsonput(jsonTemp,"Comment","");
+		jsonput(jsonTemp,"Reason",get(dictTemp,strReason));
+		jsonput(jsonTemp,"Revision",quoteRevisionNew_t);
+		jsonarrayappend(jsonArrayObj,jsonTemp);
+	}
+	
+}
+elif(ApprovalHistrory  == "Save")
+{
+	print strReason;
+	print "##";
+	print RevisedCount;
+	iCount = 0;
+	jCount = 0;
+	if(strReason  == "Submit for Approval")
+	{
+		iCount = 0;
+	}
+	else
+	{
+		iCount = 1;
+		print iCount;
+	}
+	print "inside loop for approvalh";
+	for element in approval_history_submit_t
+	{
+		print element;
+		print element[0];
+		if(iCount == 0)
+		{
+			print "element[0]";
+			
+			arraycount = sizeofarray(element);
+			print element[arraycount-1];
+			print element[arraycount-1];
+			splitArray = split(element[arraycount-1],"~");
+			print splitArray;
+			jsonput(jsonTemp1,"Comment",splitArray[3]);
+			print jsonTemp1;
+			jsonarrayappend(strFinalArray,jsonTemp1);
+			print strFinalArray;
+			break;
+
+		}
+		elif(element[0] == strReason)
+		{
+			arraycount = sizeofarray(element);
+			print element[arraycount-1];
+			print element[arraycount-1];
+			splitArray = split(element[arraycount-1],"~");
+			print splitArray;
+			jsonput(jsonTemp1,"Comment",splitArray[3]);
+			print jsonTemp1;
+			jsonarrayappend(strFinalArray,jsonTemp1);
+			print strFinalArray;
+			break;
+		}
+		/*elif((element[0] == "test3" OR element[0] == "test2") AND strReason == "Dummy")
+		{
+			arraycount = sizeofarray(element);
+			print element[arraycount-1];
+			print element[arraycount-1];
+			splitArray = split(element[arraycount-1],"~");
+			if(RevisedCount == atoi(splitArray[4]))
+			{
+				print splitArray;
+				jsonput(jsonTemp1,"Comment",splitArray[3]);
+				print jsonTemp1;
+				jsonput(jsonTemp1,"Reason",element[0]);
+				jsonarrayappend(strFinalArray,jsonTemp1);
+				print strFinalArray;
+				break;
+			}
+		}*/
+		jCount = jCount + 1;
+		
+	}
+}
+if(jsonArraysize(strFinalArray) > 0 AND ApprovalHistrory  == "Save")
+{
+	return jsonarraytostr(strFinalArray);
+}
+elif(jsonArraysize(jsonArrayObj) > 0)
+{
+	print jsonArrayObj;
+	return jsonarraytostr(jsonArrayObj);
+}
+
+return approvalHistory;

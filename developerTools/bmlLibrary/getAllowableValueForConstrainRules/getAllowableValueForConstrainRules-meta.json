@@ -1,0 +1,21 @@
+{
+  "name" : "Get Allowable Value for Constrain Rules",
+  "variableName" : "getAllowableValueForConstrainRules",
+  "description" : "Created by: Abhishek 07/02/19: Function will provide all allowable values of any attributes based on their precedent attributes and respective values.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "AttibuteName",
+    "type" : "String"
+  }, {
+    "name" : "ConfigurationJson",
+    "type" : "String"
+  }, {
+    "name" : "ColumnSequence",
+    "type" : "String"
+  }, {
+    "name" : "PrecedentValue",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

@@ -1,0 +1,11 @@
+{
+  "name" : "partNumber_actionCode_String",
+  "variableName" : "partNumber_actionCode_String",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_part_number", "oRCL_ABO_ActionCode_l", "_part_custom_field11" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

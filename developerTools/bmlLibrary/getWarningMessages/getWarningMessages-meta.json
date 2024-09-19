@@ -1,0 +1,33 @@
+{
+  "name" : "Get Warning Messages",
+  "variableName" : "getWarningMessages",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "AdditionalItemJson",
+    "type" : "String"
+  }, {
+    "name" : "PartNumberArr",
+    "type" : "String[]"
+  }, {
+    "name" : "ErrorCodeArr",
+    "type" : "String[]"
+  }, {
+    "name" : "TypeArr",
+    "type" : "String[]"
+  }, {
+    "name" : "AutoAttachSkuVal",
+    "type" : "String"
+  }, {
+    "name" : "AutoAttachServicesVal",
+    "type" : "String"
+  }, {
+    "name" : "RegionVal",
+    "type" : "String"
+  }, {
+    "name" : "WarningMsgVal",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

@@ -1,0 +1,47 @@
+// Populate the charges array and tierInfo arrays from calculated info
+//charges(JsonArray), documentNumber(String)
+//util.oRCL_pRC_populateTiers(tierList, documentNumber)
+
+returnString = "";
+chargesArray = jsonArray();
+
+chargesSize = jsonarraysize(charges);
+itr = string[chargesSize];
+chargecount=0;
+for i in itr {
+	charge = jsonArrayget(charges, chargecount, "json");
+	chargecount = chargecount + 1;
+	chargeJson = json();	
+	jsonput(chargeJson,"oRCL_chargeName",jsonget(charge,"chargeName","string"));
+	jsonput(chargeJson,"oRCL_chargeType",jsonget(charge,"chargeType","string"));
+	
+	if(jsonget(charge,"periodicity","string") <> ""){
+		jsonput(chargeJson,"oRCL_periodicity",jsonget(charge,"periodicity","string"));
+	}
+	
+	if(jsonget(charge,"enablePeriodicRevRecog","string") <> ""){
+		jsonput(chargeJson,"enablePeriodicRevRecog",jsonget(charge,"enablePeriodicRevRecog","string"));
+	}
+
+	/*if(NOT(isnull(jsonget(charge,"unitPrice")))){
+		jsonput(chargeJson,"oRCL_unitPrice",jsonget(charge,"unitPrice","float"));
+	}
+	if(NOT(isnull(jsonget(charge,"listPrice")))){
+		jsonput(chargeJson,"oRCL_listPrice",jsonget(charge,"listPrice","float"));
+	}	*/
+	
+	if(NOT(isnull(jsonget(charge,"unitListPrice")))){
+		jsonput(chargeJson,"oRCL_unitListPrice",jsonget(charge,"unitListPrice","float"));
+	}
+	
+	if(NOT(isnull(jsonget(charge,"billTotalChargeAmount")))){
+		jsonput(chargeJson,"billTotalChargeAmount",jsonget(charge,"billTotalChargeAmount","float"));
+	}
+	
+		jsonput(chargeJson,"oRCL_tiered","N");
+
+	jsonarrayappend(chargesArray, chargeJson);
+}
+  
+returnString = returnString + documentNumber + "~oRCL_charges~" + jsonarraytostr(chargesArray) + "|";
+return returnString;

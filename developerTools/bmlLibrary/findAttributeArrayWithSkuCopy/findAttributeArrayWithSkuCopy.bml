@@ -1,0 +1,65 @@
+ret = string[];
+strParentSku = Model;
+strRecommended = "N";
+strAttribute = AttributeName;
+arrayCategory = string[];
+if(Recommended)
+{
+	strRecommended = "Y";
+}
+else
+{
+	arrayCategory = split(Category,"~");
+}
+
+//setJson = jsonarray(JsonStr);
+arraySize = range(jsonarraysize(JsonStr));
+
+for each in arraySize
+{
+	localJson = jsonarrayget(JsonStr, each);
+	localJsonObj = json(localJson);
+	strParentTemp = jsonget(localJsonObj,"Parent Sku");
+	if(strParentTemp == Sku)
+	{
+		strParentSku = Sku;
+		break;
+	}
+
+}
+
+for each in arraySize
+{
+	localJson = jsonarrayget(JsonStr, each);
+	localJsonObj = json(localJson);
+	strRec = "N";
+	if(strRecommended == "Y")
+	{
+		strRec = jsonget(localJsonObj,"Recommended");
+	}
+	strValue= jsonget(localJsonObj,strAttribute);
+	strParentTemp = jsonget(localJsonObj,"Parent Sku");
+	if(strParentSku == strParentTemp)
+	{
+		if(strRecommended == "Y")
+		{
+			if(strRec == "Y")
+			{
+				append(ret,strValue);
+			}
+			
+		}
+		else
+		{
+			strSubCategory = jsonget(localJsonObj,"SubCategory");
+			if(findinarray(arrayCategory,strSubCategory) <> -1 AND strSubCategory <> "")
+			{
+				append(ret,strValue);
+			}
+		}
+	}
+	
+}
+
+
+return ret;

@@ -1,0 +1,18 @@
+{
+  "name" : "Get LOV extract POC",
+  "variableName" : "getLOVExtractPOC",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "Productfamily",
+    "type" : "String"
+  }, {
+    "name" : "Productline",
+    "type" : "String"
+  }, {
+    "name" : "Attribute",
+    "type" : "String"
+  } ],
+  "attributes" : [ "_company_name" ]
+}

@@ -1,0 +1,11 @@
+{
+  "name" : "ABO Build Line Item Hierarchy",
+  "variableName" : "oRCL_abo_BuildLineItemHierarchy",
+  "description" : "Iterates through transactionLine collection and constructs several maps reflecting line items and subscription order parent/child relationships",
+  "libraryFunctions" : [ ],
+  "returnType" : "Anytype Dictionary",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_document_number", "_parent_doc_number", "_line_bom_id", "_line_bom_parent_id", "requestDate_l", "itemInstanceId_l", "fulfillmentStatus_l", "oRCL_ABO_ActionCode_l" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

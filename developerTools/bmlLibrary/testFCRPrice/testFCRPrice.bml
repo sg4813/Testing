@@ -1,0 +1,48 @@
+cost = 0.0;
+
+if( ISNULL(fetchCostJsonArrString) OR (fetchCostJsonArrString == "") OR (fetchCostJsonArrString == "[]") ){
+	return cost;
+}
+
+fetchCostJsonArr = jsonarray(fetchCostJsonArrString);
+iterator = range(jsonarraysize(fetchCostJsonArr));
+
+for index in iterator{
+	costRecordJson = jsonarrayget(fetchCostJsonArr, index, "json");
+
+	// If this cost record is of different part, then continue
+	partNum = jsonget(costRecordJson, "PartNumber");
+	if( NOT(ISNULL(partNum)) AND (partNum <> partNumber) ){
+		continue;
+	}
+
+	costStr = jsonget(costRecordJson, "Price");
+	if( ISNULL(costStr) OR (costStr == "") ){
+			continue;
+	}
+
+	minQtyStr = jsonget(costRecordJson, "MinQuantity");
+	maxQtyStr = jsonget(costRecordJson, "MaxQuantity");
+
+	minQty = 0;
+	if( NOT(ISNULL(minQtyStr)) AND (minQtyStr <> "") AND (ISNUMBER(minQtyStr)) ){
+		minQty = atoi(minQtyStr);
+	}
+
+	maxQty = 0;
+	if( NOT(ISNULL(maxQtyStr)) AND (maxQtyStr <> "") AND (ISNUMBER(maxQtyStr)) ){
+		maxQty = atoi(maxQtyStr);
+	}
+
+	// If there is a cost that matches the quantity criteria, then return it
+	if( ((minQty > 0) AND (quantity >= minQty)) AND ((maxQty > 0) AND (quantity <= maxQty)) ){
+		cost = atof(costStr);
+		break;
+	}
+
+	if( (((minQty > 0) AND (quantity >= minQty)) AND (maxQty == 0)) OR (minQty == 0 AND maxQty == 0) ){
+		cost = atof(costStr);
+		break;
+	}
+}
+return cost;

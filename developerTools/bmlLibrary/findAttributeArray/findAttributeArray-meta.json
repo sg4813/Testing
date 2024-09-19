@@ -1,0 +1,21 @@
+{
+  "name" : "Find Attribute Array",
+  "variableName" : "findAttributeArray",
+  "description" : "Created by: Abhishek 07/02/19: Function will provide Part array based on input.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String[]",
+  "parameters" : [ {
+    "name" : "AttributeName",
+    "type" : "String"
+  }, {
+    "name" : "JsonStr",
+    "type" : "String"
+  }, {
+    "name" : "Recommended",
+    "type" : "Boolean"
+  }, {
+    "name" : "Category",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

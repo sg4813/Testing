@@ -1,0 +1,11 @@
+{
+  "name" : "Set Prices for POC",
+  "variableName" : "setPricesForPOC",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "oRCL_pRC_useUsageLock", "_price_calculation_info", "requestedQuantity_l", "_part_number", "_document_number", "_parent_line_item", "_price_configurable_price", "_config_attr_info", "_model_name" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

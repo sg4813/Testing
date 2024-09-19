@@ -1,0 +1,40 @@
+retVal = "";
+localDiscVal = 0.0;
+discountbackupVal =0.0;
+localDiscType = "";
+discountbackupType = "";
+parLine ="";
+for line in transactionLine {
+		if(line._model_name <> ""){
+		discountbackupVal = line.discountbackup_l;
+		discountbackupType = line.discountTypebkp_l;
+			localDiscVal = line.customDiscountValue_l;
+			localDiscType = line.customDiscountType_l;
+			setattributevalue(line._document_number, "discountbackup_l", localDiscVal);
+			setattributevalue(line._document_number, "discountTypebkp_l", localDiscType);
+		}else{
+			if(line._part_custom_field2<>"Y" AND localDiscVal > 0 AND localDiscType <> "" AND ( line.customDiscountValue_l == discountbackupVal AND line.customDiscountType_l == discountbackupType)){
+			setattributevalue(line._document_number, "customDiscountValue_l", localDiscVal);
+			setattributevalue(line._document_number, "customDiscountType_l", localDiscType);
+			}
+		}
+	}
+	
+for line in transactionLine {
+		if(line._part_custom_field11 == "Billing"){
+		discountbackupVal = line.discountbackup_l;
+		discountbackupType = line.discountTypebkp_l;
+			localDiscVal = line.customDiscountValue_l;
+			localDiscType = line.customDiscountType_l;
+			parLine = line._document_number;
+			setattributevalue(line._document_number, "discountbackup_l", localDiscVal);
+			setattributevalue(line._document_number, "discountTypebkp_l", localDiscType);
+		}
+			//if(line._parent_doc_number == parLine AND line._part_custom_field2<>"Y" AND localDiscVal > 0 AND localDiscType <> "" AND ( line.customDiscountValue_l == discountbackupVal AND line.customDiscountType_l == discountbackupType)){
+			if(line._parent_doc_number == parLine AND localDiscVal > 0 AND localDiscType <> "" AND ( line.customDiscountValue_l == discountbackupVal AND line.customDiscountType_l == discountbackupType)){
+				setattributevalue(line._document_number, "customDiscountValue_l", localDiscVal);
+				setattributevalue(line._document_number, "customDiscountType_l", localDiscType);
+			}
+		
+	}
+return retVal;

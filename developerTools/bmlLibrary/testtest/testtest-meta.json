@@ -1,0 +1,12 @@
+{
+  "name" : "test123",
+  "variableName" : "testtest",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "test",
+    "type" : "Json"
+  } ],
+  "attributes" : [ ]
+}

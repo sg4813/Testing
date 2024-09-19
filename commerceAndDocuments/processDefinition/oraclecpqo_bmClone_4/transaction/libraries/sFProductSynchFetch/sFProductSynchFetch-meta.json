@@ -1,0 +1,11 @@
+{
+  "name" : "SF Product Synch - Fetch",
+  "variableName" : "sFProductSynchFetch",
+  "description" : "",
+  "libraryFunctions" : [ "commerce.fetchRequestJson", "util.productSynchToSF" ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_document_number", "_config_attr_info", "_part_number", "parentSKU_l", "oRCL_ABO_ActionCode_l", "renewalType_l" ],
+  "mainDocAttributes" : [ "fetchSolutionType", "bs_id", "fetchRecordId", "fetchSFDCObject", "transactionID_t", "status_t", "ZEB_PSBillType_t" ],
+  "systemAttributes" : [ ]
+}

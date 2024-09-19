@@ -1,0 +1,15 @@
+{
+  "name" : "Get Missed SKU's",
+  "variableName" : "getMissedSKUs",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String[]",
+  "parameters" : [ {
+    "name" : "model_name",
+    "type" : "String"
+  }, {
+    "name" : "category",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

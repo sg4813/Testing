@@ -1,0 +1,9 @@
+{
+  "name" : "Currency Test",
+  "variableName" : "currencyTest",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "attributes" : [ ]
+}

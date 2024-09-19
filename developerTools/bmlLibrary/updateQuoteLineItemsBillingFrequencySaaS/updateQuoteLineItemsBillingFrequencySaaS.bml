@@ -1,0 +1,64 @@
+//To update the billing frequency to "weekly" in production for PS quotes where billing frequency is "monthly" based on the generated report
+headers = dict("string");
+put(headers, "content-type", "application/json");
+systemUrl = "";
+if(find(_company_name,"dev")<> -1){ 
+systemUrl = "https://devzebra.bigmachines.com";
+}
+elif(find(_company_name,"test")<> -1){
+systemUrl = "https://test-cpq.zebra.com";
+}
+else {
+systemUrl = "https://cpq.zebra.com";
+}
+print systemUrl;
+
+resultSet = bmql("select * from Testdatatable where QuoteNumber Like 'CPQ%'");
+//print resultSet;
+
+for eachRec in resultSet{
+	quoteLine = json();
+	eachquoteLine=json();
+	transactionLine=json();
+	BillingFreqJson = json();
+	quoteLineArray=jsonarray();
+	items=json();
+ 	
+		sku=get(eachRec, "SKU");
+		bsId = get(eachRec, "quoteBsId");
+		/*lineJsonKey=bsId+"_"+sku;
+		print lineJsonKey;
+		lineDoc = jsonget(LineDocJson, lineJsonKey);
+		print lineDoc;*/
+		getTranLineUrl=systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/" + bsId+"/transactionLine?fields=billingFrequency,_document_number&q={billingFrequency:'MON'}";
+		lineResults=urldata(getTranLineUrl, "GET", headers);
+		//print "====lineResults======="; print lineResults;
+		if(get(lineResults,"Status-Code")=="200"){
+			responseMessageBody=json(get(lineResults,"Message-Body"));
+			lineDocItems1=jsonget(responseMessageBody,"items","jsonarray");
+			if(jsonarraysize(lineDocItems1) > 0){
+				lineDoc=jsonget(jsonarrayget(lineDocItems1,0,"json"),"_document_number");
+				print "lineDoc"; print lineDoc;
+				jsonput(eachquoteLine, "_document_number", lineDoc);
+				jsonput(eachquoteLine,"billingFrequency", "WK"); // update to Weekly when BF=Monthly for the quotes in data table
+
+			}else{
+				print "Lines are not available with monthly billing frequency";
+			}
+			
+		}
+		updateLineUrl = systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/" + bsId+ "/actions/_update_line_items";
+			
+		jsonarrayappend(quoteLineArray, eachquoteLine);
+		//print updateLineUrl;
+		jsonput(items, "items", quoteLineArray);
+		jsonput(transactionLine, "transactionLine", items);
+		jsonput(quoteLine, "documents", transactionLine);
+		//print quoteLine;
+		results = urldata(updateLineUrl, "POST", headers, jsontostr(quoteLine));
+		//print "======results==========="; print results;
+		SaveURL= systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/" + bsId+ "/actions/cleanSave_t";
+		SaveURLResults = urldata(SaveURL, "POST", headers);
+		//print SaveURLResults;
+}
+return "";

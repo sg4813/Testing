@@ -1,0 +1,99 @@
+ret = "";
+retUpdate = "";
+tempJson = json();
+tempJsonArray = jsonarray();
+LineNumber = string[];
+DemoNumber = string[];
+SkuNumber = string[];
+demoSku = dict("string[]");
+dictLineNumber = dict("string");
+strError = "";
+
+strAccessToken = util.salesforceAuthenticationAccessToken();
+strAuthorization = "Bearer "+ strAccessToken;
+sfUrl = "";
+rs = bmql("Select * from SF_Int_Details where Type = 'Demo Update'");
+for each in rs
+{
+	sfUrl = get(each,"URL");
+}
+headers = dict("string");
+put(headers,"Content-Type","application/json");
+put(headers,"Authorization",strAuthorization);
+
+for line in transactionLine
+{
+	if(line._part_number <> "" AND line._parent_line_item <> "Mobile Robotics" AND line.demoNumber <> "")
+	{
+		if(findinarray(DemoNumber,line.demoNumber) == -1)
+		{
+			append(DemoNumber,line.demoNumber);
+		}
+	}
+}
+
+for demo in DemoNumber
+{
+	for line in transactionLine
+	{
+		if(line.demoNumber ==  demo)
+		{
+		
+			jsonput(tempJson,"VoucherNumber",line.demoNumber);
+			jsonput(tempJson,"skuValues",line._part_number);
+			jsonput(tempJson,"consumedstatus",RequestDemoStatus);
+			append(SkuNumber,line._part_number);
+			put(dictLineNumber,line._part_number,line._document_number);
+			jsonarrayappend(tempJsonArray,tempJson);
+		}
+	}
+	//print tempJsonArray;
+	put(demoSku,demo,SkuNumber);
+	print tempJsonArray;
+	requestJson = json();
+	jsonput(requestJson,"req",tempJsonArray);
+	Responsedict = urldata(sfUrl,"Post",headers,jsontostr(requestJson));
+	print Responsedict;
+	if(get(Responsedict,"Status-Code") == "200")
+	{
+		dictResponse = json(get(Responsedict,"Message-Body"));
+		
+		if(isjsonnull(dictResponse,"error"))
+		{
+			tempJson1 = json(jsonget(dictResponse,"resJson"));
+			tempJson2 = jsonget(tempJson1,demo,"json");
+			print SkuNumber;
+			for eachsku in 	SkuNumber
+			{
+				if(jsonget(tempJson2,eachsku) == "Successfully Updated")
+				{
+					retUpdate = retUpdate + "," + get(dictLineNumber,eachsku) + "-" + "Successfully Updated" + ",";
+				}
+				else
+				{
+					strError = jsonget(tempJson2,eachsku);
+					retUpdate = retUpdate + "," + get(dictLineNumber,eachsku) + "-" + strError + ",";
+					
+				}
+			}
+		}
+		else
+		{
+			strError = jsonget(dictResponse,"error");
+		}	
+	}
+	tempJson = json();
+	tempJsonArray = jsonarray();
+	SkuNumber = string[];
+	dictLineNumber = dict("string");
+	if(strError <> "")
+	{
+		break;
+	}
+	strError = "";
+}
+
+
+ret = ret + "|1~demoUpdateStatus~" + retUpdate + "|" + "1~demoUpdateStatusError~" + strError + "|";
+
+return ret;

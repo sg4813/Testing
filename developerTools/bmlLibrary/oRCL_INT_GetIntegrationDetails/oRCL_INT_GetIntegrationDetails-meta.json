@@ -1,0 +1,12 @@
+{
+  "name" : "Get Integration Details",
+  "variableName" : "oRCL_INT_GetIntegrationDetails",
+  "description" : "This BML is copied from CPQ-CDM Integration white paper. This BML fetches the integration details from Db",
+  "libraryFunctions" : [ ],
+  "returnType" : "String Dictionary",
+  "parameters" : [ {
+    "name" : "sysName",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

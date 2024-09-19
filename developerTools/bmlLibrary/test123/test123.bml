@@ -1,0 +1,15 @@
+ret = "";
+templateFileLocation = "$BASE_PATH$/Zebra/abhishek.txt";
+payload = dict("string");
+output = applytemplate(templateFileLocation, payload,"");
+headers=dict("string");
+put(headers, "content-type", "application/json");
+strUserDetails = "AS3869" + ":" + "b]1NBN6^4I";	
+encodecredential = encodebase64(strUserDetails);	
+authstring = "Basic "+ encodecredential;	
+//print authstring;	
+put(headers, "Authorization", authstring);
+print output;
+response=urldata("https://cpq.zebra.com/rest/v9/pricing/actions/calculatePrice", "POST", headers,output);
+print response;
+return (get(response, "Message-Body"));

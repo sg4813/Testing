@@ -1,0 +1,52 @@
+resultJSON=json();
+requiredSizeJSON="";
+tShirtSize="";
+totalDays=0.0;
+sites=0;
+inputJson=json();
+if(configJSONAttribute<>"")
+{
+inputJson=json(configJSONAttribute);
+}
+if(device=="DISCOVERY")
+{
+	if(noOfSepBuldings=="Small")
+	{
+		sites=1;
+	}
+	elif(noOfSepBuldings=="Medium")
+	{
+		sites=3;
+	}
+	elif(noOfSepBuldings=="Large" OR noOfSepBuldings=="Custom" OR noOfSepBuldings=="Other")
+	{
+		sites=10;
+	}
+}
+elif(device=="PRFID" OR device=="ARFID")
+{
+	sites=configSites;
+}
+
+resultSet = bmql("select * from PS_Tsize where Minimum <= $sites and Maximum >= $sites and Devices_Site = $device ORDER BY Weightage DESC");
+for eachRecord in resultSet
+{
+	tShirtSize=get(eachRecord,"Tsize");
+	totalDays=atof(get(eachRecord,"BQ_Weightage"));
+	break;
+}
+
+if(tShirtSize<>"")
+{
+	requiredSizeJSON=jsonget(inputJson,tShirtSize);
+	jsonput(resultJSON,"tShirtSize",tShirtSize);
+	jsonput(resultJSON,"totalDays",totalDays);
+	jsonput(resultJSON,"requiredSizeJSON",requiredSizeJSON);
+}
+else
+{
+	jsonput(resultJSON,"tShirtSize","");
+	jsonput(resultJSON,"totalDays",0);
+	jsonput(resultJSON,"requiredSizeJSON","");
+}
+return jsontostr(resultJSON);

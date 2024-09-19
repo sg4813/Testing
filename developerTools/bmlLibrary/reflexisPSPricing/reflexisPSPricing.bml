@@ -1,0 +1,192 @@
+ret = float[];
+hoursTotal= 0;
+quoteSize = "";
+nCount = range(sizeofarray(SKUArray));
+nQuantity = range(sizeofarray(NumberofThirdpartyIntegration));
+//print nCount;
+hypercareweeksHours = 0;
+businessFactor = 0.0;
+regionFactor = 0.0;
+priceTotal = 0.0;
+finalPrice = 0.0;
+pulseIntegrationQuantity = 0;
+integrationAdded = false;
+currency = "";
+coversionfac = 1.0;
+//Size
+if(NumberofLocations > 2000){
+	quoteSize = "XL";
+}elif(NumberofLocations > 500 AND NumberofLocations <= 2000){
+	quoteSize = "L";
+}elif(NumberofLocations > 200 AND NumberofLocations <= 500){
+	quoteSize = "M";
+}else{
+	quoteSize = "S";
+}
+//Currency Conversion
+rs1 = bmql("Select currency_t from commerce.transaction");//where _transaction_id = $_transaction_id
+for each in rs1
+	{
+		 currency = get(each,"currency_t");
+		//print currency ;
+	}
+rs1 = bmql("Select ConversionFactor from ConversionFactor where SourceCurrency =$currency and TargetCurrency ='USD'");//where _transaction_id = $_transaction_id
+for each in rs1
+	{
+		coversionfac = atof(get(each,"ConversionFactor"));
+		//print currency ;
+	}
+
+
+
+for eachSKU in nCount{
+	
+	if(SKUArray[eachSKU] == "Number of third party integration use cases"){
+		
+			print "integration";
+			pulseIntegrationQuantity = NumberofThirdpartyIntegration[eachSKU];
+
+	}
+	
+}
+//Type of Business
+
+recordSetBusiness = bmql("select Category,Value,Multiplier from Reflexis_Multiplier where Category = 'Type of Retailer' and Value = $TypeofBusiness");
+
+for eachBusiness in recordSetBusiness{
+	
+	
+	businessFactor = atof(get(eachBusiness,"Multiplier"));
+	
+	
+}
+
+//Region
+
+recordSetRegion = bmql("select List_Price from PS_PerHour_Price where ModelName = 'Reflexis' and Org = $Region");
+
+for eachRegion in recordSetRegion{
+	
+	
+	regionFactor = atof(get(eachRegion,"List_Price"));
+	
+	
+}
+
+
+//Additional Hypercare Weeks Hours
+
+recordSetHypercare = bmql("select Bill_Hours from PS_HOURS where Role_Type = 'AdditionalHypercareweeksHours' and Size = $quoteSize");
+
+for eachHypercare in recordSetHypercare{
+	
+	
+	hypercareweeksHours = atof(get(eachHypercare,"Bill_Hours"));
+	
+	
+}
+
+print regionFactor;
+print businessFactor;
+print coversionfac;
+//print hypercareweeksHours;
+
+
+if(NumberofAdditionalBanners > 10  OR AdditionalHypercareweeks > 8 OR IsAddonproduct OR TypeofBusiness == "New Vertical"){
+	
+	print 1;
+
+	append(ret,0.0); // For Custom Professional Services SKU
+
+}else{
+	
+	print 2;
+	rs = bmql("Select * from RefSKUDetails where ProductFamilyDesc = 'Professional Services'");
+	recordSet = bmql("select SKU,Role_Type,Bill_Hours from PS_HOURS where Size = $quoteSize");
+	//for each in rs{
+	for eachSKU in nCount{ 	
+		//if(get(each,"SKU") == "Workforce Management Professional Services" OR get(each,"SKU") == "Appointments Professional Services" OR get(each,"SKU") == "AI Professional Services" OR get(each,"SKU") == "Integration Professional Services" OR get(each,"SKU") == "Custom Professional Services"){
+			
+		if(SKUArray[eachSKU] == "Workforce Management Professional Services" OR SKUArray[eachSKU] == "Appointments Professional Services" OR SKUArray[eachSKU] == "AI Professional Services" OR SKUArray[eachSKU] == "Integration Professional Services" OR SKUArray[eachSKU] == "Custom Professional Services"){
+			
+			hoursTotal = 0.0;
+			
+		}else{
+			
+				if(SKUArray[eachSKU] <> "Number of third party integration use cases"){
+				
+					for eachRecord in recordSet{
+						
+						if(SKUArray[eachSKU] == get(eachRecord,"SKU")){
+							
+							//print get(each,"SKU");
+							//print get(eachRecord,"SKU");
+							
+							if(get(eachRecord,"Role_Type") == "ROS"){
+								//print 6;
+								//print get(eachRecord,"Hours");
+								hoursTotal = atoi(get(eachRecord,"Bill_Hours")) + hypercareweeksHours + ((hypercareweeksHours / 4)* AdditionalHypercareweeks);
+								//print hoursTotal;
+							}
+							if(get(eachRecord,"Role_Type") == "SKUhour"){
+								//print 7;
+								//print get(eachRecord,"Hours");
+								hoursTotal = hoursTotal + atoi(get(eachRecord,"Bill_Hours"));
+								//print hoursTotal;
+							}
+							if(get(eachRecord,"Role_Type") == "AdditionalLanguage"){
+								//print 8;
+								//print get(eachRecord,"Hours");
+								hoursTotal = hoursTotal + 20 + atoi(get(eachRecord,"Bill_Hours")) * NumberofAdditionalLanguages;
+								//print hoursTotal;
+							}
+							if(get(eachRecord,"Role_Type") == "AdditionalBanner"){
+								//print 9;
+								//print get(eachRecord,"Hours");
+								if(NumberofAdditionalBanners > 0){
+									hoursTotal = hoursTotal + atoi(get(eachRecord,"Bill_Hours")) * (NumberofAdditionalBanners - 1);
+								}
+								 //print hoursTotal;
+							}
+							
+							if(SKUArray[eachSKU] == "Pulse Professional Services"){
+								
+								if(get(eachRecord,"Role_Type") == "PulseIntegration"){
+								//print 10;
+								//print get(eachRecord,"Hours");
+								hoursTotal = hoursTotal + atoi(get(eachRecord,"Bill_Hours")) * pulseIntegrationQuantity;
+								//print hoursTotal;
+								}
+								
+								
+							}
+						
+						
+						}
+				
+				
+					}	
+		
+				}
+				
+					
+			}
+			
+					print "---------------------";
+					print "hoursTotal:"; print hoursTotal;
+					priceTotal = hoursTotal * regionFactor * businessFactor;
+					priceTotal = priceTotal/coversionfac;
+					print "priceTotal:"; print priceTotal;
+					finalPrice = round(priceTotal , 2);
+					//print "priceTotal:"; print priceTotal;
+					print "---------------------";
+					append(ret,finalPrice);
+			
+					
+
+				
+		}
+		
+}
+
+return ret;

@@ -1,0 +1,11 @@
+{
+  "name" : "Get Status after approval completion",
+  "variableName" : "getStatusAfterApprovalCompletion",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ ],
+  "mainDocAttributes" : [ "isThisCustomerAMultiNationalOrGlobalAccount_t", "approvalCount", "remainingTCV", "contractType_t", "fetchSolutionType", "discountFlag", "approvalFlow_t", "fetchPrerelease", "fetchAccountType", "serviceSKUQuote", "isRebooking_c", "rebookingQuote_c" ],
+  "systemAttributes" : [ ]
+}

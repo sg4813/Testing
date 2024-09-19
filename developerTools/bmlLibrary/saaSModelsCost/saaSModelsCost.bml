@@ -1,0 +1,30 @@
+cost = 0.0;
+
+currency ="";
+coversionfac =1.0;
+
+rs1 = bmql("Select currency_t from commerce.transaction");//where _transaction_id = $_transaction_id
+for each in rs1
+	{
+		currency = get(each,"currency_t");
+		//print currency ;
+	}
+rs1 = bmql("Select ConversionFactor from ConversionFactor where SourceCurrency =$currency and TargetCurrency ='USD'");//where _transaction_id = $_transaction_id
+for each in rs1
+	{
+		coversionfac = atof(get(each,"ConversionFactor"));
+		//print currency ;
+	}
+Quantity = get(Inputs,"NumberOfLicensesWCS","integer");
+partNumArrSize = range(sizeofarray(partNumberArray));
+
+costJson=json();
+costRS=bmql("select SKU,Hosting,Uplift from WFC_Cost where SKU in $partNumberArray AND MinQty <= $Quantity AND MaxQty >=$Quantity");
+
+for eachRec in costRS{
+	hostingCost=getfloat(eachRec,"Hosting");
+	supportCost=getfloat(eachRec,"Uplift");
+	tempCost=(hostingCost+supportCost)*coversionfac;
+	jsonput(costJson, get(eachRec,"SKU"), tempCost);
+}
+return costJson;

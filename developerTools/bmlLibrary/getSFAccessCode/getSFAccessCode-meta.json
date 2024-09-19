@@ -1,0 +1,9 @@
+{
+  "name" : "Get SF Access Code",
+  "variableName" : "getSFAccessCode",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String Dictionary",
+  "parameters" : [ ],
+  "attributes" : [ ]
+}

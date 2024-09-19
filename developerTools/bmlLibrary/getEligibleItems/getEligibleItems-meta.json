@@ -1,0 +1,27 @@
+{
+  "name" : "Get Eligible Items",
+  "variableName" : "getEligibleItems",
+  "description" : "Created by: Abhishek 07/02/19: Function will provide eligible Sku Number for given Model.",
+  "libraryFunctions" : [ "util.checkCustomEligibility" ],
+  "returnType" : "String Dictionary",
+  "parameters" : [ {
+    "name" : "PriceList",
+    "type" : "String"
+  }, {
+    "name" : "SkuNumber",
+    "type" : "String[]"
+  }, {
+    "name" : "Condition",
+    "type" : "String[]"
+  }, {
+    "name" : "Oragnization",
+    "type" : "String"
+  }, {
+    "name" : "AccountType",
+    "type" : "String"
+  }, {
+    "name" : "AccountNumber",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

@@ -1,0 +1,55 @@
+retVal="";
+
+for each in transactionLine {
+month=0;
+prodays =0;
+lastdays =1;
+month1=0;
+prodays1 =0;
+lastdays1 =1;
+//print each.contractEndDate_l;
+if(each.contractEndDate_l <>"" AND each.contractStartDate_l <>"") {
+month =(getdiffindays(strtodate(each.contractEndDate_l,"%Y-%m-%d %H:%M:%S"), strtodate(each.contractStartDate_l,"%Y-%m-%d %H:%M:%S")))/30;
+
+if(comparedates(strtodate(each.contractEndDate_l,"%Y-%m-%d %H:%M:%S"),minusdays(addmonths(strtodate(each.contractStartDate_l,"%Y-%m-%d %H:%M:%S"),month),1)) >= 0){
+month = month;
+}
+else {
+month = month-1;
+}
+prodays = getdiffindays(strtodate(each.contractEndDate_l,"%Y-%m-%d %H:%M:%S"), minusdays(addmonths(strtodate(each.contractStartDate_l,"%Y-%m-%d %H:%M:%S"),month),1));
+
+lastdays = getdiffindays(addmonths(strtodate(each.contractStartDate_l,"%Y-%m-%d %H:%M:%S"),month), addmonths(strtodate(each.contractStartDate_l,"%Y-%m-%d %H:%M:%S"),month+1));
+
+if(each.oRCL_ABO_ActionCode_l== "DELETE" AND prodays==1) //INC1180786
+{
+	prodays=0;
+}
+
+retVal= retVal+ each._document_number + "~actualMonths~" + string(month) + "|";
+retVal= retVal+ each._document_number + "~proRatedDays~" + string(prodays) + "|";
+retVal= retVal+ each._document_number + "~lastMonthDays~" + string(lastdays) + "|";
+
+if(each.alignBillingFromDate <> ""){
+
+month1 =(getdiffindays(minusdays(strtodate(each.alignBillingFromDate,"%Y-%m-%d %H:%M:%S"),1), strtodate(each.contractStartDate_l,"%Y-%m-%d %H:%M:%S")))/30;
+
+if(comparedates(strtodate(each.alignBillingFromDate,"%Y-%m-%d %H:%M:%S"),addmonths(strtodate(each.contractStartDate_l,"%Y-%m-%d %H:%M:%S"),month1)) >= 0){
+month1 = month1;
+}
+else {
+month1 = month1-1;
+}
+prodays1 = getdiffindays(strtodate(each.alignBillingFromDate,"%Y-%m-%d %H:%M:%S"), addmonths(strtodate(each.contractStartDate_l,"%Y-%m-%d %H:%M:%S"),month1));
+
+lastdays1 = getdiffindays(addmonths(strtodate(each.contractStartDate_l,"%Y-%m-%d %H:%M:%S"),month1), addmonths(strtodate(each.contractStartDate_l,"%Y-%m-%d %H:%M:%S"),month1+1));
+
+retVal= retVal+ each._document_number + "~alignMonth~" + string(month1) + "|";
+retVal= retVal+ each._document_number + "~alignProRatedDays~" + string(prodays1) + "|";
+retVal= retVal+ each._document_number + "~alignMonthDays~" + string(lastdays1) + "|";
+
+}
+}
+}
+
+return retVal;

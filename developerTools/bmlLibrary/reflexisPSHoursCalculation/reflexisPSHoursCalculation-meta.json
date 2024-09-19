@@ -1,0 +1,36 @@
+{
+  "name" : "ReflexisPSHoursCalculation",
+  "variableName" : "reflexisPSHoursCalculation",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "Integer[]",
+  "parameters" : [ {
+    "name" : "SKUArray",
+    "type" : "String[]"
+  }, {
+    "name" : "NumberofLocations",
+    "type" : "Integer"
+  }, {
+    "name" : "NumberofAdditionalLanguages",
+    "type" : "Integer"
+  }, {
+    "name" : "NumberofAdditionalBanners",
+    "type" : "Integer"
+  }, {
+    "name" : "NumberofThirdpartyIntegration",
+    "type" : "Integer[]"
+  }, {
+    "name" : "AdditionalHypercareweeks",
+    "type" : "Integer"
+  }, {
+    "name" : "TypeofBusiness",
+    "type" : "String"
+  }, {
+    "name" : "Region",
+    "type" : "String"
+  }, {
+    "name" : "IsAddonproduct",
+    "type" : "Boolean"
+  } ],
+  "attributes" : [ ]
+}

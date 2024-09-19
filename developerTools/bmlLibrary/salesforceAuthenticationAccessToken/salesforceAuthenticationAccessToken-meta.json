@@ -1,0 +1,9 @@
+{
+  "name" : "Salesforce Authentication Access Token",
+  "variableName" : "salesforceAuthenticationAccessToken",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "attributes" : [ ]
+}

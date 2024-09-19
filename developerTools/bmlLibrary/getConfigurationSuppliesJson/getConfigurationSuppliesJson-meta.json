@@ -1,0 +1,36 @@
+{
+  "name" : "Get Configuration Supplies Json",
+  "variableName" : "getConfigurationSuppliesJson",
+  "description" : "Created by Jayaram to form the configuration Supplies Json which will be the input for forming the Materials details HTML table",
+  "libraryFunctions" : [ "util.zebraExternalPricingnew" ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "printerID",
+    "type" : "String"
+  }, {
+    "name" : "regionID",
+    "type" : "String"
+  }, {
+    "name" : "productType",
+    "type" : "String"
+  }, {
+    "name" : "industry",
+    "type" : "String"
+  }, {
+    "name" : "printTechnology",
+    "type" : "String"
+  }, {
+    "name" : "materialType",
+    "type" : "String"
+  }, {
+    "name" : "width",
+    "type" : "String"
+  }, {
+    "name" : "length",
+    "type" : "String"
+  }, {
+    "name" : "oCCAccountID",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

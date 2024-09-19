@@ -1,0 +1,12 @@
+{
+  "name" : "Get configContextKey",
+  "variableName" : "getConfigContextKey",
+  "description" : "Abhishek:01/25/22: Created for Fetch project.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "BS_Id",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

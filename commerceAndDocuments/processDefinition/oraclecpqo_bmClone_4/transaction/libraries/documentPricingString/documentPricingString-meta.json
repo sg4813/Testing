@@ -1,0 +1,11 @@
+{
+  "name" : "Document Pricing String",
+  "variableName" : "documentPricingString",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_part_number", "_part_custom_field11", "annualCloudNetPrice_l", "grossCloudPriceInclHosting_l", "grossCloudNetPrice_l", "oRCL_manualAdjustments", "_document_number" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

@@ -1,0 +1,11 @@
+{
+  "name" : "Tax Exempt",
+  "variableName" : "taxExempt",
+  "description" : "Updates a transaction's tax exempt status at the line level based on the transaction level status.  This is used to default this value on the line based upon the value set by the user on the transaction header.",
+  "libraryFunctions" : [ ],
+  "returnType" : "Boolean",
+  "parameters" : [ ],
+  "subDocAttributes" : [ ],
+  "mainDocAttributes" : [ "taxExempt_t" ],
+  "systemAttributes" : [ ]
+}

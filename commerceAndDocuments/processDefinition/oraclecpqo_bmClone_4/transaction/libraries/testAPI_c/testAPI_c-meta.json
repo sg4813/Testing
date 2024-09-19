@@ -1,0 +1,11 @@
+{
+  "name" : "testAPI",
+  "variableName" : "testAPI_c",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

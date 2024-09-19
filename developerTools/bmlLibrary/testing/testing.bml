@@ -1,0 +1,24 @@
+retVal = json();
+tempArr = range(8);
+numArr = integer[];
+iCount = 1;
+for each in tempArr{
+append(numArr,iCount);
+iCount = iCount + 1;
+}
+revNumArr = integer[];
+sizeCount = sizeofarray(numArr);
+rotByCount = 2;
+for each in numArr{
+	if(rotByCount <= sizeCount){
+	append(revNumArr, numArr[rotByCount]);
+	rotByCount = rotByCount + 1;
+	}else{
+	append(revNumArr, numArr[sizeCount - rotByCount]);
+	rotByCount = rotByCount + 1;
+	}
+}
+print revNumArr;
+print "util library testing";
+//jsonput(retVal, "configuration", "TEST");
+return retVal;

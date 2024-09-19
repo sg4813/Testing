@@ -1,0 +1,172 @@
+//Function oRCL_abo_BuildLineItemHierarchy
+//iterates through transactionLine collection and
+//constructs several maps
+//  Imported SubDoc Attributes:
+//      Fields used in building hierarchy:
+//         "transactionLine" 
+//         "_document_number"
+//         "_parent_doc_number"
+//         "_line_bom_id"
+//         "_line_bom_parent_id"
+//      Additional fields needed by caller:
+//         "requestDate_l"
+//         "itemInstanceId_l"
+//         "fulfillmentStatus_l"
+//         "oRCL_ABO_ActionCode_l" 
+//  Returned dictionary of "anytype" containing - Map of following Maps: 
+//      "DocNumToIndex" - map of line DocNum to it's index in transactionLine collection
+//      "DocNumToAttrs" - map from docNum to subset of attributes values needed by caller's cross line processing logic
+//      "DocNumToRootDocNum" - map of line DocNum to it's root line DocNum
+//      "DocNumToParDocNum" - map of line DocNum to parent's DocNum according to line hierarchy 
+//      "DocNumToParBomDocNum" - map of line DocNum to parent's DocNum according to bom hierarchy 
+// Function Body: 
+
+//CONSTANTS definitions
+LINE_TO_INDEX_MAP = "DocNumToIndex";
+LINE_TO_ATTRS_MAP = "DocNumToAttrs";
+LINE_TO_ROOTS_MAP = "DocNumToRootDocNum";
+LINE_TO_PAR_DOC_MAP = "DocNumToParDocNum";
+LINE_TO_PAR_BOM_DOC_MAP = "DocNumToParBomDocNum";
+
+maxDepth = range(100); //wile loop simulator
+
+ERROR_HEADER = "can not build LineItemHierarchy: ";
+
+//END CONSTANTS definitions
+
+returnDict = dict("anytype"); //wrapper dictionary 
+
+docNumToIndex = dict("string"); //map of line DocNum to it's index in transactionLine collection
+docNumToAttrs = dict("anytype"); //map of line DocNum to it's attribute value map
+
+docNumToRootDocNum = dict("string"); //map of line DocNum to root's DocNum
+docNumToParDocNum = dict("string"); //map of line DocNum to parent's DocNum as per LI structure
+docNumToParBomDocNum = dict("string"); //map of line DocNum to root's DocNum as per BOM structure
+
+docNumToParBomId = dict("string"); //map of line DocNum to _line_bom_parent_id
+modelDocNumToChildBomInfo = dict("anytype"); //map of model line DocNum to map of child's bom id to docNum
+
+
+//Start transactionLine iteration
+curIndex = 0;
+for line in transactionLine {
+   if(len(line._document_number) < 1) {
+      continue; // safeguard against uncommitted lines 
+   }   
+   lineDocNum = line._document_number;
+   parDocNum = line._parent_doc_number;
+   lineBomId = line._line_bom_id;
+   parBomId = line._line_bom_parent_id;
+
+   
+   //self register
+   put(docNumToIndex , lineDocNum, string(curIndex) );
+   
+   //start collecting line attributes
+   attrVals = dict("string");
+   put(attrVals , "requestDate_l", line.requestDate_l);
+   put(attrVals , "itemInstanceId_l", line.itemInstanceId_l);
+   put(attrVals , "fulfillmentStatus_l", line.fulfillmentStatus_l);
+   put(attrVals , "oRCL_ABO_ActionCode_l", line.oRCL_ABO_ActionCode_l);
+   //IF Needed add your new attributes here
+   put(docNumToAttrs  , lineDocNum , attrVals);   
+   //end collecting line attributes 
+
+   //collect parent doc number mapping
+   if(len(parDocNum) < 1) {
+      //this is the root - register as self root
+      put(docNumToRootDocNum , lineDocNum, lineDocNum);
+   } else {
+      put(docNumToParDocNum , lineDocNum, parDocNum);
+   }
+   
+   //collect bom ids information in modelDocNumToChildBomInfo to deduce parent bom node in 2nd path; 
+   //NOTE: bom ids are only unique in the context of a root
+   if(len(lineBomId) > 0 AND len(parDocNum) > 0) {
+      if(NOT (containskey(modelDocNumToChildBomInfo , parDocNum))) {
+         childBoms = dict("string");
+         put(modelDocNumToChildBomInfo, parDocNum, childBoms);
+      }
+      childBoms = get(modelDocNumToChildBomInfo, parDocNum, "dict<string>");
+      put(childBoms, lineBomId, lineDocNum); 
+   }
+   //register parent  bom ids
+   if (len(parBomId) > 0) {
+      put(docNumToParBomId, lineDocNum, parBomId);
+   }
+  
+   curIndex = curIndex + 1;
+} //End transactionLine iteration 
+
+
+//now build the hierarchy 
+
+
+allDocNums = keys(docNumToAttrs);
+
+for curDocNum in allDocNums {
+
+   if(NOT(containskey(docNumToParDocNum , curDocNum ))){ //its the root - nothing to do
+      continue;
+   }
+   
+   //populate docNumToRootDocNum - LI hierarchy will be enough
+   if((NOT containskey(docNumToRootDocNum, curDocNum)) AND containskey(docNumToParDocNum, curDocNum)) {
+      //it is unprocessed sub-line item
+      rootDocNumber = "";
+      visitedDocNums = String[0]; //collects items as we travel up the chain
+      append(visitedDocNums, curDocNum);
+      curParDocNum = get(docNumToParDocNum, curDocNum );
+      for level in maxDepth {
+         if(containskey(docNumToRootDocNum , curParDocNum )){
+            //already visited ancestor - use it's root; roots are already self registered in docNumToRootDocNum
+            rootDocNumber = get(docNumToRootDocNum , curParDocNum );
+            break;
+         }
+         append(visitedDocNums, curParDocNum); //perent not processed yet - register
+         curParDocNum = get(docNumToParDocNum, curParDocNum );
+         if(len(curParDocNum) < 1) {
+            throwerror(ERROR_HEADER + "inconsistent _document_number/_parent_doc_number chain for document number " + curDocNum); 
+         }
+      }
+      if(len(rootDocNumber) < 1) {
+         throwerror(ERROR_HEADER + "can not find root item for document number " + curDocNum); 
+      }
+      //now register all processed items
+      for descDocNum in visitedDocNums {
+        put(docNumToRootDocNum , descDocNum , rootDocNumber );
+      }
+   }// end of populate docNumToRootDocNum
+   
+   // populate docNumToParBomDocNum entry
+   if(containskey(docNumToParBomId, curDocNum)) { 
+      parBomId = get(docNumToParBomId, curDocNum );
+      curParDocNum = get(docNumToParDocNum, curDocNum );
+      curAncDocNum = "";
+      if(containskey( modelDocNumToChildBomInfo, curParDocNum)) {
+         bomIdToDocNum = get(modelDocNumToChildBomInfo, curParDocNum, "dict<string>");
+         if(isnull(bomIdToDocNum)) {
+            throwerror(ERROR_HEADER + "inconsistent _line_bom_id/._line_bom_parent_id chain for document number " + curDocNum);
+         }
+         if(containskey( bomIdToDocNum, parBomId)) {
+            curAncDocNum = get(bomIdToDocNum, parBomId);
+         } else { //this is immediate child of a model - use parent doc number value
+            curAncDocNum = curParDocNum;
+         }
+         if(len(curAncDocNum) > 0) {
+            put(docNumToParBomDocNum, curDocNum, curAncDocNum);   
+         }
+      }       
+   }//End docNumToParBomDocNum
+
+}
+
+//populate returnDict
+put(returnDict, LINE_TO_PAR_DOC_MAP, docNumToParDocNum );
+put(returnDict, LINE_TO_ROOTS_MAP, docNumToRootDocNum );
+put(returnDict, LINE_TO_ATTRS_MAP, docNumToAttrs);
+put(returnDict, LINE_TO_INDEX_MAP , docNumToIndex);
+put(returnDict, LINE_TO_PAR_BOM_DOC_MAP, docNumToParBomDocNum);
+
+
+return returnDict;

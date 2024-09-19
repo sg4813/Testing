@@ -1,0 +1,16 @@
+payload = dict("string");
+templateFileLocation = "$BASE_PATH$/ZebraPOC/Currency.txt";
+//put(payload, "smartcard", "1234567");
+output = applytemplate(templateFileLocation,payload,"");
+print output;
+strDict = dict("string");
+put(strDict, "Content-Type", "application/json");
+encodecredential = encodebase64("Ashrivastava:iNC@M4__6_");
+print encodecredential;
+authstring="Basic "+encodecredential;
+put(strDict, "Authorization", authstring);
+response=urldata("https://testzebra.bigmachines.com/rest/v8/companies/testzebra/users/AS3869", "PATCH", strDict,output);
+//response = urldata("https://DevICSMultichoice-multichoicesupportservi.gbcom-south-1.oraclecloud.com:443/ic/api/integration/v1/flows/rest/LINKDECODE_REST_APP/1.0/linkDecoderSmartCardSerial", "POST", strDict,output );
+//response = get
+print response;
+return "";

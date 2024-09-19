@@ -1,0 +1,44 @@
+results = recordset();
+strTransactionId = get(Inputs,"Transaction Id");
+strUserId = get(Inputs,"OCC User");
+strAccount = get(Inputs,"Account Number");
+strPart = get(Inputs,"Part Number");
+strRequest = datetostr(getdate(true),"dd/MM/yyyy HH:mm:ss", "America/Chicago");
+
+if(get(Inputs,"Type") == "Request")
+{
+	strListPriceOnly = get(Inputs,"showListPriceOnly");
+	results = bmql("insert into ZebraPricingLog (TransactionID, OCCUserId,AccountID,Item,RequestDateTime,ShowListPriceOnly) values($strTransactionId,$strUserId,$strAccount,$strPart,$strRequest,$strListPriceOnly)");
+}
+elif(get(Inputs,"Type") == "CM Request")
+{
+	strClassification = get(Inputs,"Classification");
+	strPP = get(Inputs,"Promotional Program");
+	results = bmql("insert into ZebraPricingLog (TransactionID, OCCUserId,AccountID,Item,RequestDateTime,PromotionalProgram,Classification) values($strTransactionId,$strUserId,$strAccount,$strPart,$strRequest,$strPP,$strClassification)");
+}
+elif(get(Inputs,"Type") == "Response")
+{
+
+	strListPrice = get(Inputs,"List Price");
+	strNetPrice = get(Inputs,"Net Price");
+	strPurchasingMethod = get(Inputs,"Purchasing Method");
+	strErrorCode = get(Inputs,"Error Code");
+	strEligibleFlag = get(Inputs,"Eligible Flag");
+	strListPriceOnly = get(Inputs,"showListPriceOnly");
+	results = bmql("insert into ZebraPricingLog (TransactionID, OCCUserId,AccountID,Item,ResponseDateTime,NetPrice,ListPrice,PurchasingMethod,Eligiblity,ShowListPriceOnly) values($strTransactionId,$strUserId,$strAccount,$strPart,$strRequest,$strNetPrice,$strListPrice,$strPurchasingMethod,$strEligibleFlag,$strListPriceOnly)");
+}
+elif(get(Inputs,"Type") == "CM Response")
+{
+	strClassification = get(Inputs,"Classification");
+	strPP = get(Inputs,"Promotional Program");
+	strListPrice = get(Inputs,"List Price");
+	strNetPrice = get(Inputs,"Net Price");
+	strPurchasingMethod = get(Inputs,"Purchasing Method");
+	strErrorCode = get(Inputs,"Error Code");
+	strEligibleFlag = get(Inputs,"Eligible Flag");
+	results = bmql("insert into ZebraPricingLog (TransactionID, OCCUserId,AccountID,Item,ResponseDateTime,NetPrice,ListPrice,PurchasingMethod,Eligiblity,PromotionalProgram,Classification) values($strTransactionId,$strUserId,$strAccount,$strPart,$strRequest,$strNetPrice,$strListPrice,$strPurchasingMethod,$strEligibleFlag,$strPP,$strClassification)");
+		
+
+}
+
+return "";

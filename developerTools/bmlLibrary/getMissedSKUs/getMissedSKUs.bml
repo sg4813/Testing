@@ -1,0 +1,49 @@
+table_name="";
+allSkuArray=String[];
+missedSkuArray=String[];
+
+if(model_name<>"" AND category<>"")
+{
+	//Logic to Find Table Name Based on Model Name
+	resultSet1 = bmql("select Table from ModelColumns where Model=$model_name");
+	for each in resultSet1
+	{
+		table_name=get(each,"Table");
+		break;
+	}
+	if(table_name<>"")
+	{
+		//Logic to Find All SKU's Required
+		resultSet2 = bmql("select SkuNumber from ModelSKUrelationship where Model=$model_name AND Category=$category AND Status='Active'");
+		for each in resultSet2
+		{
+			sku=get(each,"SkuNumber");
+			if(findinarray(allSkuArray,sku)==-1)
+			{
+				append(allSkuArray,sku);
+			}
+		}
+		//Logic to Find All SKU's Required
+		if(not isempty(allSkuArray))
+		{
+			resultSet3 = bmql("select StdConfiguration from $table_name where StdConfiguration NOT IN $allSkuArray");
+			for each in resultSet3
+			{
+				sku=get(each,"StdConfiguration");
+				if(findinarray(missedSkuArray,sku)==-1)
+				{
+					append(missedSkuArray,sku);
+				}
+			}
+		}
+		else
+		{
+			return missedSkuArray;
+		}
+	}
+	else
+	{
+		return missedSkuArray;
+	}
+}
+return missedSkuArray;

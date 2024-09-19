@@ -1,0 +1,11 @@
+{
+  "name" : "SaaS Amount Rollup",
+  "variableName" : "refZPAAmountRollup",
+  "description" : "",
+  "libraryFunctions" : [ "commerce.shellSKUSCombinedAtModelLevel" ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_part_desc", "modelName_l", "_document_number", "_parent_doc_number", "annualCloudPriceInclHosting_l", "annualCloudPriceWoHosting_l", "annualCloudNetPrice_l", "grossCloudPriceInclHosting_l", "grossCloudPriceWoHosting_l", "grossCloudNetPrice_l", "grossCloudListPriceInclHosting_l", "perEmployeePerMonthPriceGross_l", "perStorePerMonthGross_l", "_line_bom_id", "perStorePerMonthNet_l", "perEmployeePerMonthPriceNet_l", "_model_name", "_part_custom_field11", "oRCL_ABO_ActionCode_l", "customDiscountAmount_l", "partnerListPrice", "_part_number", "_part_custom_field2" ],
+  "mainDocAttributes" : [ "currency_t", "contractType_t" ],
+  "systemAttributes" : [ ]
+}

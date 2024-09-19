@@ -1,0 +1,24 @@
+{
+  "name" : "Find Array Count With Sku",
+  "variableName" : "findArrayCountwithSku",
+  "description" : "Created By:Abhishek:07/02/19.Function will return Array count for Accessories, Software Array.",
+  "libraryFunctions" : [ ],
+  "returnType" : "Integer",
+  "parameters" : [ {
+    "name" : "JsonStr",
+    "type" : "String"
+  }, {
+    "name" : "Recommended",
+    "type" : "Boolean"
+  }, {
+    "name" : "Category",
+    "type" : "String"
+  }, {
+    "name" : "Model",
+    "type" : "String"
+  }, {
+    "name" : "Sku",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

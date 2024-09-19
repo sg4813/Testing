@@ -1,0 +1,48 @@
+/*=====================================================================================================
+Author				: Arun Bojan
+Date  				: 20th Nov 2023
+JIRA Reference			: https://jira.zebra.com/browse/CCZC-6400
+Description			: This logic is to populate list price in a new column [listPriceForDrPercentageCalculation_l] in LIG. 
+				  So DR discount percentage can be calculated based on list price
+
+Change Revision:
+========================================================================================================
+Date 		Name			Description 				Incident/JIRA Reference			
+
+21-Nov-2023	Arun			Included Currency Conversion Factor	CCZC-6400
+========================================================================================================*/
+
+retVal = "";
+ccf = 0.0;
+
+//Fetching the list price from Fetch_Price_POC and assigining it to attribute [listPriceForDrPercentageCalculation_l]
+for line in transactionLine
+{
+	partNumber = line._part_number; //print partNumber;
+	docNumber = line._document_number;
+	
+	if(NOT ISNULL(docNumber))
+	{
+		if ((NOT ISNULL(getconfigattrvalue(docNumber,"currencyConversionFactor"))) AND (ccf == 0.0))
+		{
+		ccf = atof(getconfigattrvalue(docNumber,"currencyConversionFactor")); // currency conversion factor from config
+		}
+	}
+	recordSet = BMQL("SELECT * FROM Fetch_Price_POC WHERE Part_Number = $partNumber"); 
+	for each in recordSet
+	{
+	
+	listPrice = round(atof(get(each,"Price"))*ccf,2);
+	accType = get(each,"Account_Type");
+	accMembership = get(each,"Account_Membership");
+	minQty = get(each,"Min_Quantity");
+	maxQty = get(each,"Max_Quantity");
+	
+		if(accType =="" AND accMembership =="" AND minQty =="" AND maxQty =="")
+		{
+		retVal = retVal + docNumber + "~listPriceForDrPercentageCalculation_l~" + string(listPrice) + "|";
+		}
+	}
+}
+
+return retVal;

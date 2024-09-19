@@ -1,0 +1,39 @@
+ret = "";
+accURL = "";
+if(AdditionalItemJson <> ""){
+	allAccFlag = false;
+	bFlag = false;
+	retsize = range(sizeofarray(PartNumberArr));
+	retCount = sizeofarray(PartNumberArr);
+	for each in retsize{
+		if(TypeArr[each] == "Accessories"){
+		pno = TypeArr[each];
+		tempJsonArray = jsonArray(AdditionalItemJson);
+		tempCount = range(jsonarraysize(tempJsonArray));
+			for  iCount in tempCount
+			{
+			tempJson = json(jsonarrayget(tempJsonArray,iCount));
+			localJson = json();
+			strPart = jsonget(tempJson,"Part Number");
+			strType = jsonget(tempJson,"Type");
+				if(PartNumberArr[each] == strPart AND strType == "Accessories"){
+					bFlag = true;
+				}else{
+				continue;
+				}
+			}
+		}else{
+		continue;
+		}
+	}
+	if(bFlag){
+	recordSet = bmql("Select URL from SKU_Model where Name = $OCCModel AND Lang_Code = $LangCode AND Type = 'Accessories Guide'");
+		for item in recordSet {
+			accURL = get(item, "URL");
+		}
+	if(accURL <> ""){
+		ret = ret + "<br>" + "An accessory has been added to the list. For more information on this and other compatible accessories, review the " + "<a href=\'" + accURL + "\' target=\'_blank\'>Accessory Guide</a>";
+	}
+	}
+}
+return ret;

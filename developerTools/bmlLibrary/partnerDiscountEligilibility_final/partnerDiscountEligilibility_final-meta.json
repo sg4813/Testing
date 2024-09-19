@@ -1,0 +1,24 @@
+{
+  "name" : "Partner discount Eligilibility",
+  "variableName" : "partnerDiscountEligilibility_final",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "PriceGroupString",
+    "type" : "String"
+  }, {
+    "name" : "Product",
+    "type" : "String"
+  }, {
+    "name" : "PartnerMembership",
+    "type" : "String[]"
+  }, {
+    "name" : "ExtraParam1",
+    "type" : "String"
+  }, {
+    "name" : "ExtraParam2",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

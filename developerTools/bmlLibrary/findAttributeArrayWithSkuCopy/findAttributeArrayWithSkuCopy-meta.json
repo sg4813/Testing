@@ -1,0 +1,27 @@
+{
+  "name" : "Find Attribute Array With Sku Copy",
+  "variableName" : "findAttributeArrayWithSkuCopy",
+  "description" : "Created by: Abhishek 07/02/19: Function will provide Part array based on input.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String[]",
+  "parameters" : [ {
+    "name" : "AttributeName",
+    "type" : "String"
+  }, {
+    "name" : "JsonStr",
+    "type" : "JsonArray"
+  }, {
+    "name" : "Recommended",
+    "type" : "Boolean"
+  }, {
+    "name" : "Category",
+    "type" : "String"
+  }, {
+    "name" : "Model",
+    "type" : "String"
+  }, {
+    "name" : "Sku",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

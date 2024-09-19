@@ -1,0 +1,11 @@
+{
+  "name" : "Updte_Order_Form_Attributes",
+  "variableName" : "updte_order_form_attributes",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_part_number", "_model_variable_name", "contractTermInMonths", "empcount_l", "storecount_l", "billingFrequency", "contactTerm_l", "_model_name", "contractEndDate_l", "typeOfHosting_l", "typeOfSupport_l", "_part_custom_field11", "grossCloudPriceInclHosting_l" ],
+  "mainDocAttributes" : [ "ZEB_pFFlag_t", "ZEB_contractTerm_t", "ZEB_employeeCount_t", "ZEB_storeCount_t", "ZEB_billingFrequency_t", "ZEB_zPAFlag_t", "ZEB_contractEndDatee_t", "typeOfHosting_t", "typeOfSupport_t", "totalAnnualCloudNetPrice_t", "totalNetPrice_t" ],
+  "systemAttributes" : [ ]
+}

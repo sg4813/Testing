@@ -1,0 +1,15 @@
+{
+  "name" : "Zebra External Pricing New",
+  "variableName" : "zebraExternalPricingnew",
+  "description" : "",
+  "libraryFunctions" : [ "util.checkPartnerProgramEligibility", "util.getAccountDetails", "util.getEligibilityConstrainRule", "util.getEligibleItemsnew" ],
+  "returnType" : "JsonArray",
+  "parameters" : [ {
+    "name" : "SkuId",
+    "type" : "String[]"
+  }, {
+    "name" : "AccountNumber",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

@@ -1,0 +1,122 @@
+//addArr = AddArray;
+price = float[];
+icount =0;
+jcount = integer[];
+rttm = 0;
+tm = 0;
+retailerMarginMultiplier =0.0;
+retailerTypeRRTMMultiplier=0.0;
+retailerTypeTMMultiplier=0.0;
+retailerTypeSPMultiplier=0.0;
+hostingMultiplier=0.0;
+supportTMMultiplier=0.0;
+supportWFSMultiplier=0.0;
+termMultiplier=0.0;
+langPackMultiplier=0.0;
+
+currency ="";
+coversionfac =1.0;
+
+rs1 = bmql("Select currency_t from commerce.transaction");//where _transaction_id = $_transaction_id
+for each in rs1
+	{
+		currency = get(each,"currency_t");
+		//print currency ;
+	}
+rs1 = bmql("Select ConversionFactor from ConversionFactor where SourceCurrency =$currency and TargetCurrency ='USD'");//where _transaction_id = $_transaction_id
+for each in rs1
+	{
+		coversionfac = atof(get(each,"ConversionFactor"));
+		//print currency ;
+	}
+
+rs = bmql("Select Multiplier from Reflexis_Multiplier where Category = 'Retailer Margin' AND Value = $retailerMargin");
+for each in rs
+	{
+		retailerMarginMultiplier = atof(get(each,"Multiplier"));
+	}
+	
+rs = bmql("Select Multiplier from Reflexis_Multiplier where Category = 'Retail Segment' AND SubCategory = 'RRTM' AND Value = $retailerType");
+for each in rs
+	{
+		retailerTypeRRTMMultiplier = atof(get(each,"Multiplier"));
+	}
+	
+rs = bmql("Select Multiplier from Reflexis_Multiplier where Category = 'Retail Segment' AND SubCategory = 'TM' AND Value = $retailerType");
+for each in rs
+	{
+		retailerTypeTMMultiplier = atof(get(each,"Multiplier"));
+	}
+
+rs = bmql("Select Multiplier from Reflexis_Multiplier where Category = 'Retail Segment' AND SubCategory = 'SP' AND Value = $retailerType");
+for each in rs
+	{
+		retailerTypeSPMultiplier = atof(get(each,"Multiplier"));
+	}
+
+rs = bmql("Select Multiplier from Reflexis_Multiplier where Category = 'Hosting Fees' AND Value = $hosting");
+for each in rs
+	{
+		hostingMultiplier= atof(get(each,"Multiplier"));
+	}
+	
+rs = bmql("Select Multiplier from Reflexis_Multiplier where Category = 'Support' AND SubCategory = 'TM' AND Value = $support");
+for each in rs
+	{
+		supportTMMultiplier = atof(get(each,"Multiplier"));
+	}
+	
+rs = bmql("Select Multiplier from Reflexis_Multiplier where Category = 'Support' AND SubCategory = 'WFS' AND Value = $support");
+for each in rs
+	{
+		supportWFSMultiplier = atof(get(each,"Multiplier"));
+	}
+
+rs = bmql("Select Multiplier from Reflexis_Multiplier where Category = 'Term of Agreement' AND Value = $termOfAgreement");
+for each in rs
+	{
+		termMultiplier = atof(get(each,"Multiplier"));
+	}	
+
+rs = bmql("Select Multiplier from Reflexis_Multiplier where Category = 'MultiLang Pack' AND Value = $LangPack");
+for each in rs
+	{
+		langPackMultiplier = atof(get(each,"Multiplier"));
+	}
+					
+for each in SKUFlagArray
+{
+	if (each == true){
+	append(jcount,icount);
+	}
+	if (SKUArray[icount]== "Appointments"){
+	rttm = icount;
+	}
+icount=icount+1;
+}
+
+//print jcount;
+//RTTM Calc
+rTTMSKU = SKUArray[rttm];
+
+rs = bmql("Select Min_Price,Add_Mobile_OS, MinPriceType from RefSKUDetails where SKU = $rTTMSKU ");
+for each in rs
+	{
+		Min_Price= atof(get(each,"Min_Price"));
+		charge = get(each,"MinPriceType");
+		if ( charge == "Percentage"){
+		Min_Price= Min_Price/100;
+		}
+		Add_Mobile_OS = atof(get(each,"Add_Mobile_OS"));
+		Add_Mobile_OS = Add_Mobile_OS/100;
+		
+		price[rttm] = appointments_Calc*retailerMarginMultiplier*supportWFSMultiplier*termMultiplier*langPackMultiplier*hostingMultiplier;
+	}
+
+for each in jcount
+{
+price[each] = round(price[each]/coversionfac,0) ;
+}
+
+
+return price;

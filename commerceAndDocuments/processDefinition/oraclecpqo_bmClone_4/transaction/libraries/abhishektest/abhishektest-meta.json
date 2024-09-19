@@ -1,0 +1,11 @@
+{
+  "name" : "abhishek",
+  "variableName" : "abhishektest",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_parent_doc_number", "_document_number", "contractStartDate_l" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

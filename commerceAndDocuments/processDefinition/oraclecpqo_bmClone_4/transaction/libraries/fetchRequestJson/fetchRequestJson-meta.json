@@ -1,0 +1,11 @@
+{
+  "name" : "Fetch Request Json",
+  "variableName" : "fetchRequestJson",
+  "description" : "",
+  "libraryFunctions" : [ "util.productSynchToSF" ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_config_attr_info", "_document_number" ],
+  "mainDocAttributes" : [ "bs_id", "fetchRecordId", "fetchSFDCObject" ],
+  "systemAttributes" : [ ]
+}

@@ -1,0 +1,11 @@
+{
+  "name" : "Version",
+  "variableName" : "version",
+  "description" : "Updates the transaction's version number. Sets the Commerce Process 'Version' attribute (version_t) to the value of the CPQ platform-created Version attributes set 'Version' attribute (version_number_versionTransaction_t).  This allows all customizations to refer to the Commerce attribute rather than a system attribute.",
+  "libraryFunctions" : [ ],
+  "returnType" : "Integer",
+  "parameters" : [ ],
+  "subDocAttributes" : [ ],
+  "mainDocAttributes" : [ "version_number_versionTransaction_t" ],
+  "systemAttributes" : [ ]
+}

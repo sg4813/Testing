@@ -1,0 +1,11 @@
+{
+  "name" : "Update PDF Attributes",
+  "variableName" : "updatePDFAttributes",
+  "description" : "",
+  "libraryFunctions" : [ "commerce.refZPAAmountRollup" ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_document_number", "_parent_doc_number", "_parent_line_item", "zEB_parentLevelFlagReflexis1", "oRCL_ABO_ActionCode_l", "oRCL_manualAdjustments", "_model_variable_name", "_part_number", "_part_custom_field11", "_part_display_number", "root_doc_num", "modelName_l", "ZEB_parentLevelFlagReflexis", "ZEB_discountNameFlag", "originalTransactionNumber_l", "orgtxnWFCFlag", "_part_custom_field2", "billingFrequency", "annualCloudNetPrice_l", "ZEB_pSOfferings", "FetchParentLevelFlag_l" ],
+  "mainDocAttributes" : [ "ZEB_professionalServicesSOW", "region_t", "wFCPTT_VoiceSilverFlag_t", "wFCPTT_VoiceGoldFlag_t", "wFCPTT_VoiceBronzeFlag_t", "wFCVoiceGoldFlag_t", "wFCVoiceSilverFlag_t", "wFCVoiceBronzeFlag_t", "wFCPTTGoldFlag_t", "wFCPTTSilverFlag_t", "wFCPTTBronzeFlag_t" ],
+  "systemAttributes" : [ ]
+}

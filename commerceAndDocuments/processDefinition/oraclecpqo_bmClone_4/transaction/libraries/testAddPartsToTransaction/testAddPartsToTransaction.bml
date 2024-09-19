@@ -1,0 +1,42 @@
+/*resultArray = jsonarray(); // function return is json array
+
+partObj = json(); // part data is json object
+jsonput(partObj , "partNumber", "part1");
+jsonput(partObj , "quantity", 1);
+
+inputArray = jsonarray(); // parts to add should be added to json array
+jsonarrayappend(inputArray , partObj );
+
+resultArray = addpartstotransaction(inputArray, "_default_price_book");
+return resultArray ;*/
+resultArray = jsonarray();
+
+part1 = json();
+jsonput(part1 , "partNumber", "part1");
+jsonput(part1 , "quantity", 1);
+
+part2 = json();
+jsonput(part2 , "partNumber", "part2");
+jsonput(part2 , "quantity", 2);
+jsonput(part2 , "price", 4.50); // overrides price
+
+part3 = json();
+jsonput(part3 , "partNumber", "part3");
+jsonput(part3 , "quantity", 3);
+jsonput(part3 , "parentDocNumber", 2); // adds part as child of parent
+
+inputArray = jsonarray();
+jsonarrayappend(inputArray , part1 );
+jsonarrayappend(inputArray , part2 );
+jsonarrayappend(inputArray , part3 );
+
+resultAttributeArray = string[6]; // defines the attributes to return
+resultAttributeArray[0] = "_document_number";
+resultAttributeArray[1] = "_part_number";
+resultAttributeArray[2] = "_price_quantity";
+resultAttributeArray[3] = "_price_list_price_each";
+resultAttributeArray[4] = "_parent_doc_number";
+resultAttributeArray[5] = "_default_price_book";
+
+resultArray = addpartstotransaction(inputArray, resultAttributeArray);
+return resultArray ;

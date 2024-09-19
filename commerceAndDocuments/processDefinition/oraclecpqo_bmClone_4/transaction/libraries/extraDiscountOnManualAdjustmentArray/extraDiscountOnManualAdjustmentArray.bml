@@ -1,0 +1,322 @@
+/*
+*@description = FinalDiscount Based on Billing Frequency
+*@return = String
+*@author = Tejasvi
+*/
+//add,update and renew,
+//delete, no update -- no call
+/*for each in transactionLine 
+{
+	if(each.modelName_l == "Mobile Robotics")
+	{
+		return "";
+	}
+	else
+	{
+		break;
+	}
+}
+Commented for fetch re-design*/
+
+finalPrice = 0.0;
+tempJson = json();
+finaljsonArray = jsonarray();
+retVal = "";
+key = "";
+flag_DISCOUNT_AMOUNT  = false;
+numberofInvoice = 1;
+finalPrice_DISCOUNT_AMOUNT = 0.0;
+FinalAmount = 0.0;
+key1 = string[];
+
+	for each in transactionLine {
+		
+	if(each.oRCL_ABO_ActionCode_l == "UPDATE" OR each.oRCL_ABO_ActionCode_l == "ADD" OR each.oRCL_ABO_ActionCode_l == "RENEW" OR each.oRCL_ABO_ActionCode_l == "NO_UPDATE")
+	{
+		//numberInvoice = split(each.contactTerm_l," ");
+		if(each.actualMonths>1 and each.lastMonthDays>1){
+		numberInvoice  = each.actualMonths + integer(each.proRatedDays/each.lastMonthDays);
+		}
+		elif(each.contactTerm_l <>"" AND each.contactTerm_l <>" Months")
+		{
+		numberInvoice1 = split(each.contactTerm_l," ");
+		
+		numberInvoice  = atoi(numberInvoice1[0]);
+		
+		}
+		else{
+		numberInvoice  =12;
+		}
+		//print numberInvoice  ;
+		finalInvoice = 1;
+		FinalAmount = each.annualCloudNetPrice_l;
+		if(each.billingFrequency == "YR")
+		{
+			//finalInvoice = ceil(atoi(numberInvoice[0])/12.0);	
+			finalInvoice = integer(numberInvoice/12);		
+		}
+		elif(each.billingFrequency == "HYR")
+		{
+			finalInvoice = integer(numberInvoice/6);
+			FinalAmount  = FinalAmount/2.0;
+		}
+		elif(each.billingFrequency == "QRT")
+		{
+			finalInvoice = integer(numberInvoice/3);
+			FinalAmount  = FinalAmount/4.0;
+		}
+		elif(each.billingFrequency == "MON")
+		{
+			finalInvoice = integer(numberInvoice);
+			FinalAmount  = FinalAmount/12.0;
+		}
+		else
+		{
+			finalInvoice = 1;
+			FinalAmount  = FinalAmount;
+		}
+		
+		print finalInvoice ;
+		print FinalAmount  ;
+		if(finalInvoice ==0){
+		finalInvoice =1;
+		}
+		retVal = retVal + "|" + each._document_number + "~numberOfInvoice~" + string(integer(finalInvoice)) + "|";
+		flag_DISCOUNT_AMOUNT  = false;
+		finalPrice_DISCOUNT_AMOUNT = 0.0;
+		manualAdjustments = each.oRCL_manualAdjustments;
+		ListPrice = 0.0;
+		TotalPrice = 0.0;
+		charage = each.oRCL_charges;
+		
+		if(NOT isNull(each.oRCL_charges)){
+		
+		nCount = range(jsonarraysize(each.oRCL_charges));
+		for count in nCount
+		{
+			ListPrice = atof(jsonget(jsonarrayget(each.oRCL_charges,count,"json"),"oRCL_unitListPrice"));
+			ListPrice = round(ListPrice,2);
+			
+		}
+		
+		}
+		
+		//finaljsonArray = manualAdjustments;//111
+		finaljsonArray = jsonarray();
+		totalFianlPrice = 0;
+		key = "";
+		key1 = string[];
+		if(NOT isNull(each.oRCL_manualAdjustments)) {
+			if(findinarray(key1, key) == -1) {
+				if(jsonarraysize(each.oRCL_manualAdjustments)>0){
+					manualArray = string[jsonarraysize(each.oRCL_manualAdjustments)];
+					j = 0;	
+					for a in manualArray {
+						manualAdjust = jsonarrayget(each.oRCL_manualAdjustments,j,"json");
+						j= j+1;
+						discountName = jsonget(manualAdjust,"oRCL_manual_adjustmentName_l");
+						discountType = jsonget(manualAdjust,"oRCL_manual_adjustmentType_l");
+						if(isNull(discountName)) {
+							throwerror("Discount Name field should not be empty");
+						}
+						if(isNull (jsonget(manualAdjust,"oRCL_manual_adjustmentValue_l","string"))) {
+							print "Discount Value field should not be empty";
+							throwerror("Discount Value feild should not be empty");
+						}
+						if(NOT isNull (jsonget(manualAdjust,"oRCL_manual_adjustmentValue_l","string"))) {
+							discountValue = jsonget(manualAdjust,"oRCL_manual_adjustmentValue_l","float");
+						}
+						periodFrom = jsonget(manualAdjust,"oRCL_manual_periodFrom_l", "Integer");
+						PeriodTo = 0;
+						if(NOT isNull (jsonget(manualAdjust,"oRCL_manual_periodTo_l","string"))) {
+							PeriodTo = jsonget(manualAdjust,"oRCL_manual_periodTo_l", "Integer");
+						}
+						manualName = jsonget(manualAdjust,"oRCL_manual_adjustmentName_l");
+						manualType = jsonget(manualAdjust,"oRCL_manual_adjustmentType_l");
+						manualCharge = jsonget(manualAdjust,"oRCL_manual_adjustmentChargeName_l");
+						manualEffect = jsonget(manualAdjust,"oRCL_manual_adjustmentEffectivity_l");			
+						manualPeriod = jsonget(manualAdjust,"oRCL_manual_numberofPeriods_l");
+						manualValue = jsonget(manualAdjust,"oRCL_manual_adjustmentValue_l");
+						manualBasis = jsonget(manualAdjust,"oRCL_manual_adjustmentBasis_l");
+						key = discountName + discountType + string(periodFrom) + string(PeriodTo) + String(discountValue);
+						tempPeriodFrom = string(periodFrom);
+						tempPeriodTo = string(PeriodTo);
+						tempDiscountVal = string(discountValue);
+						if(each.billingFrequency == "YR"){
+							val = 1;
+							month =12;
+						}
+						if(each.billingFrequency == "HYR"){
+							val = 2;
+							month =6;
+						}
+						if(each.billingFrequency == "QRT"){
+							val = 4;
+							month =3;
+						}
+						if(each.billingFrequency == "MON"){
+							val = 12;
+							month =1;
+						}
+						
+						/*if(discountType == "ORA_DISCOUNT_PERCENT") {
+							finalPrice = finalPrice * (1 - (discountValue / 100));
+						} elif(discountType == "ORA_PRICE_OVERRIDE") {
+							finalPrice = discountValue;
+						} elif(discountType == "ORA_MARKUP_PERCENT") {
+							finalPrice = finalPrice * ((discountValue/100) + 1);
+						}*/
+						if(periodFrom  > PeriodTo) {
+								print "PeriodFrom Should not be greater than PeriodTo";
+								print each._document_number;
+								print manualAdjust;
+							throwerror("PeriodFrom Should not be greater than PeriodTo on SKU# "+ each._part_number);
+						}
+						if(periodFrom > integer(finalInvoice))
+						{
+							throwerror("PeriodFrom is greater than total number of Invoice, Please correct it  on SKU# "+ each._part_number);
+						}
+						if(periodFrom < 1)
+						{
+							throwerror("PeriodFrom can not be 0 , Please correct it  on SKU# "+ each._part_number);
+						}
+						if(PeriodTo > integer(finalInvoice))
+						{
+							throwerror("PeriodTo is greater than total number of Invoice, Please correct it on SKU# "+ each._part_number);
+						}
+						if(NOT(each.enableMultiYearPricing_l) AND discountType == "ORA_PRICE_OVERRIDE")
+						{
+							throwerror("Non- recurring Price override is only enabled on Multi-year pricing lines, Please correct on SKU# "+ each._part_number);
+						}
+						if(each.enableMultiYearPricing_l AND discountType <> "ORA_PRICE_OVERRIDE")
+						{
+							throwerror("On Multi-year pricing lines only Non- recurring Price override can be selected, Please correct on SKU# "+ each._part_number);
+						}
+						
+						/*if(string(discountValue) == "") {
+							print "Discount Value feild should not be empty";
+							throwerror("Discount Value feild should not be empty");
+						}*/
+						if(discountType == "ORA_DISCOUNT_PERCENT"){
+							if(each.alignBillingFromDate<>"" AND periodFrom == 1 AND each.alignMonthDays >27 AND each.alignMonth>=0) {
+							
+							finalPrice = (each.annualCloudPriceInclHosting_l * each.alignMonth)/12 + (each.annualCloudPriceInclHosting_l*each.alignProRatedDays)/(each.alignMonthDays *12);
+							finalPrice = finalPrice * (discountValue/100);
+							finalPrice = finalPrice + (each.annualCloudPriceInclHosting_l * (discountValue/100))*(PeriodTo - periodFrom)/val;
+							
+							/*print each.annualCloudPriceInclHosting_l;
+							print discountValue;
+							print PeriodTo;
+							print periodFrom;
+							print val;
+							print finalPrice;
+							print "*****************************";*/
+							}
+							else{
+							finalPrice = (each.annualCloudPriceInclHosting_l * (discountValue/100))*(PeriodTo - periodFrom + 1)/val;
+							}
+							flag_DISCOUNT_AMOUNT  = true;
+						//	print each.annualCloudPriceInclHosting_l;
+						//	print discountValue/100;
+							finalPrice_DISCOUNT_AMOUNT = (each.annualCloudPriceInclHosting_l * (discountValue/100));
+							
+							
+						}elif(discountType == "ORA_DISCOUNT_AMOUNT") {
+						if(each.alignBillingFromDate<>"" AND periodFrom == 1 AND each.alignMonthDays >27 AND each.alignMonth>=0) {
+						finalPrice = discountValue * each.alignMonth/month + (discountValue * each.alignProRatedDays)/(each.alignMonthDays *month);
+						finalPrice = finalPrice + (discountValue)*(PeriodTo - periodFrom);
+						finalPrice = finalPrice*each.license;
+						}
+						else {
+								finalPrice = (discountValue)*(PeriodTo - periodFrom + 1)*each.license;
+								flag_DISCOUNT_AMOUNT  = true;
+								finalPrice_DISCOUNT_AMOUNT = discountValue;
+							}
+						} elif(discountType == "ORA_MARKUP_PERCENT") {
+						
+							if(each.alignBillingFromDate<>"" AND periodFrom == 1 AND each.alignMonthDays >27 AND each.alignMonth>=0) {
+							finalPrice = (each.annualCloudPriceInclHosting_l * each.alignMonth)/12 + (each.annualCloudPriceInclHosting_l*each.alignProRatedDays)/(each.alignMonthDays *12);
+							finalPrice = finalPrice * (discountValue/100);
+							finalPrice = finalPrice + (each.annualCloudPriceInclHosting_l * (discountValue/100))*(PeriodTo - periodFrom)/val;
+							finalPrice = finalPrice * (-1);
+							}
+							else {
+							finalPrice = (-1)*(each.annualCloudPriceInclHosting_l * (discountValue/100))*(PeriodTo - periodFrom + 1)/val;
+							//flag_DISCOUNT_AMOUNT  = true;
+							//finalPrice_DISCOUNT_AMOUNT = discountValue
+							}
+						}
+						
+						elif(discountType == "ORA_PRICE_OVERRIDE") {
+							finalPrice = (FinalAmount - discountValue)*(PeriodTo - periodFrom + 1);
+						}
+						
+						if((finalPrice/(PeriodTo - periodFrom + 1)) > FinalAmount AND NOT(each.enableMultiYearPricing_l))
+							{
+								throwerror("Sum of Non-recurring & recurring discount can not be greater than invoice amount, Please correct it  on SKU# "+ each._part_number);
+							}
+							
+						totalFianlPrice = totalFianlPrice + finalPrice;
+						if(discountName <> "" and discountType <> "" and tempDiscountVal <> "" and tempPeriodFrom <> "" and tempPeriodTo <> "") {
+							/*jsonput(tempJson,"oRCL_manual_adjustmentName_l", discountName);
+							jsonput(tempJson,"oRCL_manual_adjustmentType_l", discountType);
+							jsonput(tempJson,"oRCL_manual_adjustmentValue_l", discountValue);
+							jsonput(tempJson,"oRCL_manual_periodFrom_l", periodFrom);
+							jsonput(tempJson,"oRCL_manual_periodTo_l", PeriodTo);
+							jsonput(tempJson,"oRCL_manual_adjustmentName_l", manualName);
+							jsonput(tempJson,"oRCL_manual_adjustmentType_l", manualType);
+							jsonput(tempJson,"oRCL_manual_adjustmentChargeName_l",manualCharge);
+							jsonput(tempJson,"oRCL_manual_adjustmentEffectivity_l",manualEffect);			
+							jsonput(tempJson,"oRCL_manual_numberofPeriods_l", manualPeriod);
+							jsonput(tempJson,"oRCL_manual_adjustmentValue_l", manualValue);
+							jsonput(tempJson,"oRCL_manual_adjustmentBasis_l", manualBasis);*/
+							
+							jsonput(manualAdjust, "finalPrice_l", finalPrice);
+							/*if(discountType == "ORA_DISCOUNT_AMOUNT"  AND atof(manualValue) > FinalAmount)
+							{
+								//print finalPrice_DISCOUNT_AMOUNT;
+								throwerror("Discount is not correct, Please correct it");
+								//print ListPrice;
+								//print finalPrice_DISCOUNT_AMOUNT;
+								//print "ui";
+							}*/							
+							
+							TotalPrice = TotalPrice  + finalPrice;
+							append(key1, key);
+							jsonarrayappend(finaljsonArray, manualAdjust);
+							//retVal = retVal + each._document_number + "~oRCL_manualAdjustments~" + jsonarraytostr(finaljsonArray) + "|";
+						}
+					}
+					
+		
+					//retVal = retVal + each._document_number + "~oRCL_manualAdjustments~" + jsonarraytostr(finaljsonArray) + "|";
+					retVal = retVal + each._document_number + "~ZEB_totalDiscount_l~" + string(totalFianlPrice) + "|";
+					print each._document_number;
+					print string(totalFianlPrice);
+				}
+				else {
+					retVal = retVal + each._document_number + "~ZEB_totalDiscount_l~" + string(totalFianlPrice) + "|";
+				}
+				retVal = retVal + each._document_number + "~oRCL_manualAdjustments~" + jsonarraytostr(finaljsonArray) + "|";
+				
+			} 
+			
+		}
+		if(jsonarraysize(each.oRCL_manualAdjustments) >= 1)
+		{
+			retVal = retVal + each._document_number + "~nonrecurringDiscountFlag~true" + "|";
+		}
+		else {
+			retVal = retVal + each._document_number + "~nonrecurringDiscountFlag~false" + "|";
+		}
+		/*if(flag_DISCOUNT_AMOUNT  AND (ListPrice < finalPrice_DISCOUNT_AMOUNT))
+		{
+			throwerror("Discount is not correct, Please correct it");
+		}							
+		elif((ListPrice < finalPrice) AND NOT(flag_DISCOUNT_AMOUNT))
+		{
+			throwerror("Discount is not correct, Please correct it");
+		}*/
+		}
+	}
+	return retVal;

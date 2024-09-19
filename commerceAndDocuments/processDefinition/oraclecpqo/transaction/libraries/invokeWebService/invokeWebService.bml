@@ -1,0 +1,34 @@
+//Name: invokeWebService
+//Variable Name: invokeWebService
+//Description: Invokes Web service and returns the response.
+//Input: system (String),soapReq (String)
+//Return Type: String 
+//Dependency : None 
+
+
+resultSet = bmql("Select Endpoint,Username,Password from INT_SYSTEM_DETAILS where System = $system");
+endpoint = "";
+username = "";
+password = "";
+
+//loop through the records
+for record in resultSet {
+  endpoint = get(record,"Endpoint");
+  username = get(record,"Username");
+  password = get(record,"Password");
+}
+//2. Invoke the web service
+headerValues = dict("string");
+put(headerValues, "Content-Type", "text/xml; charset=utf-8");
+encodeCredential = encodebase64(username+":"+password);
+auth = "Basic " + encodeCredential;
+put(headerValues,"Authorization",auth);
+
+errorString = "Error in "+system+" invocation";
+
+soapResponse= urldatabypost(endPoint , soapReq,errorString,headerValues,true); // sends the soap call and returns response to variable.
+print "going to print soapResponse";
+
+
+//3. Return the response
+return soapResponse;

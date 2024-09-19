@@ -1,0 +1,259 @@
+//Tejasvi
+
+headers=dict("string");
+put(headers, "content-type", "application/json");
+updated = "";
+response=dict("string");
+jsonBody = json();
+responsemessage="";
+tempJson = json();
+transactionData = jsonArray();
+transData = json();
+modelName = "Reflexis";
+//modelName = "WorkForceConnect";
+transactionLineRecSet  = recordset();
+
+resultSet = bmql("select * from TransData_Reflexis where Model =$modelName");
+conSubVal = false;
+//print resultSet;
+systemUrl = "";
+if(find(_company_name,"dev")<> -1){ 
+systemUrl = "https://devzebra.bigmachines.com";
+}
+elif(find(_company_name,"test")<> -1){
+systemUrl = "https://test-cpq.zebra.com";
+}
+else {
+systemUrl = "https://cpq.zebra.com";
+}
+print systemUrl;
+
+for each in resultset {
+		quote = "";
+		tempJson = json();
+		transactionData = jsonArray();
+		transData = json();
+		tempJson1= json();
+		jsonBody  = json();
+		tableData = json();
+		tableDat = json();
+		showInvoiceJson = json();
+		conSub = json();
+		bocJson = json();
+		tableJsonArrayData = jsonArray();
+		billToSiteUseId_t = get(each, "BillToSiteID");
+		billToSiteId = split(billToSiteUseId_t, "_");
+		subscriptionProfileId_t = get(each, "SubscriptionProfleID");
+		subProfileId = split(subscriptionProfileId_t, "_");
+		ZEB_paymentTerms = get(each, "PaymentTerms");
+		oSMCAccount_t = get(each, "OSMCNumber");
+		businessUnitId_t = get(each, "BUID");
+		buid = split(businessUnitId_t, "_");
+		purchaseOrderNumber_t = get(each, "PO");
+		ZEB_PoStartDate = get(each, "POStartDate");
+		region_t = get(each, "region_t");
+		print ZEB_PoStartDate;
+		//ZEB_PoStartDate1 = strtodate(ZEB_PoStartDate, "%m/%d/%Y");
+		//print ZEB_PoStartDate;
+		if(find(ZEB_PoStartDate, "-") <> -1) {
+			//print "tej";
+			ZEB_PoStartDate = replace(ZEB_PoStartDate, "-", "/");
+			//print ZEB_PoStartDate;
+		}
+		ZEB_PoEndDate = get(each, "POEndDate");
+		if(find(ZEB_PoEndDate, "-") <> -1) {
+			//print "tej";
+			ZEB_PoEndDate = replace(ZEB_PoEndDate, "-", "/");
+			//print ZEB_PoEndDate;
+		}
+		orderDate_t = get(each, "OrderDate");
+		if(find(orderDate_t, "-") <> -1) {
+			orderDate_t = replace(orderDate_t, "-", "/");
+		}
+	
+		soldToCustomerAccountID_t = get(each, "FinancialAccount");
+		RenewalOpptID = get(each, "RenewalOpptID"); // yet to be found in variable name 
+		partyId_t =get(each, "PartyID");
+		partyId = split(partyId_t, "_");
+		Customer_id = get(each, "CustomerID"); // _customer_id 
+		customId = split(Customer_id, "_");
+		endUserNum_t = get(each, "EndUserAccount");
+		endUserNum = split(endUserNum_t, "_");
+		endUserName_t = get(each, "EndUserAccountName");
+		ZEB_POrcvd_dt_t = get(each, "PORecordDate");
+		Currency = get(each, "Currency");
+		if(find(ZEB_POrcvd_dt_t, "-") <> -1) {
+			//print "tej";
+			ZEB_POrcvd_dt_t = replace(ZEB_POrcvd_dt_t, "-", "/");
+			//print ZEB_PoStartDate;
+		}
+		ZEB_convertedSubscription_t = get(each, "ConvetredContract");
+		ZEB_ConversionRateType = get(each, "ConversionRateType");
+		ZEB_ConversionRateDate = get(each, "ConversionRateDate");
+		ZEB_ConversionRate = get(each, "ConversionRate");
+		if(ZEB_convertedSubscription_t == "True" or ZEB_convertedSubscription_t == "TRUE") {
+			conSubVal = true;
+		}else {
+			conSubVal = false;
+		}
+		ZEB_convertedSubscriptionNumber_t = get(each, "ConvContSource");
+		ZEB_showPriceBy_t = get(each, "ShowInvocieBy");
+		//print ZEB_showPriceBy_t;
+		ZEB_orderNotes = get(each, "OrderNotes");
+		/*OrderNotes2 = get(each, "OrderNotes2");
+		 OrderNotes3 = get(each, "OrderNotes3");
+		 OrderNotes4 = get(each, "OrderNotes4"); 
+		if(OrderNotes2  <> "") {
+			ZEB_orderNotes = ZEB_orderNotes + " " + OrderNotes2;
+		}
+		if(OrderNotes3  <> "") {
+			ZEB_orderNotes = ZEB_orderNotes + " " + OrderNotes3 ;
+		}
+		if(OrderNotes4  <> "") {
+			ZEB_orderNotes  = ZEB_orderNotes + " " + OrderNotes4;
+		} */
+		ZEB_Order_AR_t  = get(each, "ARNotes");
+		 
+		ZEB_BOC_t  = get(each, "BOCMet");
+		ZEB_upLift_t  = get(each, "Uplift");
+		//upliftVal = atof(ZEB_upLift_t);
+		contractStartDate = get(each, "contractStartDate");
+		if(find(contractStartDate, "-") <> -1) {
+			//print "tej";
+			contractStartDate = replace(contractStartDate, "-", "/");
+			//print ZEB_PoEndDate;
+		}
+		contractEndDate = get(each, "contractEndDate");
+		if(find(contractEndDate, "-") <> -1) {
+			//print "tej";
+			contractEndDate = replace(contractEndDate, "-", "/");
+			//print ZEB_PoEndDate;
+		}
+		if(find(ZEB_ConversionRateDate, "-") <> -1) {
+			//print "tej";
+			ZEB_ConversionRateDate = replace(ZEB_ConversionRateDate, "-", "/");
+			//print ZEB_PoEndDate;
+		}
+		ZEB_terminationForConvenienceClause = get(each, "TerminationClause");
+		ZEB_penality_t = get(each, "Penatly");
+		accountNumber_t = get(each, "accountNumber_t");
+		accountNumber = split(accountNumber_t, "_");
+		jsonput(showInvoiceJson, "value", ZEB_showPriceBy_t);
+		jsonput(bocJson, "value", ZEB_BOC_t);
+		jsonput(conSub, "value", ZEB_convertedSubscription_t);
+		jsonput(tempJson, "ZEB_showPriceBy_t", showInvoiceJson);
+		jsonput(tempJson, "ZEB_upLift_t", ZEB_upLift_t);
+		jsonput(tempJson, "accountNumber_t", accountNumber[1]);
+		jsonput(tempJson, "billToSiteUseId_t", billToSiteId[1]);
+		jsonput(tempJson, "subscriptionProfileId_t", subProfileId[1]);
+		jsonput(tempJson, "ZEB_paymentTerms", ZEB_paymentTerms);
+		jsonput(tempJson, "oSMCAccount_t", oSMCAccount_t);
+		jsonput(tempJson, "businessUnitId_t", buid[1]);
+		jsonput(tempJson, "purchaseOrderNumber_t", purchaseOrderNumber_t);
+		jsonput(tempJson, "ZEB_PoStartDate", ZEB_PoStartDate);
+		jsonput(tempJson, "ZEB_PoEndDate", ZEB_PoEndDate);
+		if (orderDate_t <> ""){ //keeping the condition for exceptions if any
+		jsonput(tempJson, "orderDate_t", orderDate_t);
+		}
+		jsonput(tempJson, "soldToCustomerAccountID_t", soldToCustomerAccountID_t);
+		jsonput(tempJson, "_customer_id", customId[1]);
+		jsonput(tempJson, "endUserNum_t", endUserNum_t);
+		jsonput(tempJson, "endUserName_t", endUserName_t);
+		jsonput(tempJson, "ZEB_POrcvd_dt_t", ZEB_POrcvd_dt_t);
+		jsonput(tempJson, "partyId_t", partyId[1]);
+		jsonput(tempJson, "currency_t", Currency);
+		jsonput(tempJson, "_currency_pref", Currency);
+		jsonput(tempJson, "region_t", region_t);
+		jsonput(tempJson, "ZEB_renewalOptyId_Conversion", RenewalOpptID);
+		
+		if(ZEB_ConversionRateType <> "") {
+			jsonput(tempJson, "ZEB_ConversionRateType", ZEB_ConversionRateType);
+		}
+		if(ZEB_ConversionRateDate <> "") {
+			jsonput(tempJson, "ZEB_ConversionRateDate", ZEB_ConversionRateDate);
+		}
+		if(ZEB_ConversionRate <> "") {
+			jsonput(tempJson, "ZEB_ConversionRate", ZEB_ConversionRate);
+		}
+		jsonput(tempJson, "ZEB_convertedSubscription_t", conSubVal);
+		
+		jsonput(tempJson, "ZEB_convertedSubscriptionNumber_t", ZEB_convertedSubscriptionNumber_t);
+		jsonput(tempJson, "ZEB_orderNotes", ZEB_orderNotes);
+		jsonput(tempJson, "ZEB_Order_AR_t", ZEB_Order_AR_t);
+		jsonput(tempJson, "ZEB_BOC_t", bocJson);
+		jsonput(tempJson, "contractStartDate", contractStartDate);
+		jsonput(tempJson, "contractEndDate", contractEndDate);
+		jsonput(tempJson, "ZEB_terminationForConvenienceClause", ZEB_terminationForConvenienceClause);
+		jsonput(tempJson, "ZEB_penality_t", ZEB_penality_t);
+		jsonput(tempJson, "customerCompanyName_t", soldToCustomerAccountID_t);
+		//jsonput(tempJson1, "_modify_action","cleanSave_t");
+		jsonString = jsonToStr(tempJson);
+		string1 = jsonString + "," + "\"" +"_modify_action" + "\":" + "\"cleanSave_t" + "\"";
+		string2 = "{\"documents\": " + string1 + "}";
+		//print string2;
+		//jsonput(transData, "documents", tempJson);
+		response = urldata(systemUrl + "/rest/v12/commerceDocumentsOraclecpqo_bmClone_4Transaction/actions/_new_transaction","POST",headers,string2,5000);
+		print response;
+		body = get(response, "Message-Body");
+		tempBody = json(body);
+		//print tempBody;
+		tempBodyID = jsonget(tempBody, "documents", "json");
+		//print tempBodyID;
+		tempId = jsonget(tempBodyID, "transactionID_t");
+		bsId = atoi(jsonget(tempBodyID, "bs_id"));
+		bsIdNew = (jsonget(tempBodyID, "bs_id"));
+		print bsId;
+		print tempId;
+		//results = bmql("insert into table1 (column1, column2) values ('value1', 11),('value2', 22)");
+		//result = bmql("insert into TransactionLineData (QuoteNumber, BSID) values ($tempId,$bsId)");//query will not update on debugger
+		jsonput(jsonBody, "Quote", get(each, "Quote"));
+		jsonput(jsonBody, "QuoteNumber", tempId);
+		quote = get(each, "Quote");
+		//print quote;
+		jsonput(jsonBody, "BSID", bsId);
+		//jsonput(jsonBody, "BSID", bsIdNew);
+		jsonput(jsonBody , "_sync_action","update");
+		jsonarrayappend(tableJsonArrayData, jsonBody);
+		jsonput(tableDat, "items", tableJsonArrayData);
+		jsonput(tableData, "documents", tableDat);
+		//print tableData;
+		responseData  = urldata(systemUrl + "/rest/v9/adminCustom" + "TransData_Reflexis" + "/actions/synchronize","POST",headers,jsontostr(tableData),5000);
+		//print "RESPONSE___>";
+		print responseData;
+	if(modelName == "WorkForceConnect") {
+		transactionLineRecSet = bmql("select * from TransactionLineData where Quote = $quote and Model = $modelName");
+		}
+		else {
+			transactionLineRecSet = bmql("select * from Reflexis_QuoteLines where Quote = $quote and Model = $modelName");
+		}
+		for eachRec in transactionLineRecSet{
+			//quoteLine = get(eachRec,"Quote");
+			//jsonpathset(tableData, "$.documents.items[0].Quote",quoteLine);
+			//jsonput(jsonBody, "Quote", quoteLine);
+			if(modelName == "WorkForceConnect") {
+				responseData1  = urldata(systemUrl + "/rest/v9/adminCustom" + "TransactionLineData" + "/actions/synchronize","POST",headers,jsontostr(tableData),5000); 
+			} else {
+				responseData1  = urldata(systemUrl + "/rest/v9/adminCustom" + "Reflexis_QuoteLines" + "/actions/synchronize","POST",headers,jsontostr(tableData),5000); 
+				//print responseData1 ;
+			}
+		}
+		//quoteLineRecSet = bmql("select * from QuoteLines where Quote = $quote and ModelName = $modelName");
+		//quoteLineRecSet = bmql("select * from Reflexis_QuoteLines where Quote = $quote and Model = $modelName");
+		quoteLineRecSet = bmql("select * from QuotePricngReflexis where Quote = $quote");
+		print tableData;
+		for eachLine in quoteLineRecSet{
+			if(modelName == "WorkForceConnect") {
+				responseData2  = urldata(systemUrl + "/rest/v9/adminCustom" + "QuoteLines" + "/actions/synchronize","POST",headers,jsontostr(tableData),5000);
+			}else {
+				responseData2  = urldata(systemUrl + "/rest/v9/adminCustom" + "QuotePricngReflexis" + "/actions/synchronize","POST",headers,jsontostr(tableData),5000);
+			}
+			//print responseData2;
+		}
+		quoteNonRecSet = bmql("select * from NonRecDis_Reflexis where Quote = $quote");
+		for each3 in quoteNonRecSet {
+			responseData3  = urldata(systemUrl + "/rest/v9/adminCustom" + "NonRecDis_Reflexis" + "/actions/synchronize","POST",headers,jsontostr(tableData),5000);
+			print responseData3;	
+		}	
+}
+
+return "";

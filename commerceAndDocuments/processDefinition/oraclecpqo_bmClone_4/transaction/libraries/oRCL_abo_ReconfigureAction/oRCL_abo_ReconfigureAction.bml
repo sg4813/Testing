@@ -1,0 +1,73 @@
+//////// BEGINING of ABO SCRIPT//////////////////
+//oRCL_abo_ReconfigureAction
+//Commerce library function that should be added to MainDoc/SubDoc Reconfig Action Script
+//////////////////////////////////////////
+//Function Definition
+//  Input Parameters:
+//      "isMainDoc" - Boolean
+//                    true for MainDoc Reconfigure Action and false for SubDoc Reconfigure Action
+// Associate to transaction's existing reconfigure action's Advance Modify -  Before Formula'. 
+// In MainDoc Reconfigure Action add the following - result = commerce.oRCL_abo_ReconfigureAction(true);
+// In SubDoc Reconfigure Action add the following - result = commerce.oRCL_abo_ReconfigureAction(false);
+// Usually a BML script may be associated with the Reconfigure action
+// It is recommended that you add ABO logic to the beginning of action script.  
+// ABO logic in the reconfig action script is exactly the same in maindoc and subdoc
+//   Only difference is in mainDoc '_system_selected_document_number' is used 
+// to locate selected line. In subDoc reconfigure,'_system_current_document_number'
+// is used to locate selected document
+//Select following attributes in addition to existing attributes from context:
+//   system : _system_selected_document_number,_system_buyside_id
+//   Main Doc: None
+//   lineItem:  _document_number,itemInstanceId_l, requestDate_l,oRCL_ABO_ActionCode_l
+//    fulfillmentStatus_l
+//Select following util libraries for import: abo_reconfigure, abo_InitializeContext, 
+
+//Process specific seting, also need to change the reference to transactionLine in main logic
+//context = util._ORCL_ABO.abo_initializeContext("oraclecpqo");//default process name
+context = util._ORCL_ABO.abo_initializeContext("oraclecpqo_bmClone_4");//changed to Current Procees name -TK7131-25-06-2021
+
+businessTimeZone=jsonget(context, "businessTimeZone", "string"); 
+
+docNum = "";
+//generic abo processing.
+ if(sizeofarray(jsonkeys(context)) > 0){  //Context is intilaized...abo is enabled.
+  for line in transactionLine { 
+    
+     if(isMainDoc == true) {
+        docNum = _system_selected_document_number;
+     } else {
+        docNum = _system_current_document_number;
+     }
+        
+     if(line._document_number==docNum){
+     if(line._line_bom_parent_id <> "") {
+       throwError("You cannot reconfigure this line as it is not a root model. Please reconfigure the root model.");         
+     } 
+         if(line.fulfillmentStatus_l <> "CREATED" AND line.fulfillmentStatus_l <> "") {
+          throwError("You cannot reconfigure this line as it is in a fulfilled/being fulfilled/cancelled state.");         
+         }   
+
+      // trigger abo reconfig for all line actions except Terminate        
+       if (line.oRCL_ABO_ActionCode_l <> "TERMINATE" AND line.oRCL_ABO_ActionCode_l <> "SUSPEND" AND line.oRCL_ABO_ActionCode_l <>"") {        
+           // For Backward compatibility we have to convert the line.requestDate_l here before invoking abo_reconfigure BML script to handle different date formats
+           strTransDate = "";
+           if (line.requestDate_l <> "") {
+            tempDate = strtojavadate(line.requestDate_l, "yyyy-MM-dd HH:mm:ss", businessTimeZone);
+            strTransDate =  datetostr(tempDate,  "yyyy-MM-dd HH:mm:ss", businessTimeZone);
+           } 
+           res = util._ORCL_ABO.abo_reconfigure(line.itemInstanceId_l, strTransDate, _system_buyside_id, docNum);
+       }  
+       elif (line.oRCL_ABO_ActionCode_l =="TERMINATE") {
+           throwError("This configuration with action of Terminate cannot be reconfigured");          
+       }
+       elif (line.oRCL_ABO_ActionCode_l =="SUSPEND") {
+           throwError("This configuration with action of Suspend cannot be reconfigured");  
+       }
+            
+       break;
+     }
+   }
+ }
+
+ /////////////////////END OF ABO SCRIPT//////////////////////
+ return "";

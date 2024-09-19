@@ -1,0 +1,109 @@
+/*
+company						(string)
+sessionId					(string)
+processName					(string)
+transactionName				(string)	//Transaction
+transactionVarName			(string)	//transaction
+transactionLineName			(string)	//Transaction Line
+transactionLineVarName		(string)	//transactionLine
+transactionID				(string)
+lineAttributeAndValuesArray	(string[])	
+userName					(string)	//admin 
+currencyPref				(string)	//USD
+actionName					(string)	//save_l
+*/
+
+
+result = "";
+
+bmiURL = "https://" + company + ".bigmachines.com/v1_0/receiver";
+
+wsUpdateTransactionLinesXML = "";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "<?xml version=\"1.0\" encoding=\"UTF-8\"?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "<soapenv:Header>";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "<bm:userInfo xmlns:bm=\"urn:soap.bigmachines.com\">";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "<bm:sessionId>" + sessionId + "</bm:sessionId>";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "</bm:userInfo>";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "<bm:category xmlns:bm=\"urn:soap.bigmachines.com\">Commerce</bm:category>";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "<bm:xsdInfo xmlns:bm=\"urn:soap.bigmachines.com\">";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "<bm:schemaLocation>https://" + company + ".bigmachines.com/bmfsweb/" + company + "/schema/v1_0/commerce/" + processName + ".xsd</bm:schemaLocation>";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "</bm:xsdInfo>";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "</soapenv:Header>";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "<soapenv:Body>";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "<bm:updateTransaction xmlns:bm=\"urn:soap.bigmachines.com\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "<bm:transaction>";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "<bm:id>" + transactionID + "</bm:id>";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "<bm:process_var_name>" + processName + "</bm:process_var_name>";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "<bm:data_xml>";
+
+
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "<bm:transaction bm:bs_id=\"" + transactionID + "\" bm:buyer_company_name=\"" + company + "\" bm:buyer_user_name=\"" + userName + "\" bm:currency_pref=\"" + currencyPref + "\" bm:data_type=\"0\" bm:document_name=\"" + transactionName + "\" bm:document_number=\"1\" bm:document_var_name=\"" + transactionVarName + "\" bm:process_var_name=\"" + processName + "\" bm:supplier_company_name=\"" + company + "\">";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "<bm:_document_number>1</bm:_document_number>";
+
+	/*	this will be part of the transaction quote ws
+	if(sizeofarray(transactionAttributes) > 0){
+		index = 0;
+		for transAttr in transactionAttributes{
+			wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "<bm:" + transactionAttributes[index] + ">" + transactionAttributeValues[index] + "</bm:" + transactionAttributes[index] + ">";
+			index = index + 1;
+		}
+	}
+	*/
+
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "<bm:sub_documents>";
+
+//tried using dict("string[]") ... appears that the values are lost in referrence when trying to do a get....
+print "lineAttributeAndValuesArray" ;
+print lineAttributeAndValuesArray;
+
+
+if(sizeofarray(lineAttributeAndValuesArray) > 0){
+	index = 0;
+	for each in lineAttributeAndValuesArray{
+		
+		tempDocNumber = string(index + 2);
+		
+		wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "<bm:transactionLine bm:bs_id=\"" + transactionID + "\" bm:buyer_company_name=\"" + company + "\" bm:buyer_user_name=\"" + userName + "\" bm:currency_pref=\"" + currencyPref + "\" bm:data_type=\"3\" bm:document_name=\"" + transactionLineName + "\" bm:document_number=\"" + tempDocNumber + "\" bm:document_var_name=\"" + transactionLineVarName + "\" bm:process_var_name=\"" + processName + "\" bm:supplier_company_name=\"" + company + "\">";
+		
+		wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "<bm:_document_number>" + tempDocNumber + "</bm:_document_number>";
+		
+		tempAttrAndVal_array = split(lineAttributeAndValuesArray[index], "+++");
+		
+		for eachAttrAndVal in tempAttrAndVal_array{
+			tempSplitAttrAndVal = split(eachAttrAndVal, "---");
+			tempAttr = tempSplitAttrAndVal[0];
+			tempAttrVal = tempSplitAttrAndVal[1];
+			print "tempAttr ";
+			print tempAttr;
+			
+			print "tempAttrVal";
+			print tempAttrVal;
+			
+			wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "<bm:" + tempAttr + ">" + tempAttrVal + "</bm:" + tempAttr + ">";
+		}
+
+		wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "</bm:transactionLine>";
+		index = index + 1;
+	}
+}
+
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "</bm:sub_documents>";
+
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "</bm:transaction>";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "</bm:data_xml>";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "<bm:action_data>";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "<bm:action_var_name>" + actionName + "</bm:action_var_name>";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "</bm:action_data>";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "</bm:transaction>";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "</bm:updateTransaction>";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "</soapenv:Body>";
+wsUpdateTransactionLinesXML = wsUpdateTransactionLinesXML + "</soapenv:Envelope>";
+
+print "wsUpdateTransactionLinesXML";
+print wsUpdateTransactionLinesXML;
+
+trigger_wsUpdateTransactionLine = urldatabypost(bmiURL, wsUpdateTransactionLinesXML, "Failed to update transaction lines");
+print "trigger_wsUpdateTransactionLine response";
+print trigger_wsUpdateTransactionLine;
+
+return result;

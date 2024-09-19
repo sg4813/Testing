@@ -1,0 +1,13 @@
+importtransactiondata(115147044);
+
+expected = "CREATED";
+
+actual = commerce.transactionStatus();
+ 
+if (actual <> expected) {
+  print actual + " when " + expected + " was expected";
+  return false;
+}
+ 
+print "Success! No asserts failed!";
+return true;

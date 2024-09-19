@@ -1,0 +1,24 @@
+instance = "devzerba";
+recordSet = bmql("Select Quotes from WFC_Conversion");
+for each in recordSet
+{
+	//transID= get(recordSet,"Quotes");
+	transID = "130285022";
+	instance = "devzebra";
+	strUrl = "https://"+instance+".bigmachines.com/rest/v14/commerceDocumentsOraclecpqo_bmClone_4Transaction/"+transID+"/actions/cleanSave_t";
+	requestJson = json();
+	headers=dict("string");
+	 put(headers, "content-type", "application/json");
+	 strUserName = "zbrzspintf";
+	 strPassword = "iB2@^44I2E";
+	strUserDetails = strUserName  + ":" + strPassword;	
+	encodecredential = encodebase64(strUserDetails);	
+	authstring = "Basic "+ encodecredential;
+	put(headers, "Authorization", authstring);
+	response = urldata(strUrl,"Post",headers,jsontostr(requestJson));
+	print response;
+	output = json(get(response,"Message-Body"));
+	print output;
+	
+}
+return "";

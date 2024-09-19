@@ -1,0 +1,15 @@
+{
+  "name" : "Get PS T-Shirt Size",
+  "variableName" : "getPST_ShertSize",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "howManyLocationsDoYouWantToDeployTheSolutionTo_ZS_",
+    "type" : "Integer"
+  }, {
+    "name" : "howManyDevicesDoYouNeedToConnect_ZS_",
+    "type" : "Integer"
+  } ],
+  "attributes" : [ ]
+}

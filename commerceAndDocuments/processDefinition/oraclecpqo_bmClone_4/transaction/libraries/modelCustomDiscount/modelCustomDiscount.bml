@@ -1,0 +1,51 @@
+billingDict = dict("float");
+modelDict = dict("float");
+billingModelDict = dict("string");
+
+for each in transactionLine {
+	parentDocNum = each._parent_doc_number;
+	/*if(each._part_custom_field11 == "Billing") {
+		if(containskey(modelDict, parentDocNum)) {
+			value = get(modelDict, parentDocNum);
+			put(modelDict, parentDocNum, value + each.customDiscountAmount_l);
+		} else {
+			put(modelDict, parentDocNum, each.customDiscountAmount_l);
+		}
+	}*/
+	if(each._part_custom_field11 == "Billing") {
+		put(billingModelDict, each._document_number, parentDocNum);
+	}
+	if(each._part_custom_field11 == "Shell") {
+		if(containskey(billingDict, parentDocNum)) {
+			value = get(billingDict, parentDocNum);
+			put(billingDict, parentDocNum, value + each.customDiscountAmount_l);
+		} else {
+			put(billingDict, parentDocNum, each.customDiscountAmount_l);
+		}
+	}
+}
+print billingModelDict;
+print billingDict;
+retString = "";
+billingKeys = keys(billingDict);
+for eachKey in billingKeys {
+	retString = retString + eachKey + "~customDiscountAmount_l~" + string(get(billingDict, eachKey)) + "|";
+}
+billingModelKeys = keys(billingModelDict);
+for eachModelKey in billingModelKeys {
+	print eachModelKey;
+	modelKey = get(billingModelDict, eachModelKey);
+	print modelKey;
+	if(containskey(modelDict, modelKey)) {
+		value = get(modelDict, modelKey);
+		put(modelDict, modelKey, value + get(billingDict, eachModelKey));
+	} else {
+		put(modelDict, modelKey, get(billingDict, eachModelKey));
+	}
+}
+modelKeys = keys(modelDict);
+for modelKey in modelKeys {
+	retString = retString + modelKey + "~customDiscountAmount_l~" + string(get(modelDict, modelKey)) + "|";
+}
+print modelDict;
+return retString;

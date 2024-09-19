@@ -1,0 +1,15 @@
+{
+  "name" : "Get Configuration data IC",
+  "variableName" : "getConfigurationDataIC",
+  "description" : "Created by: Abhishek 07/02/19: Function will provide all Configuration Sku for given Model and Account.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String Dictionary",
+  "parameters" : [ {
+    "name" : "AccountID",
+    "type" : "String"
+  }, {
+    "name" : "Model",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

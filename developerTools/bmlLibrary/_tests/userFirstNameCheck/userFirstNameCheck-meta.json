@@ -1,0 +1,6 @@
+{
+  "name" : "User first Name check",
+  "variableName" : "userFirstNameCheck",
+  "description" : "will confirm that this returns a users firstName",
+  "libraryFunctions" : [ "util.userFirstNameCheck" ]
+}

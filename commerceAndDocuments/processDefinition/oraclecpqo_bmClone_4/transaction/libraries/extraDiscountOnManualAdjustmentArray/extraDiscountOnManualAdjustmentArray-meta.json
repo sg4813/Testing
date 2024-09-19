@@ -1,0 +1,11 @@
+{
+  "name" : "Extra Discount on Manual Adjustment array",
+  "variableName" : "extraDiscountOnManualAdjustmentArray",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "oRCL_manualAdjustments", "billingFrequency", "_part_number", "annualCloudPriceInclHosting_l", "_document_number", "license", "alignBillingFromDate", "alignMonth", "alignProRatedDays", "alignMonthDays", "oRCL_charges", "contactTerm_l", "annualCloudNetPrice_l", "modelName_l", "actualMonths", "proRatedDays", "lastMonthDays", "enableMultiYearPricing_l", "oRCL_ABO_ActionCode_l" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

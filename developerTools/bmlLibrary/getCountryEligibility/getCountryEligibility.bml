@@ -1,0 +1,67 @@
+bFlag = false;
+dictCountry = dict("string");
+jsonArrayStdConfig = jsonarray();
+put(dictCountry,"NA","All NA Countries");
+put(dictCountry,"EMEA","All EMEA Countries");
+put(dictCountry,"APAC","All APAC Countries");
+put(dictCountry,"LATAM","All LA Countries");
+strCountries = get(dictCountry,RegionCountry);
+localCountry_Col1 = get(CountriesISO, "CountryColumn1");
+localCountry_Col2 = get(CountriesISO, "CountryColumn2");
+localCountry_Col3 = get(CountriesISO, "CountryColumn3");
+if(NOT(ISNULL(localCountry_Col1)))
+{
+
+	if(strCountries == localCountry_Col1)
+	{
+		bFlag = true;
+	}
+	else
+	{
+		splitArray = split(localCountry_Col1,"|");
+		for eachsplit in splitArray
+		{
+			if(eachsplit == ConfiguringCountry OR eachsplit == strCountries)
+			{
+				bFlag = true;
+			}
+		}
+	}
+}
+if(NOT(ISNULL(localCountry_Col2)) AND NOT(bFlag))
+{
+	if(strCountries == localCountry_Col2)
+	{
+		bFlag = true;
+	}
+	else
+	{
+		splitArray = split(localCountry_Col2,"|");
+		for eachsplit in splitArray
+		{
+			if(eachsplit == ConfiguringCountry OR eachsplit == strCountries)
+			{
+				bFlag = true;
+			}
+		}
+	}
+}
+if(NOT(ISNULL(localCountry_Col3)) AND NOT(bFlag))
+{
+	if(strCountries == localCountry_Col3)
+	{
+		bFlag = true;
+	}
+	else
+	{
+		splitArray = split(localCountry_Col3,"|");
+		for eachsplit in splitArray
+		{
+			if(eachsplit == ConfiguringCountry OR eachsplit == strCountries)
+			{
+				bFlag = true;
+			}
+		}
+	}
+}
+return bFlag;

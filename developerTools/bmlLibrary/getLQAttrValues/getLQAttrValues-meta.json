@@ -1,0 +1,21 @@
+{
+  "name" : "Get Bid to Quote Attribute Values",
+  "variableName" : "getLQAttrValues",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "device",
+    "type" : "String"
+  }, {
+    "name" : "configJSONAttribute",
+    "type" : "String"
+  }, {
+    "name" : "configSites",
+    "type" : "Integer"
+  }, {
+    "name" : "noOfSepBuldings",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

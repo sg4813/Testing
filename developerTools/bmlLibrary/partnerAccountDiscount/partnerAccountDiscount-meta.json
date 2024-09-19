@@ -1,0 +1,30 @@
+{
+  "name" : "PartnerAccountDiscount",
+  "variableName" : "partnerAccountDiscount",
+  "description" : "",
+  "libraryFunctions" : [ "util.partnerDiscountEligilibility_final" ],
+  "returnType" : "Float",
+  "parameters" : [ {
+    "name" : "PriceGroupString",
+    "type" : "String"
+  }, {
+    "name" : "ProductName",
+    "type" : "String"
+  }, {
+    "name" : "accountNum",
+    "type" : "String"
+  }, {
+    "name" : "accountNum1",
+    "type" : "String"
+  }, {
+    "name" : "ExtraParam1",
+    "type" : "String"
+  }, {
+    "name" : "ExtraParam2",
+    "type" : "String"
+  }, {
+    "name" : "ExtraParam3",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

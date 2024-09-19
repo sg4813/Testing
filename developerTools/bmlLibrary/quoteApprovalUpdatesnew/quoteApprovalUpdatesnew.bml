@@ -1,0 +1,58 @@
+instance="";
+ret = "";
+if(_company_name=="devzebra")
+{
+	instance="devzebra.bigmachines.com";
+}
+elif(_company_name=="testzebra")
+{
+	instance="test-cpq.zebra.com";
+}
+elif(_company_name=="stagezebra")
+{
+	instance="stagezebra.bigmachines.com";
+}
+elif(_company_name=="zebra")
+{
+	instance="cpq.zebra.com";
+}
+print instance;
+headers = dict("string");
+put(headers, "Content-Type", "application/json");
+strUrl1 = "https://"+instance+"/rest/v14/commerceDocumentsOraclecpqo_bmClone_4Transaction/"+transID+"/actions/cleanSave_t";
+
+strUrl = "https://"+instance+"/rest/v14/commerceDocumentsOraclecpqo_bmClone_4Transaction/"+transID+"/actions/_send_email";
+recordSet = bmql("select * from INT_SYSTEM_DETAILS where System = 'Fetch-Approval'"); 
+strPassword ="";
+strUserName ="";
+for each in recordSet {
+	strUserName = get(each, "Username");
+	strPassword = get(each, "Password");
+	//URL = get(each, "Endpoint");
+}
+print strPassword;
+strUserDetails = strUserName  + ":" + strPassword;	
+encodecredential = encodebase64(strUserDetails);	
+authstring = "Basic "+ encodecredential;
+put(headers, "Authorization", authstring);
+response1 = urldata(strUrl1,"Post",headers);
+print response1;
+requestJson = json();
+jsonput(requestJson,"actionVariableName","approvalUpdates");
+jsonput(requestJson,"toName","Fetch Sales Team");
+sub = "Fetch Quote# " + transID +" is waiting for Approval.";
+jsonput(requestJson,"subject",sub);
+jsonput(requestJson,"toEmail",emailid);
+
+print "requestJson";
+print requestJson;
+val = "Fetch Quote " + transID +" is waiting for Approval. Please find attached approved proposal document";
+jsonput(requestJson,"comments",val);
+finalJson = json();
+jsonput(finalJson,"properties",requestJson);
+jsonput(finalJson,"type","object");
+response = urldata(strUrl,"Post",headers,jsontostr(requestJson));
+print response;
+Message = json(get(response,"Message-Body"));
+ret = "1~quoteApprovalEmailResponse~"+jsontostr(Message)+ "|";
+return ret;

@@ -1,0 +1,251 @@
+// This utility BML will calculate the price based on pricing model(Single or Tiered).
+// Name: Oracle Pricing Subscription Base Profile
+// Variable Name: oRCL_pRC_oraclePricingSubscriptionBaseProfile
+// Input:
+// partNumber(String) - This is used to look up rows from the ORCL_PRC_BASE_CHGS table
+// quantity(Integer) - Used for calculating the price.
+// chargeName(String)
+// lockedAllowance(Integer)
+// lockedBlockSize(Integer)
+// lockedListPrice(Float)
+// tierFrom(Integer[])
+// tierTo (Integer[])
+// tierListPrice(Float[])
+// tierBlockSize(Integer[])
+// lockUsage(Boolean)
+// Output:
+//  JSON - Includes UnitPrice and other JSON elements for Subscription Service.
+// Dependency : Calculate List Price, Prepare Tier Info Json
+
+lang = dict("string");
+fields = dict("string");
+where = "";
+
+// If the chargeName is provided, query the data table for specific charges. otherwise queries all charges.
+if(isnull(chargeName) OR chargeName == ""){
+	put(fields, "$field1", partNumber);
+	put(fields, "$field2", billingFrequency);
+	where = "Product= $field1 AND Periodicity= $field2";
+}else{
+	put(fields, "$field1", partNumber);
+	put(fields, "$field2", chargeName);
+	put(fields, "$field3", billingFrequency);
+	where = "Product= $field1 AND Charge= $field2 AND Periodicity= $field3";
+}
+
+// Get the results from the ORCL_PRC_BASE_CHGS to calculate the price.
+charges = bmql("select Charge_Id, Charge, Price, Block_Size, Allowance, Charge_Type, Periodicity, Tiered, TierType from ORCL_PRC_BASE_CHGS where $where",lang,fields);
+chargeList = jsonarray();
+returnPayload = json();
+errorInPricing = false;
+errorMessagesJsonArr = jsonarray();
+
+for charge in charges { // Iterating throgh charges queried from data table ORCL_PRC_BASE_CHGS.
+        listPrice = 0.0;
+	unitPrice = 0.0;
+	unitListPrice = 0.0;
+	
+	tierList = jsonarray();
+	// Reading the each charge details
+	tiered = get(charge, "Tiered");
+	chargeId = getint(charge, "Charge_Id");
+	chargeType = get(charge, "Charge_Type");
+	chargeNameValue = get(charge, "Charge");
+	periodicity = get(charge, "Periodicity");
+	tierType = get(charge,"TierType");
+	allowance = getint(charge, "Allowance");
+	chargeJson= json();
+	if(tiered == "N"){ // Non tiered
+		// Checking charge is of type lockable, if yes and locked then calculating the price based on locked values
+		if(chargeType == "ORA_RECURRING_USAGE" AND lockUsage) {
+			price = lockedListPrice;
+			blockSize = lockedBlockSize;
+			allowance = lockedAllowance;
+		}else{
+			price = getfloat(charge, "Price");	
+			blockSize = getint(charge, "Block_Size");
+		}
+		
+		// Price from data table
+		unitListPrice  = price;
+		
+		// Calculating List Price	
+		listPrice = util._SM.oRCL_pRC_calculateListPrice(quantity, allowance, blockSize, price);
+
+		// Calculating Unit Price
+		if(quantity <> 0){
+			unitPrice = listPrice / quantity;
+		}	
+		
+	}else{
+		if(tierType == "ORA_ALL_TIERS"){
+			prevMax = 0;
+			tierSeq = 1;
+			// Checking charge is of type lockable, if yes and locked then calculating the price based on locked values
+			if(chargeType == "ORA_RECURRING_USAGE" AND lockUsage) {
+				tierSize= sizeofarray(tierFrom);
+				tierLoopArr = range(tierSize);
+				for tierNum in tierLoopArr{
+					tierMin = tierFrom[tierNum];
+					tierMax = tierTo[tierNum];
+					blockSize = tierBlockSize[tierNum];
+					tierPrice = tierListPrice[tierNum];
+					if(tierMax == 0 OR (tierMax >= quantity)){ // True if we are at the last row of the tier.
+						iterationQuantity = quantity - prevMax; // Get the quantity to charge for this tier.
+						if(iterationQuantity < 0){ 
+							iterationQuantity = 0;
+						}
+					}else{ // True if the tier still has more rows after first tier.
+							iterationQuantity = tierMax - prevMax; // Get the quantity to charge for this row.
+					}
+					
+					listPrice = listPrice + util._SM.oRCL_pRC_calculateListPrice(iterationQuantity, allowance, blockSize, tierPrice); 
+								
+					if(quantity <> 0){
+						unitPrice = listPrice / quantity;
+					}
+					
+					// Preparing tier info
+					tierInfoJson = util._SM.oRCL_pRC_prepareTierInfoJson(tierSeq, tierMin, tierMax, tierPrice, blockSize);
+					
+					//Adding tier Info to tier list
+					jsonarrayappend(tierList, tierInfoJson); 
+					
+					prevMax = tierMax;  // Set the previous max for the if statement above on the next loop.
+					tierSeq = tierSeq + 1; // Increment the tier sequence number for the next iteration of the loop.
+					if(tierMax <= 0){ // stop processing tiers if <= 0 since that is used as a max identifier
+						break;
+					}
+				}
+			}else{
+				// If tiered pricing then querying ORCL_PRC_BASE_TIERS data table to get the tier info.
+				tiers = bmql("select Tier_Min, Tier_Max, Block_Size, Price from ORCL_PRC_BASE_TIERS where Charge_Id = $chargeId  AND Tier_Min <= $quantity AND Tier_Max >= $quantity ORDER BY Tier_Min ASC");
+				
+				for tier in tiers { // Iterating through tiers
+						// Reading the tier info
+					tierMin = getint(tier, "Tier_Min");
+					tierMax = getint(tier, "Tier_Max");
+					blockSize = getint(tier, "Block_Size");
+					tierPrice = getfloat(tier, "Price");
+					if(tierMax == 0 OR (tierMax >= quantity)){ // True if we are at the last row of the tier.
+						iterationQuantity = quantity - prevMax; // Get the quantity to charge for this tier.
+						if(iterationQuantity < 0){ 
+							iterationQuantity = 0;
+						}
+					}else{ // True if the tier still has more rows after first tier.
+							iterationQuantity = tierMax - prevMax; // Get the quantity to charge for this row.
+					}
+					
+					listPrice = listPrice + util._SM.oRCL_pRC_calculateListPrice(iterationQuantity , allowance, blockSize , tierPrice);
+								
+					if(quantity <> 0){
+						unitPrice = listPrice / quantity;
+					}
+					// Preparing tier info
+					tierInfoJson = util._SM.oRCL_pRC_prepareTierInfoJson(tierSeq, tierMin, tierMax, tierPrice, blockSize);
+					
+					//Adding tier Info to tier list
+					jsonarrayappend(tierList, tierInfoJson); 
+					
+					prevMax = tierMax;  // Set the previous max for the if statement above on the next loop.
+					tierSeq = tierSeq + 1; // Increment the tier sequence number for the next iteration of the loop.
+					if(tierMax <= 0){ // stop processing tiers if <= 0 since that is used as a max identifier
+						break;
+					}
+				}
+					
+			}
+		}
+		if(tierType == "ORA_HIGHEST_TIER"){
+		
+			tierSeq = 1;
+			// Checking charge is of type lockable, if yes and locked then calculating the price based on locked values
+			if(chargeType == "ORA_RECURRING_USAGE" AND lockUsage) {
+				tierSize= sizeofarray(tierFrom);
+				tierLoopArr = range(tierSize);
+				for tierNum in tierLoopArr{
+					tierMin = tierFrom[tierNum];
+					tierMax = tierTo[tierNum];
+					blockSize = tierBlockSize[tierNum];
+					tierPrice = tierListPrice[tierNum];
+					
+					if(tierMin <= quantity AND (tierMax >= quantity OR tierMax == 0)){ // True if we are at the last row of the tier.
+						listPrice = listPrice + util._SM.oRCL_pRC_calculateListPrice(quantity, allowance, blockSize, tierPrice); 
+								
+						if(quantity <> 0){
+							unitPrice = listPrice / quantity;
+						}
+					}
+					
+					// Preparing tier info
+					tierInfoJson = util._SM.oRCL_pRC_prepareTierInfoJson(tierSeq, tierMin, tierMax, tierPrice, blockSize);
+						
+					//Adding tier Info to tier list
+					jsonarrayappend(tierList, tierInfoJson);
+					tierSeq = tierSeq + 1; // Increment the tier sequence number for the next iteration of the loop.
+					
+				}
+			}else{
+				// If tiered pricing then querying ORCL_PRC_BASE_TIERS data table to get the tier info.
+				tiers = bmql("select Tier_Min, Tier_Max, Block_Size, Price from ORCL_PRC_BASE_TIERS where Charge_Id = $chargeId AND Tier_Min <= $quantity AND Tier_Max >= $quantity ORDER BY Tier_Min ASC");
+				
+				for tier in tiers { // Iterating through tiers
+						// Reading the tier info
+					tierMin = getint(tier, "Tier_Min");
+					tierMax = getint(tier, "Tier_Max");
+					blockSize = getint(tier, "Block_Size");
+					tierPrice = getfloat(tier, "Price");
+					if(tierMin <= quantity AND (tierMax >= quantity OR tierMax == 0)){ // True if we are at the last row of the tier.
+						listPrice = listPrice + util._SM.oRCL_pRC_calculateListPrice(quantity, allowance, blockSize, tierPrice); 
+								
+						if(quantity <> 0){
+							unitPrice = listPrice / quantity;
+						}
+					}
+					// Preparing tier info
+					tierInfoJson = util._SM.oRCL_pRC_prepareTierInfoJson(tierSeq, tierMin, tierMax, tierPrice, blockSize);
+					
+					//Adding tier Info to tier list
+					jsonarrayappend(tierList, tierInfoJson); 
+					
+					tierSeq = tierSeq + 1; // Increment the tier sequence number for the next iteration of the loop.
+					
+				}
+				
+			}
+		
+		}
+
+	}
+			
+	// Preparing the charge details
+	jsonput(chargeJson, "chargeName", chargeNameValue);		
+	jsonput(chargeJson, "unitPrice", unitPrice); 
+	jsonput(chargeJson, "listPrice", listPrice);
+	jsonput(chargeJson, "unitListPrice",unitListPrice);
+	jsonput(chargeJson, "chargeType", chargeType);
+	jsonput(chargeJson, "periodicity", periodicity);
+	if(tiered == "Y"){ // Include Tier information if tiered pricing.
+		jsonput(chargeJson, "tiered", "Y");
+		jsonput(chargeJson, "tierList", tierList);	
+		jsonput(chargeJson, "tierType", tierType);
+	}else{
+		jsonput(chargeJson, "Allowance", allowance );
+		jsonput(chargeJson, "BlockSize", blockSize );	
+	}
+	// Adding charge details to charge list
+	jsonarrayappend(chargeList , chargeJson);		
+	
+}
+
+calculationInfoPayload = json(); 
+
+jsonput(returnPayload, "unitPrice", 0.0);
+jsonput(calculationInfoPayload , "charges", chargeList);
+
+jsonput(calculationInfoPayload, "hasErrors", errorInPricing); // Adding the hasErrors item
+if(errorInPricing){ // Including Error information if there are errors
+	jsonput(calculationInfoPayload, "errorInfo", errorMessagesJsonArr);
+}
+jsonput(returnPayload, "calculationInfo", calculationInfoPayload ); // Adding the calculationInfo child to the payload.
+return returnPayload;

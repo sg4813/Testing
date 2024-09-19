@@ -1,0 +1,11 @@
+{
+  "name" : "Transaction Status",
+  "variableName" : "transactionStatus",
+  "description" : "Updates a transaction's status based on  line level statuses present on the transaction.  The transaction status is set to the value for the most advanced line.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "status_l" ],
+  "mainDocAttributes" : [ "status_t" ],
+  "systemAttributes" : [ ]
+}

@@ -1,0 +1,11 @@
+{
+  "name" : "StartandEndDateRollUp",
+  "variableName" : "startandEndDateRollUp",
+  "description" : "",
+  "libraryFunctions" : [ "commerce.contractEndDateRollUp" ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_parent_doc_number", "_part_custom_field11", "contractStartDate_l", "_document_number", "oRCL_ABO_ActionCode_l" ],
+  "mainDocAttributes" : [ "contractStartDate" ],
+  "systemAttributes" : [ "_system_user_date_pref" ]
+}

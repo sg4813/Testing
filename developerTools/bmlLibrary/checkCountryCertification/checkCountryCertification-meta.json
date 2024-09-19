@@ -1,0 +1,18 @@
+{
+  "name" : "Check Country Certification",
+  "variableName" : "checkCountryCertification",
+  "description" : "Modified By: Abhishek Shrivastava: 09/07/19, logic modified.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "additionalItems",
+    "type" : "String[]"
+  }, {
+    "name" : "shipToCountry",
+    "type" : "String"
+  }, {
+    "name" : "categoryDict",
+    "type" : "String Dictionary"
+  } ],
+  "attributes" : [ ]
+}

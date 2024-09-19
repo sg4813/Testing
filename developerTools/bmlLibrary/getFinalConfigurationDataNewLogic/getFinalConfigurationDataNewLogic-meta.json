@@ -1,0 +1,24 @@
+{
+  "name" : "Get Final Configuration Data New Logic",
+  "variableName" : "getFinalConfigurationDataNewLogic",
+  "description" : "",
+  "libraryFunctions" : [ "util.getModelDetailsNewLogic" ],
+  "returnType" : "Json",
+  "parameters" : [ {
+    "name" : "ModelName",
+    "type" : "String"
+  }, {
+    "name" : "Language",
+    "type" : "String"
+  }, {
+    "name" : "ConfigurationData",
+    "type" : "String Dictionary"
+  }, {
+    "name" : "Description",
+    "type" : "String Dictionary"
+  }, {
+    "name" : "ItemData",
+    "type" : "Dictionary of String Dictionaries"
+  } ],
+  "attributes" : [ ]
+}

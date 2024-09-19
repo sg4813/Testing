@@ -1,0 +1,50 @@
+ret = json();
+tempJson = json();
+arrayValue = string[]{"status_t"};
+arrayLineValue = string[]{"customDiscountType_l","customDiscountAmount_l","customDiscountValue_l"};
+objAudittrail = json();
+isJsonAudit = false;
+fields = string[];
+jsonput(tempJson,"Status",status_t);
+
+
+for line in transactionLine
+	{
+		print line._part_number;
+		if(line._part_number <> "")
+		{
+			//append(fields,line._part_number);
+			if(NOT(isnull(line.annualCloudPriceInclHosting_l)))
+			{
+				jsonput(tempJson,line._part_number + " - Anual Cloud Price",string(line.annualCloudPriceInclHosting_l));
+				append(fields,line._part_number + " - Anual Cloud Price");
+			}
+			if(NOT(isnull(line.customDiscountType_l)))
+			{
+				jsonput(tempJson,line._part_number + " - Custom Discount",line.customDiscountType_l);
+				append(fields,line._part_number + " - Custom Discount");
+			
+			}
+			if(NOT(isnull(line.customDiscountValue_l)))
+			{
+				jsonput(tempJson,line._part_number+ " - Custom Discount Value",string(line.customDiscountValue_l));
+				append(fields,line._part_number + " - Custom Discount Value");
+			
+			}
+			if(NOT(isnull(line.license)))
+			{
+				jsonput(tempJson,line._part_number+ " - license",string(line.license));
+				append(fields,line._part_number + " - license");
+			
+			}
+			
+			
+		}
+}
+fieldsOutput = stringbuilder();
+for each in fields
+{
+	sbappend(fieldsOutput,each,"$$");
+}
+jsonput(tempJson,"fields",sbtostring(fieldsOutput));
+	return tempJson;

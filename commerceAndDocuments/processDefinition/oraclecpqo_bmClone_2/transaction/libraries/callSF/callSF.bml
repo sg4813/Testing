@@ -1,0 +1,30 @@
+ret = "";
+output = json();
+output1 = jsonarray();
+input = json();
+ret = getconfigattrvalue("2", "jsonForAIArrayQuantity");
+tempjsonarray = jsonarray(ret);
+nCount = range(jsonarraysize(tempjsonarray));
+product1 = "";
+for each in nCount
+{
+	//product1 = product1 + "|" +jsonget(json(jsonarrayget(tempjsonarray,each)),"Part Number") + "~" + jsonget(json(jsonarrayget(tempjsonarray,each)),"Quantity");
+	jsonput(output,"parts",jsonget(json(jsonarrayget(tempjsonarray,each)),"Part Number"));
+	jsonput(output,"quantity",jsonget(json(jsonarrayget(tempjsonarray,each)),"Quantity"));
+	jsonput(output,"price","200");
+	jsonarrayappend(output1,output);
+	output = json();
+}
+jsonput(input,"quoteid",bs_id);
+jsonput(input,"opptyid","0063K00000Eb6qzQAB");
+jsonput(input,"productdetails",output1);
+print input;
+url = "https://zebra--dev2.my.salesforce.com/services/oauth2/authorize?client_id=3MVG9_4NR96cWRpFPlYgUVb3xkBE_p9PbA3LCuWc.Aa9ixdhpvil2tok1fDOfFxmEj1H8Nz8ns7_zmR2TJ9CU&redirect_uri=https://cpq.zebra.com/admin/oauth2/salesforce/oauth_callback.jsp&response_type=code";
+headers=dict("string");
+put(headers, "content-type", "application/json");
+strUserDetails = "AS3869" + ":" + "Ad@123456";	
+encodecredential = encodebase64(strUserDetails);	
+authstring = "Basic "+ encodecredential;
+response=urldata(url, "POST", headers,jsontostr(input));
+print response;
+return "";

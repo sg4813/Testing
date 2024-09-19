@@ -1,0 +1,11 @@
+{
+  "name" : "Discount Cascade",
+  "variableName" : "discountCascade",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "discountbackup_l", "discountTypebkp_l", "customDiscountValue_l", "customDiscountType_l", "_document_number", "_parent_doc_number", "_model_name", "_part_custom_field2", "_part_custom_field11" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

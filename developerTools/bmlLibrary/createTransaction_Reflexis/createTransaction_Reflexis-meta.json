@@ -1,0 +1,9 @@
+{
+  "name" : "Create Transaction Reflixis",
+  "variableName" : "createTransaction_Reflexis",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "attributes" : [ "_company_name" ]
+}

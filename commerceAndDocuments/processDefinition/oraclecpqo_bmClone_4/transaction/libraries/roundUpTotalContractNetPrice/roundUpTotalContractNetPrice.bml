@@ -1,0 +1,61 @@
+/*=====================================================================================================
+Author				: Prathyusha
+Date  				: 11th DEC 2023
+JIRA Reference			: CCZC-6576
+Description			: This requirement is to Round Total contract Net price at line upto 2 decimal digits and also added logic for attributes costAmount_l,unitCost_l,unitCost based on incident INC1251870 
+
+This function calling from updateAssets_t, cleanSave_t actions.
+*/
+retVal = "";
+parLine = "";
+parentDocNum = "";
+
+/*
+1. Loop through the line items
+2. Read Cloud Net Price
+3. Check if its greater then 0
+4. if yes, round of the value 
+5. return 
+*/
+for line in transactionLine
+{
+cloudNetPrice = line.grossCloudNetPrice_l;
+costAmount = line.costAmount_l;
+unitCost1 = line.unitCost_l;
+unitCost2 = line.unitCost;
+ print "==============="; print cloudNetPrice;
+ print costAmount ;
+ print unitCost1;
+ print unitCost2 ;
+	/**if(cloudNetPrice > 0)
+	{print "true";
+	cloudNetPrice = round(cloudNetPrice,2); print cloudNetPrice;
+	retval = retval +line._document_number+ "~grossCloudNetPrice_l~" + string(cloudNetPrice) + "|";
+	}**/
+	if(costAmount > 0){
+	print "costAmount_l";
+	costAmount = round(costAmount,2);
+	print costAmount;
+	retval = retval +line._document_number+ "~costAmount_l~" + string(costAmount) + "|";
+	}
+	if(unitCost1 > 0){
+	print "unitCost_l";
+	unitCost1 = round(unitCost1,2);
+	print unitCost1;
+	retval = retval +line._document_number+ "~unitCost_l~" + string(unitCost1 ) + "|";
+	}
+	if(unitCost2 > 0 ){	
+	print "unitCost";
+	unitCost2 = round(unitCost2,2);
+	print unitCost2;
+	retval = retval +line._document_number+ "~unitCost~" + string(unitCost2 ) + "|";
+	}
+
+
+
+
+}
+
+//retval = retval + "1~annualCost_t~"+ string(round(annualCost_t,2)) + "|";
+
+Return retVal;

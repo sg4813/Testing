@@ -1,0 +1,464 @@
+retval="";
+ //Commented for INC0994920
+//if (currency_t <>"EUR"){partnerPrice 
+annualNet =0.0;
+parLine = "";
+TotalPrice =0.0;
+TotalNet=0.0;
+annualPrice =0.0;
+TotalWoPrice =0.0;
+annualWoPrice =0.0;
+perStorePrice =0.0;
+perStoreNet =0.0;
+perEmpPrice =0.0;
+perEmpNet =0.0;
+discount = 0.0;
+dictValues = "";
+dictValues1 = "";
+for line in transactionLine {
+//if ( line._part_desc == ""  AND line.modelName_l== "Reflexis"){
+	if (line._part_custom_field11 =="Billing") {
+		annualNet =0.0;
+		parLine = "";
+		TotalPrice =0.0;
+		TotalNet=0.0;
+		annualPrice =0.0;
+		TotalWoPrice =0.0;
+		annualWoPrice =0.0;
+		perStorePrice =0.0;
+		perStoreNet =0.0;
+		perEmpPrice =0.0;
+		perEmpNet =0.0;
+		discount = 0.0;
+		parLine = line._document_number;
+		for line1 in transactionLine {
+			if (line1._parent_doc_number == parLine AND line1.oRCL_ABO_ActionCode_l <>"DELETE"){
+				annualNet = annualNet +line1.annualCloudNetPrice_l;
+				TotalNet = TotalNet +line1.grossCloudNetPrice_l;
+				annualPrice = annualPrice +line1.annualCloudPriceInclHosting_l;
+				TotalPrice= TotalPrice+line1.grossCloudPriceInclHosting_l;
+				TotalWoPrice = TotalWoPrice +line1.grossCloudPriceWoHosting_l;
+				annualWoPrice = annualWoPrice +line1.annualCloudPriceWoHosting_l;
+				perStorePrice = perStorePrice +line1.perStorePerMonthGross_l;
+				perEmpPrice = perEmpPrice +line1.perEmployeePerMonthPriceGross_l;
+				perStoreNet = perStoreNet +line1.perStorePerMonthNet_l;
+				perEmpNet = perEmpNet +line1.perEmployeePerMonthPriceNet_l;
+				discount = discount +line1.customDiscountAmount_l;
+			}
+		}
+		//print line._document_number;
+		
+		//print line._line_bom_id;
+		//print annualNet;
+		//print TotalNet ;
+		retval = retval +"|"+ line._document_number + "~annualCloudNetPrice_l~" + string(round(annualNet,2)) + "|";
+		retval = retval +"|"+ line._document_number + "~grossCloudNetPrice_l~" + string(round(TotalNet,2)) + "|";
+		retval = retval +"|"+ line._document_number + "~customDiscountAmount_l~" + string(round(discount,2)) + "|";
+		//setattributevalue(line._document_number, "annualCloudNetPrice_l", round(annualNet,2));
+		//setattributevalue(line._document_number, "grossCloudNetPrice_l", round(TotalNet,2));
+		//setattributevalue(line._document_number, "customDiscountAmount_l", round(discount,2));
+		
+		if(startswith(line.modelName_l,"Reflexis")) {
+			//print 1;
+			//print line._part_number;
+			//print annualNet;
+			retval = retval +"|"+ line._document_number + "~annualCloudPriceInclHosting_l~" + string(round(annualPrice,2)) + "|";
+			retval = retval +"|"+ line._document_number + "~grossCloudPriceInclHosting_l~" + string(round(TotalPrice,2)) + "|";
+			//setattributevalue(line._document_number, "annualCloudPriceInclHosting_l", round(annualPrice,2));
+			//setattributevalue(line._document_number, "grossCloudPriceInclHosting_l", round(TotalPrice,2));
+		}
+		/*if(line._line_bom_id=="BOM_prescriptiveAnalytics"){
+		print line._document_number;
+		print perStoreNet ;
+		//print replace(perStorePrice,".",","); ;
+		setattributevalue(line._document_number, "grossCloudPriceWoHosting_l", round(TotalWoPrice,2));
+		setattributevalue(line._document_number, "annualCloudPriceWoHosting_l", round(annualWoPrice,2));
+		setattributevalue(line._document_number, "perStorePerMonthGross_l", INTEGER(CEIL(perStorePrice) ));
+		setattributevalue(line._document_number, "perStorePerMonthNet_l", INTEGER(CEIL(perStoreNet)) );
+		}else {
+		setattributevalue(line._document_number, "perEmployeePerMonthPriceGross_l", INTEGER(perEmpPrice));
+		
+		setattributevalue(line._document_number, "perEmployeePerMonthPriceNet_l", INTEGER(perEmpNet));
+		}*/
+	}
+}
+
+billingDict = dict("float");
+modelDict = dict("float");
+billingModelDict = dict("string");
+
+for each in transactionLine {
+	parentDocNum = each._parent_doc_number;
+	/*if(each._part_custom_field11 == "Billing") {
+		if(containskey(modelDict, parentDocNum)) {
+			value = get(modelDict, parentDocNum);
+			put(modelDict, parentDocNum, value + each.customDiscountAmount_l);
+		} else {
+			put(modelDict, parentDocNum, each.customDiscountAmount_l);
+		}
+	}*/
+	if(each._part_custom_field11 == "Billing" AND each.oRCL_ABO_ActionCode_l <>"DELETE") {
+		put(billingModelDict, each._document_number, parentDocNum);
+	}
+	if(each._part_custom_field11 == "Shell" AND each.oRCL_ABO_ActionCode_l <>"DELETE") {
+		if(containskey(billingDict, parentDocNum)) {
+			value = get(billingDict, parentDocNum);
+			put(billingDict, parentDocNum, value + each.customDiscountAmount_l);
+		} else {
+			put(billingDict, parentDocNum, each.customDiscountAmount_l);
+		}
+	}
+}
+
+
+
+for line in transactionLine {
+if (line._model_name=="Reflexis" OR line._model_name=="WorkForce Connect" OR line._model_name=="Prescriptive Analytics" OR line._model_name=="Workcloud Sync"){
+//if ( line._part_custom_field11=="Model"){
+//if ( line._model_name<>""){
+print "test1";
+annualNet =0.0;
+parLine = "";
+TotalPrice =0.0;
+TotalNet=0.0;
+annualPrice =0.0;
+TotalWoPrice =0.0;
+annualWoPrice =0.0;
+perStorePrice =0.0;
+perStoreNet =0.0;
+perEmpPrice =0.0;
+perEmpNet =0.0;
+discount = 0.0;
+partnerPrice =0.0;
+parLine =line._document_number;
+	for line1 in transactionLine {
+	if ( line1._parent_doc_number ==parLine AND line1.oRCL_ABO_ActionCode_l <>"DELETE"){
+		annualNet = annualNet +line1.annualCloudNetPrice_l;
+		TotalNet = TotalNet +line1.grossCloudNetPrice_l;
+		annualPrice = annualPrice +line1.annualCloudPriceInclHosting_l;
+		TotalPrice= TotalPrice+line1.grossCloudPriceInclHosting_l;
+		TotalWoPrice = TotalWoPrice +line1.grossCloudPriceWoHosting_l;
+		annualWoPrice = annualWoPrice +line1.annualCloudPriceWoHosting_l;
+		perStorePrice = perStorePrice +line1.perStorePerMonthGross_l;
+		perEmpPrice = perEmpPrice +line1.perEmployeePerMonthPriceGross_l;
+		perStoreNet = perStoreNet +line1.perStorePerMonthNet_l;
+		perEmpNet = perEmpNet +line1.perEmployeePerMonthPriceNet_l;
+		discount = discount +line1.customDiscountAmount_l;
+		partnerPrice = partnerPrice +line1.partnerListPrice;
+		}
+	}
+	print line._document_number;
+	
+	print line._line_bom_id;
+	print annualNet;
+	print TotalPrice;
+	
+retval = retval +"|"+ line._document_number + "~annualCloudNetPrice_l~" + string(round(annualNet,2)) + "|";
+retval = retval +"|"+ line._document_number + "~grossCloudNetPrice_l~" + string(round(TotalNet,2)) + "|";
+retval = retval +"|"+ line._document_number + "~customDiscountAmount_l~" + string(round(discount,2)) + "|";
+//retval = retval +"|"+ line._document_number + "~partnerListPrice~" + string(round(partnerPrice ,2)) + "|";
+/*setattributevalue(line._document_number, "annualCloudNetPrice_l", round(annualNet,2));
+setattributevalue(line._document_number, "grossCloudNetPrice_l", round(TotalNet,2) );
+setattributevalue(line._document_number, "customDiscountAmount_l", round(discount,2));
+setattributevalue(line._document_number, "partnerListPrice", round(partnerPrice ,2));*/
+if (line._model_name=="Reflexis"  OR line._model_name=="Prescriptive Analytics" OR line._model_name=="WorkForce Connect" ){
+retval = retval +"|"+ line._document_number + "~annualCloudPriceInclHosting_l~" + string(round(annualPrice,2)) + "|";
+retval = retval +"|"+ line._document_number + "~grossCloudPriceInclHosting_l~" + string(round(TotalPrice,2)) + "|";
+//setattributevalue(line._document_number, "annualCloudPriceInclHosting_l", round(annualPrice,2) );
+//setattributevalue(line._document_number, "grossCloudPriceInclHosting_l", round(TotalPrice,2));
+}
+/*if (line._model_name=="Prescriptive Analytics"){
+setattributevalue(line._document_number, "annualCloudPriceWoHosting_l", round(annualWoPrice,2) );
+setattributevalue(line._document_number, "grossCloudPriceWoHosting_l", round(TotalWoPrice,2));
+}*/
+//setattributevalue(line._document_number, "grossCloudPriceWoHosting_l", TotalWoPrice );
+//setattributevalue(line._document_number, "annualCloudPriceWoHosting_l", annualWoPrice);
+//setattributevalue(line._document_number, "perStorePerMonthGross_l", perStorePrice );
+//setattributevalue(line._document_number, "perEmployeePerMonthPriceGross_l", INTEGER(perEmpPrice));
+//setattributevalue(line._document_number, "perStorePerMonthNet_l", perStoreNet );
+//setattributevalue(line._document_number, "perEmployeePerMonthPriceNet_l", INTEGER(perEmpNet));
+}
+}
+//}
+
+//print retval;
+
+
+// 30379 Bug Start - Tejasvi : Updates Model and Billing Level Custom discount on save action
+billingDict = dict("float");
+modelDict = dict("float");
+billingModelDict = dict("string");
+
+billingListDict = dict("float");
+modelListDict = dict("float");
+billingModelListDict = dict("string");
+
+billingNetDict = dict("float");
+modelNetDict = dict("float");
+billingNetListDict = dict("string");
+
+billingGrossDict = dict("float");
+modelGrossDict = dict("float");
+billingGrossListDict = dict("string");
+
+billingModelPartnerDict =  dict("string");
+billingPartnerDict = dict("float");
+modelPartnerDict = dict("float");
+partnervalue  = 0.0;
+
+for each in transactionLine {
+	parentDocNum = each._parent_doc_number;
+	/*if(each._part_custom_field11 == "Billing") {
+		if(containskey(modelDict, parentDocNum)) {
+			value = get(modelDict, parentDocNum);
+			put(modelDict, parentDocNum, value + each.customDiscountAmount_l);
+		} else {
+			put(modelDict, parentDocNum, each.customDiscountAmount_l);
+		}
+	}*/
+	
+	if(each._part_custom_field11 == "Billing" AND (each.oRCL_ABO_ActionCode_l <>"DELETE" AND(each.oRCL_ABO_ActionCode_l <> "NO_UPDATE"))) {
+		put(billingModelPartnerDict, each._document_number, parentDocNum);
+	}
+	if(each._part_custom_field11 == "Shell" AND (each.oRCL_ABO_ActionCode_l <>"DELETE" AND (each.oRCL_ABO_ActionCode_l <> "NO_UPDATE"))) {
+		dictValues = parentDocNum;
+		if(containskey(billingPartnerDict, parentDocNum)) {
+			partnervalue = get(billingPartnerDict, parentDocNum);
+			put(billingPartnerDict, parentDocNum, partnervalue + each.partnerListPrice);
+		} else {
+			put(billingPartnerDict, parentDocNum, each.partnerListPrice);
+		}
+		print "start";
+		print each._document_number;
+		print each._part_custom_field2;
+		print each.oRCL_ABO_ActionCode_l;
+		//print billingPartnerDict;
+		print each.partnerListPrice;
+		print "end";
+	}
+	if(each._part_custom_field11 == "Billing" AND each.oRCL_ABO_ActionCode_l <>"DELETE" AND contractType_t =="") {
+		put(billingModelDict, each._document_number, parentDocNum);
+	}
+	if(each._part_custom_field11 == "Shell" AND each.oRCL_ABO_ActionCode_l <>"DELETE" AND contractType_t =="") {
+		dictValues1 = parentDocNum;
+		if(containskey(billingDict, parentDocNum)) {
+			value = get(billingDict, parentDocNum);
+			put(billingDict, parentDocNum, value + each.customDiscountAmount_l);
+		} elif(each.customDiscountAmount_l > 0.00) { //added for exception- WCS testing
+			put(billingDict, parentDocNum, each.customDiscountAmount_l);
+		}else{ //added for exception- WCS testing
+			put(billingDict, parentDocNum, 0.00);
+		}
+		if(containskey(billingListDict, parentDocNum)) {
+			value1 = get(billingListDict, parentDocNum);
+			put(billingListDict, parentDocNum, value1 + each.annualCloudPriceInclHosting_l);
+		} else {
+			put(billingListDict, parentDocNum, each.annualCloudPriceInclHosting_l);
+		}
+		if(containskey(billingNetDict, parentDocNum)) {
+			value2 = get(billingNetDict, parentDocNum);
+			put(billingNetDict, parentDocNum, value2 + each.annualCloudNetPrice_l);
+		} else {
+			put(billingNetDict, parentDocNum, each.annualCloudNetPrice_l);
+		}
+		//gross
+		if(containskey(billingGrossDict, parentDocNum)) {
+			value3 = get(billingGrossDict, parentDocNum);
+			put(billingGrossDict, parentDocNum, value3 + each.grossCloudNetPrice_l);
+		} else {
+			put(billingGrossDict, parentDocNum, each.grossCloudNetPrice_l);
+		}
+	}
+}
+//print billingModelDict;
+//print billingDict;
+//retVal = "";
+billingKeys = keys(billingDict);
+for eachKey in billingKeys {
+	retVal = retVal + eachKey + "~customDiscountAmount_l~" + string(get(billingDict, eachKey)) + "|";
+	retval = retval + eachKey + "~annualCloudPriceInclHosting_l~" + string(get(billingListDict, eachKey)) + "|";
+	retval = retval + eachKey + "~annualCloudNetPrice_l~" + string(get(billingNetDict, eachKey)) + "|";
+	retval = retval + eachKey + "~grossCloudNetPrice_l~" + string(round(get(billingGrossDict, eachKey),2)) + "|";//7013
+}
+billingModelKeys = keys(billingModelDict);
+for eachModelKey in billingModelKeys {
+	print eachModelKey;
+	modelKey = get(billingModelDict, eachModelKey);
+	print modelKey;
+	if(containskey(modelDict, modelKey)) {
+		value = get(modelDict, modelKey);
+		put(modelDict, modelKey, value + get(billingDict, eachModelKey));
+	} else {
+		put(modelDict, modelKey, get(billingDict, eachModelKey));
+	}
+	
+	if(containskey(modelListDict, modelKey)) {
+		value1 = get(modelListDict, modelKey);
+		put(modelListDict, modelKey, value1 + get(billingListDict, eachModelKey));
+	} else {
+		put(modelListDict, modelKey, get(billingListDict, eachModelKey));
+	}
+	
+	if(containskey(modelNetDict, modelKey)) {
+		value2 = get(modelNetDict, modelKey);
+		put(modelNetDict, modelKey, value2 + get(billingNetDict, eachModelKey));
+	} else {
+		put(modelNetDict, modelKey, get(billingNetDict, eachModelKey));
+	}
+	
+	//gross
+	if(containskey(modelGrossDict, modelKey)) {
+		value2 = get(modelGrossDict, modelKey);
+		put(modelGrossDict, modelKey, value2 + get(billingNetDict, eachModelKey));
+	} else {
+		put(modelGrossDict, modelKey, get(billingNetDict, eachModelKey));
+	}
+}
+modelKeys = keys(modelDict);
+print "modelDict"; print modelDict;
+if(dictValues1 <> "" AND sizeofarray(modelKeys) > 0) {
+	for modelKey in modelKeys {
+		if(get(modelDict, modelKey) >= 0.00 AND NOT isnull(get(modelDict, modelKey))){
+			retVal = retVal + modelKey + "~customDiscountAmount_l~" + string(get(modelDict, modelKey)) + "|";
+		}
+		if(get(modelListDict, modelKey) >= 0.00 AND NOT isnull(get(modelListDict, modelKey))){
+			retval = retval + modelKey + "~annualCloudPriceInclHosting_l~" + string(get(modelListDict, modelKey)) + "|";
+		}
+		if(get(modelNetDict, modelKey) > 0.0 AND NOT isnull(get(modelNetDict, modelKey))){
+			retval = retval + modelKey + "~annualCloudNetPrice_l~" + string(get(modelNetDict, modelKey)) + "|";
+		}
+		if(get(modelGrossDict, modelKey) > 0.0 AND NOT isnull(get(modelGrossDict, modelKey))){
+			retval = retval + modelKey + "~grossCloudNetPrice_l~" + string(round(get(modelGrossDict, modelKey),2)) + "|";//7013
+		}
+	}
+}
+
+//partnerPrice
+print "partnerPrice-start";
+print billingPartnerDict;
+print "partnerPrice-end";
+billingPartnerKeys = keys(billingPartnerDict);
+for eachKey in billingPartnerKeys {
+	retVal = retVal + eachKey + "~partnerListPrice~" + string(get(billingPartnerDict, eachKey)) + "|";
+}
+/*
+billingModelPartnerKeys = keys(billingModelPartnerDict);
+for eachModelPartnerKey in billingModelPartnerKeys {
+	print eachModelPartnerKey;
+	modelKey1 = get(billingModelPartnerDict, eachModelPartnerKey);
+	print modelKey1;
+	if(containskey(modelPartnerDict, modelKey1)) {
+		Partnermodelvalue = get(modelPartnerDict, modelKey1);
+		put(modelPartnerDict, modelKey1, Partnermodelvalue + get(billingPartnerDict, eachModelPartnerKey));
+	} else {
+		put(modelPartnerDict, modelKey1, get(billingPartnerDict, eachModelPartnerKey));
+	}
+}
+modelKeys1 = keys(modelPartnerDict);
+if(dictValues <> "") {
+	for modelKey1 in modelKeys1 {
+		retVal = retVal + modelKey1 + "~partnerListPrice~" + string(get(modelPartnerDict, modelKey1)) + "|";
+	}
+}
+*/
+//print modelDict;
+
+//// 30379 Bug End - Tejasvi : Updates Model and Billing Level Custom discount on save action
+
+//actionCode Roll Up For Models- Start
+billingActionCodeDict = dict("string");
+modelActionCodeDict = dict("string");
+billingmodelActionCodeDict = dict("string");
+valDict = "";
+for each in transactionLine {
+	parentDocNum = each._parent_doc_number;
+	/*if(each._part_custom_field11 == "Billing") {
+		if(containskey(modelActionCodeDict, parentDocNum)) {
+			value = get(modelActionCodeDict, parentDocNum);
+			put(modelActionCodeDict, parentDocNum, value + each.customDiscountAmount_l);
+		} else {
+			put(modelActionCodeDict, parentDocNum, each.customDiscountAmount_l);
+		}
+	}*/
+	if(each._part_custom_field11 == "Billing" AND each.oRCL_ABO_ActionCode_l <>"DELETE") {
+		put(billingmodelActionCodeDict, each._document_number, parentDocNum);
+	}
+	if(each._part_custom_field11 == "Shell" AND each.oRCL_ABO_ActionCode_l <>"DELETE") {
+		if(containskey(billingActionCodeDict, parentDocNum)) {
+			valDict = get(billingActionCodeDict, parentDocNum);
+			put(billingActionCodeDict, parentDocNum, valDict + each.oRCL_ABO_ActionCode_l);
+		} else {
+			put(billingActionCodeDict, parentDocNum, each.oRCL_ABO_ActionCode_l);
+		}
+	}
+}
+print billingmodelActionCodeDict;
+print billingActionCodeDict;
+//retVal = "";
+billingKeys = keys(billingActionCodeDict);
+for eachKey in billingKeys {
+	keyVal = get(billingActionCodeDict, eachKey);
+	if(find(keyVal, "ADD") == -1 AND find(keyVal, "UPDATE") == -1 AND find(keyVal, "NO_UPDATE") == -1 AND find(keyVal, "SUSPEND") == -1  AND find(keyVal, "RESUME") == -1 AND find(keyVal, "RENEW") == -1 AND find(keyVal, "TERMINATE") == -1) {
+		print keyVal;
+		//retVal = retVal + eachKey + "~oRCL_ABO_ActionCode_l~" + (get(billingActionCodeDict, eachKey)) + "|";
+		retVal = retVal + eachKey + "~oRCL_ABO_ActionCode_l~" + "DELETE" + "|";
+	}
+}
+
+billingModelKeys = keys(billingmodelActionCodeDict);
+for eachModelKey in billingModelKeys {
+	print eachModelKey;
+	modelKey = get(billingmodelActionCodeDict, eachModelKey);
+	print modelKey;
+	if(containskey(modelActionCodeDict, modelKey)) {
+		valDict = get(modelActionCodeDict, modelKey);
+		put(modelActionCodeDict, modelKey, valDict + get(billingActionCodeDict, eachModelKey));
+	} else {
+		put(modelActionCodeDict, modelKey, get(billingActionCodeDict, eachModelKey));
+	}
+}
+modelKeys = keys(modelActionCodeDict);
+for modelKey in modelKeys {
+	keyVal = get(modelActionCodeDict, modelKey);
+
+	// Shalini: To avoid NullPointerException when all the shell lines have action code as "DELETE" and billing line doesn't
+	if( ISNULL(keyVal) ){
+		keyVal = "";
+	}
+
+	if(find(keyVal, "ADD") == -1 AND find(keyVal, "UPDATE") == -1 AND find(keyVal, "NO_UPDATE") == -1 AND find(keyVal, "SUSPEND") == -1  AND find(keyVal, "RESUME") == -1 AND find(keyVal, "RENEW") == -1 AND find(keyVal, "TERMINATE") == -1) {
+		print keyVal;
+		//retVal = retVal + modelKey + "~oRCL_ABO_ActionCode_l~" + (get(modelActionCodeDict, modelKey)) + "|";
+		retVal = retVal + modelKey + "~oRCL_ABO_ActionCode_l~" + "DELETE" + "|";
+	}
+}
+print modelActionCodeDict;
+
+//actionCode Roll Up For Models- Start
+/*nrdflag = false;
+parentDocNumber = "";
+val = "";
+for line in transactionLine {
+val = "";*/
+	//actCode = line.oRCL_ABO_ActionCode_l;
+	/*if(line._part_custom_field11 == "Billing") {
+		actCode = line.oRCL_ABO_ActionCode_l;
+	}*/
+	/*if(line._part_custom_field11 == "Shell") {
+		val = val +  "," + line.oRCL_ABO_ActionCode_l;
+		print val;
+		parentDocNumber = line._parent_doc_number;
+		if(find(val, "ADD") == -1 AND find(val, "UPDATE") == -1 AND find(val, "NO_UPDATE") == -1 AND find(val, "SUSPEND") == -1  AND find(val, "RESUME") == -1 AND find(val, "RENEW") == -1 AND find(val, "TERMINATE") == -1) {
+			print line._part_number;
+			retval = retval +"|"+ parentDocNumber + "~oRCL_ABO_ActionCode_l~" + "DELETE" + "|";
+		//} else {
+			retval = retval +"|"+ parentDocNumber + "~oRCL_ABO_ActionCode_l~" + "ADD" + "|";
+		//}
+	}
+	
+}*/
+//actionCode Roll Up For Models- End
+//actionCode Roll Up For Models- End
+
+//retVal = retVal + commerce.shellSKUSCombinedAtModelLevel();
+return retval;

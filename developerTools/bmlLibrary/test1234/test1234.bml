@@ -1,0 +1,9 @@
+rs = bmql("Select Memberships from Account_Memberships where AccountNumber = '9060'");
+arraymembership = string[];
+for each in rs
+{
+	append(arraymembership,get(each,"Memberships"));
+}
+rs = bmql("Select * from DiscountMatrix where PriceGroup= '805-3' AND PartnerProgram IN $arraymembership");
+print rs;
+return "";

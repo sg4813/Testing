@@ -1,0 +1,168 @@
+ret = approvalHistory;
+jsonArrayObj = jsonarray();
+approvalPath = string[]{"testing","test2:test3","test4"};
+nCount = 0;
+if(len(ret) > 0)
+{
+	jsonArrayObj  = jsonarray(ret);
+	nCountrange = range(jsonarraysize(jsonArrayObj));
+	for each in nCountrange 
+	{
+		jsonTemp = json(jsonarrayget(jsonArrayObj,each));
+		if(jsonget(jsonTemp,"Reason") == "Revised" OR jsonget(jsonTemp,"Reason") == "Reject")
+		{
+			//return commerce.approvalHistoryCreationRevise(ApprovalHistrory);
+			return "";
+		}
+			
+	}
+}
+
+////print "****";
+////print jsonArrayObj;
+if(ApprovalHistrory == "Request")
+{
+	
+	jsonTemp = json();
+	//jsonArrayObj = jsonarray();
+	jsonput(jsonTemp,"User",_system_user_name);
+	jsonput(jsonTemp,"Time",datetostr(getdate(true)));
+	jsonput(jsonTemp,"Type","Request");
+	jsonput(jsonTemp,"Comment","");
+	jsonput(jsonTemp,"Reason","Request");
+	jsonput(jsonTemp,"Revision",quoteRevisionNew_t);
+	jsonarrayappend(jsonArrayObj,jsonTemp);
+	
+}
+elif((ApprovalHistrory == "Save" OR ApprovalHistrory == "Approve" OR ApprovalHistrory == "Reject") AND jsonarraysize(jsonArrayObj) > 0)
+{
+	
+	nCount = jsonarraysize(jsonArrayObj);
+	rangeCount = range(jsonarraysize(jsonArrayObj));
+	jsonArrayObj1 = jsonarray();
+	iCount = 1;
+	jsonTemp  = json();
+	RecentReason = "";
+	RecentReasonArray = string[]{"Request"};
+	for each in rangeCount 
+	{
+		if(nCount == iCount)
+		{
+			jsonTemp = json(jsonarrayget(jsonArrayObj,each));
+			print jsonTemp;
+			RecentReason = jsonget(jsonTemp,"Reason");
+			print RecentReason ;
+			break;
+		}
+		else
+		{
+			jsonTemp = json(jsonarrayget(jsonArrayObj,each));
+			print jsonTemp;
+			jsonarrayappend(jsonArrayObj1,jsonTemp);
+			//print jsonget(jsonTemp,"Reason");
+			append(RecentReasonArray,jsonget(jsonTemp,"Reason"));
+			
+		}
+		iCount = iCount + 1;
+	}
+	jCount = 0;
+	for elements in approval_history_submit_t
+	{
+		reason = elements[0];
+		if(jCount == 0)
+		{
+		
+			reason = "Request";
+			jCount = jCount + 1;
+		}
+		if(((findinarray(RecentReasonArray,reason) == -1) AND iCount > 0) OR sizeofarray(RecentReasonArray) == 1)
+		{
+			//print "***";
+			//print reason;
+			approverInfo = elements[1];
+			////print reason;
+			splitInfo = split(approverInfo,"~");
+			approverComment = splitInfo[3];	
+			if(find(approverComment,"|",0)<> -1){
+                        approverComment  = replace(approverComment,"|","");
+                        }
+			//print approverComment;
+			jsonput(jsonTemp,"Comment",approverComment);
+		//	print reason;
+			//if(reason <> "" OR len(reason) > 0 OR reason <> "null"){
+			//jsonput(jsonTemp,"Reason",reason );}
+			break;
+					
+ 		}
+ 		iCount = iCount + 1;
+ 	}
+ 	//print jsonTemp;
+ 	jsonarrayappend(jsonArrayObj1,jsonTemp);
+ 	jsonArrayObj = jsonArrayObj1;
+	
+}
+//Uncommented below code
+if(ApprovalHistrory == "Reject")
+{
+	//print "hi";
+	for elements in approval_history_submit_t
+	{
+		reason = elements[1];
+		
+		//print reason;
+		if(find(reason,"~Reject~") > -1)
+		{
+			jsontemp = json();
+			jsonput(jsonTemp,"User",_system_user_name);
+			jsonput(jsonTemp,"Time",datetostr(getdate(true)));
+			jsonput(jsonTemp,"Type","Reject");
+			jsonput(jsonTemp,"Comment","");
+			jsonput(jsonTemp,"Reason",elements[0]);
+			jsonarrayappend(jsonArrayObj,jsonTemp);
+			break;	
+		}
+	
+	}
+}
+// uncomment end
+
+if(ApprovalHistrory == "Approve")
+{
+	isArray = sizeofarray(approval_status_submit_t);
+	iCount = 1;
+	for elements in approval_status_submit_t
+	{
+			reason = elements[0];
+			approverInfo = elements[1];
+			splitInfo = split(approverInfo,"~");
+			approverLogin = splitInfo[0];
+			approverCompany = splitInfo[1];
+			approverChoice = splitInfo[2];
+			approverComment = splitInfo[3];
+			jsonTemp = json();
+			jsonput(jsonTemp,"User",_system_user_name);
+			jsonput(jsonTemp,"Time",datetostr(getdate(true)));
+			jsonput(jsonTemp,"Type","Approve");
+			jsonput(jsonTemp,"Revision",quoteRevisionNew_t);
+			jsonput(jsonTemp,"Comment","");
+			if(isArray == 1)
+			{
+				jsonput(jsonTemp,"Reason",reason);
+			}
+			else
+			{
+				jsonput(jsonTemp,"Reason","Dummy");
+
+			}
+			jsonarrayappend(jsonArrayObj,jsonTemp);
+			break;
+	 		
+	 }
+	
+	 
+}
+if(jsonarraysize(jsonArrayObj) > 0)
+{
+	ret = jsonarraytostr(jsonArrayObj);
+}
+return ret;

@@ -1,0 +1,9 @@
+{
+  "name" : "CreateTransactionLines_ZPA",
+  "variableName" : "createTransactionLines_ZPA",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "attributes" : [ "_company_name", "_user_group" ]
+}

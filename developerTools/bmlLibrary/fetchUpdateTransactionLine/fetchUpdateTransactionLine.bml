@@ -1,0 +1,196 @@
+headers = dict("string");
+put(headers, "Content-Type", "application/json");
+
+records = bmql("SELECT BS_ID, NetSuiteSO from TransData_Fetch where BS_ID IS NOT NULL");
+
+for record in records{
+	netSuiteSO = get(record, "NetSuiteSO");
+	bsID = get(record, "BS_ID");
+	print "bsID"; print bsID;
+
+	// call add transaction lines
+	lineInfoDict = dict("string");
+
+	lang = dict("string");
+	fields = dict("string");
+	put(fields, "$NetSuiteSO", netSuiteSO);
+	where = "NetSuiteSO = $NetSuiteSO";
+	partRecords = bmql("SELECT * from PartsandPriceDataCon where $where", lang, fields);
+
+	for partRecord in partRecords{
+		parts = get(partRecord, "Parts");
+		partsOfTransaction = split(parts, ",");
+
+		quantity = get(partRecord, "Quantity");
+		partQuantities = split(quantity, ",");
+
+		bundleName = get(partRecord, "BundleName");
+		partbundleName = split(bundleName, ",");
+
+		docNumbersStr = get(partRecord, "DOC_NUMBERS");
+		docNumbersArr = split(docNumbersStr, ",");
+
+		billingFrequency = get(partRecord, "BillingFrequency");
+		billingFrequencyArr = split(billingFrequency, ",");
+
+		revenueType = get(partRecord, "RevenueType");
+		revenueTypeArr = split(revenueType, ",");
+
+		netSuiteSO = get(partRecord, "NetSuiteSO");
+		unitListPrice = get(partRecord, "UnitListPrice");
+		unitNetPrice = get(partRecord, "UnitNetPrice");
+		totalNetPrice = get(partRecord, "TotalNetPrice");
+		annualListPrice= get(partRecord, "AnnualListPrice");
+		discountValue= get(partRecord, "DiscountValue");
+		cost = get(partRecord, "Cost");
+		salesOrderLine = get(partRecord, "SalesOrderLine");
+		startDate = get(partRecord, "StartDate");
+		endDate = get(partRecord, "EndDate");
+		renewAction = get(partRecord, "RenewAction");
+		convContSource = get(partRecord, "ConvContSource");
+		discountType = get(partRecord, "DiscountType");
+		modelName = get(partRecord, "ModelName");
+		cost = get(partRecord, "Cost");
+
+		fetchProdType = get(partRecord, "FetchProdType");
+		category = get(partRecord, "Category");
+		syncWithOSMC = get(partRecord, "SYNCWithOSMC");
+		contractTerm= get(partRecord, "ContractTerms");
+		contractTermInMonths= get(partRecord, "ContractTermInMonths");
+		pSFlag= get(partRecord, "PSFlag");
+		partsArrIdx = range(sizeofarray(partsOfTransaction));
+		print partsOfTransaction;
+		print partQuantities;
+		print partbundleName;
+
+		docNumbers = string[];
+		for index in partsArrIdx{
+
+			documentNumber = "";
+			if( (docNumbersStr == "") OR (ISNULL(docNumbersArr[index]) OR docNumbersArr[index] == "f") ){
+				addPartsToTransactionUrl = _site_url+"/rest/v14/commerceDocumentsOraclecpqo_bmClone_4Transaction/"+ bsID +"/transactionLine";
+				// addPartsToTransactionUrl = _site_url+"https://devzebra.bigmachines.com/rest/v14/commerceDocumentsOraclecpqo_bmClone_4Transaction/"+ bsID +"/transactionLine";
+
+				lineRequest = json();
+				jsonput(lineRequest, "_part_number", partsOfTransaction[index]);
+				jsonput(lineRequest, "_price_book_var_name", "_default_price_book");
+				jsonput(lineRequest, "_price_quantity", partQuantities[index]);
+
+				lineResponse = urldatabypost(addPartsToTransactionUrl, jsontostr(lineRequest), "ERROR", headers, true);
+				if( startswith(lineResponse, "ERROR") ){
+					print "ERROR while adding line "+ bsID;
+					documentNumber = "f";
+				}
+				else{
+					lineResponseJson = json(lineResponse);
+					documentNumber = jsonget(lineResponseJson, "_document_number");
+				}
+			}
+			else{
+				documentNumber = docNumbersArr[index];
+			}
+
+			if( NOT(ISNULL(documentNumber)) AND documentNumber <> "" ){
+				append(docNumbers, documentNumber);
+
+				if( documentNumber <> "f" ){
+					lineInfoJson = json();
+					jsonput(lineInfoJson, "_document_number", documentNumber);
+					jsonput(lineInfoJson, "billingFrequency", billingFrequencyArr[index]);
+					jsonput(lineInfoJson, "revenueType_l", revenueTypeArr[index]);
+					jsonput(lineInfoJson, "ZEB_netSuiteSalesOrder_l", netSuiteSO);
+					jsonput(lineInfoJson, "parentSKU_l", partbundleName[index]);
+					jsonput(lineInfoJson, "totalContractValue", totalNetPrice);
+					jsonput(lineInfoJson, "contactTerm_l", contractTerm);
+					jsonput(lineInfoJson, "contractTermInMonths", contractTermInMonths);
+
+					if( NOT(ISNULL(startDate)) AND (startDate <> "") AND NOT(ISNULL(endDate)) AND (endDate <> "") AND NOT(ISNULL(partQuantities[index])) AND (partQuantities[index] <> "") ){
+						if( find(startDate, "-") > -1 ){
+							startDate = replace(startDate, "-", "/");
+						}
+
+						if( find(endDate, "-") > -1 ){
+							endDate = replace(endDate, "-", "/");
+						}
+
+						jsonput(lineInfoJson, "contractStartDate_l", startDate);
+						jsonput(lineInfoJson, "contractEndDate_l", endDate);
+
+						startDt = strtodate(startDate, "dd/MM/yyyy");
+						endDt = strtodate(endDate, "dd/MM/yyyy");
+
+						daysN = getdiffindays(startDt, endDt);
+						//Commented on 20th for pulling contract terms from Data table
+						/*if( daysN > 0 ){
+							contractMonths = Integer(ceil((atof(string(daysN))/30)));
+							jsonput(lineInfoJson, "contactTerm_l", string(contractMonths) + " Months");
+							jsonput(lineInfoJson, "contractTermInMonths", contractMonths);
+						}*/
+						//Commented on 20th for pulling contract terms from Data table
+						/*if( daysN > 0 ){
+							days = string(daysN);
+							// contractYears = ceil(atof(days)/365);
+							contractYears = round((atof(days)/365), 1);
+							annualListPrice = round(((atof(unitListPrice) * atof(partQuantities[index])) / (contractMonths/12)), 2);
+							jsonput(lineInfoJson, "annualCloudPriceInclHosting_l", annualListPrice);
+							discountValue = round(((atof(unitNetPrice) * atof(partQuantities[index])) / (contractMonths/12)), 2);
+							jsonput(lineInfoJson, "customDiscountValue_l", discountValue);
+						}*/
+					}
+					jsonput(lineInfoJson, "customDiscountValue_l", discountValue);
+					jsonput(lineInfoJson, "annualCloudPriceInclHosting_l", annualListPrice);
+					//jsonput(lineInfoJson, "renewalType_l", renewAction); // There is a validation rule. Please correct the data.
+					jsonput(lineInfoJson, "ZEB_convertedContractSource_l", convContSource);
+					jsonput(lineInfoJson, "customDiscountType_l", discountType);
+					jsonput(lineInfoJson, "modelName_l", modelName);
+
+					jsonput(lineInfoJson, "fetchProductType_l", fetchProdType);
+					jsonput(lineInfoJson, "category_l", category);
+					jsonput(lineInfoJson, "syncWithOSMC_l", syncWithOSMC);
+					jsonput(lineInfoJson, "ZEB_SalesOrderLine", salesOrderLine);
+					jsonput(lineInfoJson, "ZEB_lineNotes_l", pSFlag);
+					jsonput(lineInfoJson, "unitCost_l", cost);
+
+					put(lineInfoDict, documentNumber, jsontostr(lineInfoJson));
+				}
+			}
+		}
+
+		// Update data table with line document Numbers
+		if( sizeofarray(docNumbers) > 0 ){
+			tableName = "PartsandPriceDataCon";
+			setClause = sbtostring(stringbuilder("DOC_NUMBERS='",join(docNumbers, ","),"'"));
+			whereClause = sbtostring(stringbuilder("NetSuiteSO=$netSuiteSO AND Parts=$parts"));
+			fieldsDict = dict("string");
+			put(fieldsDict, "$netSuiteSO", netSuiteSO);
+			put(fieldsDict, "$parts", parts);
+			paramDict = dict("string");
+			response = util.updateDataTable(setClause, whereClause, fieldsDict, "", paramDict, tableName);
+		}
+	}
+
+	// Code to update line item info after adding the line
+	documentNumbers = keys(lineInfoDict);
+	if( sizeofarray(documentNumbers) > 0 ){
+		items = jsonarray();
+		for docNum in documentNumbers{
+			jsonarrayappend(items, json(get(lineInfoDict, docNum)));
+		}
+
+		lineItemJson = json();
+		jsonput(lineItemJson, "items", items);
+
+		documentsJson = json();
+		jsonput(documentsJson, "transactionLine", lineItemJson);
+
+		payload = json();
+		jsonput(payload, "documents", documentsJson);
+
+		saveTransactionUrl = _site_url+"/rest/v14/commerceDocumentsOraclecpqo_bmClone_4Transaction/"+ bsID +"/actions/cleanSave_t";
+		// saveTransactionUrl = "https://devzebra.bigmachines.com/rest/v14/commerceDocumentsOraclecpqo_bmClone_4Transaction/"+ bsID +"/actions/cleanSave_t";
+		saveResponse = urldatabypost(saveTransactionUrl, jsontostr(payload), "ERROR", headers, true);
+		print "saveResponse"; print saveResponse;
+	}
+}
+
+return "";

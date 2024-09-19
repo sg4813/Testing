@@ -1,0 +1,17 @@
+{
+  "name" : "getTemplateLocation",
+  "variableName" : "getTemplateLocation",
+  "description" : "Queries the template location from the datatable INT_SYSTEM_TEMPLATES based on the System and Operation.",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "system",
+    "type" : "String"
+  }, {
+    "name" : "operation",
+    "type" : "String"
+  } ],
+  "subDocAttributes" : [ ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

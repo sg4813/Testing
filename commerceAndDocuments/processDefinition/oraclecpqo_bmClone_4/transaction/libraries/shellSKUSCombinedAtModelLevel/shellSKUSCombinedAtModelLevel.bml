@@ -1,0 +1,47 @@
+billingDict = dict("string");
+modelDict = dict("string");
+billingModelDict = dict("string");
+
+for each in transactionLine{
+	parentDocNum = each._parent_doc_number;
+	if(each._part_custom_field11 == "Billing") {
+		put(billingModelDict, each._document_number, parentDocNum);
+	}
+	if(each._part_custom_field11 == "Shell" AND each.oRCL_ABO_ActionCode_l <> "DELETE") {
+		if(containskey(billingDict, parentDocNum)) {
+			value = get(billingDict, parentDocNum);
+			put(billingDict, parentDocNum, value + "###" + each._part_number);
+		} else {
+			put(billingDict, parentDocNum, each._part_number);
+		}
+	}
+}
+//print "BillingMOdel";
+//print billingModelDict;
+//print "BillingDict";
+//print billingDict;
+retString = "";
+billingKeys = keys(billingDict);
+/*for eachKey in billingKeys {
+	retString = retString ;//+ eachKey + "~_part_number~" + string(get(billingDict, eachKey)) + "|";
+}*/
+billingModelKeys = keys(billingModelDict);
+for eachModelKey in billingModelKeys {
+	print eachModelKey;
+	modelKey = get(billingModelDict, eachModelKey);
+	print modelKey;
+	if(containskey(modelDict, modelKey)) {
+		value = get(modelDict, modelKey);
+		put(modelDict, modelKey, value + "###" + get(billingDict, eachModelKey));
+	} else {
+		put(modelDict, modelKey, get(billingDict, eachModelKey));
+	}
+}
+print "MODDict";
+print modelDict;
+modelKeys = keys(modelDict);
+for modelKey in modelKeys {
+	retString = retString + modelKey + "~shellSKUsAtModel~" + get(modelDict, modelKey) + "|";
+}
+print retString;
+return retString;

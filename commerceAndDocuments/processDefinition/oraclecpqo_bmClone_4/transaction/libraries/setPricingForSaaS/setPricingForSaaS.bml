@@ -1,0 +1,101 @@
+retVal = "";
+localNoOfLocations = 0;
+localNoOfEmployees = 0;
+localRevenueFromRetailStoresNotOverall = 0.0;
+localNetProfitMargin = "";
+localTypeOfRetailer = "";
+localTypeOfHosting = "";
+localTypeOfSupport = "";
+localTermOfAgreement = "";
+localMultiLanguagePack = "";
+localRUM = 0.0;
+localMonthlyHosting = 0.0;
+localhostingForMoreHistory = 0.0;
+localNumberOfStores = 0;
+localNumberOfYearsCommitted = "";
+localDiscVal = 0.0;
+NoofyearsZ = "";
+NoofyearsR = "";
+	for line in transactionLine {
+	listPrice_l = 0.0;
+	//print line._document_number;
+		if(line._model_name <> ""){
+			localConfigurator = getconfigattrvalue(line._document_number, "configurator");
+			//localDiscVal = line.discountAmount_l;
+			if(localConfigurator == "Reflexis"){
+			
+			localNoOfLocations = atoi(getconfigattrvalue(line._document_number, "storeDummy"));
+			localNoOfEmployees = atoi(getconfigattrvalue(line._document_number, "empDummy"));
+			localRevenueFromRetailStoresNotOverall = atof(getconfigattrvalue(line._document_number, "revenueFromRetailStoresNotOverallDummy"));
+			localNetProfitMargin = getconfigattrvalue(line._document_number, "netProfitMarginDummy");
+			localTypeOfRetailer = getconfigattrvalue(line._document_number, "typeOfRetailerDummy");
+			localTypeOfHosting = getconfigattrvalue(line._document_number, "hostingDummy");
+			localTypeOfSupport = getconfigattrvalue(line._document_number, "supportDummy");
+			localTermOfAgreement = getconfigattrvalue(line._document_number, "termOfAgreementDummy");
+			localMultiLanguagePack = getconfigattrvalue(line._document_number, "LangPackDummy");
+			if(localTermOfAgreement == "5 years - Included in Price")
+			{
+			NoofyearsR = "5";
+			}
+			else
+			{
+			if(localTermOfAgreement == "4 years - 7.5% License Fee Surcharge")
+			{
+			NoofyearsR = "4";
+			}
+			else
+			{
+			NoofyearsR = "3";
+			}
+			}
+			}
+			if(localConfigurator == "ZPA"){
+			localRUM = atof(getconfigattrvalue(line._document_number, "rumDummy"));
+			tempMonthlyHosting = getconfigattrvalue(line._document_number, "monthlyHostingDummy");
+			tempHostingHistory = getconfigattrvalue(line._document_number, "hostingForMoreHistoryDummy");
+			if(isnumber(tempMonthlyHosting)){
+			localMonthlyHosting = atof(tempMonthlyHosting);
+			}
+			if(isnumber(tempHostingHistory)){
+			localhostingForMoreHistory = atof(tempHostingHistory);
+			}
+			localNumberOfStores = atoi(getconfigattrvalue(line._document_number, "numberOfStoresDummy"));
+			localNumberOfYearsCommitted = getconfigattrvalue(line._document_number, "numberOfYearsCommittedDummy");
+			if(localNumberOfYearsCommitted== "5 Year commitment")
+				{
+					NoofyearsZ = "5";
+				}
+			else
+				{
+					if(localNumberOfYearsCommitted== "3 Year commitment")
+					{
+						NoofyearsZ = "3";
+					}
+					else
+					{
+					NoofyearsZ= "1";
+					}
+				}
+			
+			}
+		}else{
+		print NoofyearsZ ;
+		}
+	}
+	retVal = retVal + "1~noOfLocations_t~" + string(localNoOfLocations) + "|";
+	retVal = retVal + "1~noOfEmployees_t~" + string(localNoOfEmployees) + "|";
+	retVal = retVal + "1~revenueFromRetailStoresNotOverall_t~" + string(localRevenueFromRetailStoresNotOverall) + "|";
+	retVal = retVal + "1~netProfitMargin_t~" + localNetProfitMargin + "|";
+	retVal = retVal + "1~typeOfRetailer_t~" + localTypeOfRetailer + "|";
+	retVal = retVal + "1~typeOfHosting_t~" + localTypeOfHosting + "|";
+	retVal = retVal + "1~typeOfSupport_t~" + localTypeOfSupport + "|";
+	retVal = retVal + "1~termOfAgreement_t~" + localTermOfAgreement + "|";
+	retVal = retVal + "1~multiLanguagePack_t~" + localMultiLanguagePack + "|";
+	retVal = retVal + "1~rUM_t~" + string(localRUM) + "|";
+	retVal = retVal + "1~monthlyHosting_t~" + string(localMonthlyHosting) + "|";
+	retVal = retVal + "1~hostingForMoreHistory_t~" + string(localhostingForMoreHistory) + "|";
+	retVal = retVal + "1~numberOfStores_t~" + string(localNumberOfStores) + "|";
+	retVal = retVal + "1~numberOfYearsCommitted_t~" + localNumberOfYearsCommitted + "|";
+	retVal = retVal + "1~reflexisYears_t~" + NoofyearsR + "|";
+	retVal = retVal + "1~zPAYears_t~" + NoofyearsZ + "|";
+	return retVal;

@@ -1,0 +1,414 @@
+ret = dict("string");
+strAccount = AccountID;
+strModel = Model;
+jsonSkuArray = jsonarray();
+jsonArrayModelSku = jsonarray();
+jsonAccessoriesModelSku = jsonarray();
+jsonSoftwareModelSku = jsonarray();
+jsonLearningModelSku = jsonarray();
+jsonPartModelSku = jsonarray();
+jsonArraySKu = jsonarray();
+arraySku = string[];
+jsontemp = json();
+jsonSku = json();
+arrayChildSku = string[];
+arrayParentSku = string[];
+arrayParentChildSku = string[];
+jsonArrayAutoAdd = jsonarray();
+
+rs = bmql("select SkuNumber,ParentSku,Category,SubCategory,Recommended,SKUAssociation,AutoAdd from ModelSKUrelationship where Model = $strModel AND Status = 'Active'");
+
+for each in rs
+{
+	strSku = get(each,"SkuNumber");
+	strParentSku = get(each,"ParentSku");
+		
+	if(get(each,"ParentSku") <> "")
+	{
+		if(findinarray(arrayChildSku,strSku) == -1)
+		{
+			append(arrayChildSku,strSku);			
+		}
+		if(findinarray(arrayParentSku,strParentSku) == -1)
+		{
+			append(arrayParentSku,strParentSku);	
+		}
+		strTemp = strSku + "$,$" + strParentSku;
+		append(arrayParentChildSku,strTemp);
+	}
+	if(get(each,"AutoAdd") == "Y")
+	{
+		jsonTemp = json();
+		if(strParentSku == "")
+		{
+			jsonput(jsonTemp,"Parent SKU",strModel);
+		}
+		else
+		{
+			jsonput(jsonTemp,"Parent SKU",strParentSku);
+		}
+		jsonput(jsonTemp,"Child SKU",strSku);
+		jsonput(jsonTemp,"Type",get(each,"Category"));
+		jsonarrayappend(jsonArrayAutoAdd,jsonTemp);		
+	}
+}
+
+	
+for each in rs
+{
+	strSku = get(each,"SkuNumber");
+	strParentSku = get(each,"ParentSku");
+	strRecommended = get(each,"Recommended");
+	strCategory = get(each,"Category");
+	strSubCategory = get(each,"SubCategory");
+	strSkuAssociation = get(each,"SKUAssociation");
+	
+	if(findinarray(arraySku,strSku) == -1)	
+	{
+		append(arraySku,strSku);
+		jsonput(jsonSku,"Sku Number", strSku);
+		jsonarrayappend(jsonArraySKu,jsonSku);
+		jsonSku = json();
+	}
+	
+	
+	if(strCategory == "Standard Configurations" OR strCategory == "Bundled Kits")
+	{
+		jsonput(jsontemp,"Sku Number",strSku);
+		jsonput(jsontemp,"Parent Sku", strParentSku);
+		jsonarrayappend(jsonArrayModelSku,jsontemp);		
+	}
+	elif(strCategory == "Accessories" AND strSkuAssociation <> "Remove")
+	{
+		bFlag = false;
+		jsonput(jsontemp,"Sku Number",strSku);
+		jsonput(jsontemp,"SubCategory",strSubCategory);
+		jsonput(jsontemp,"Category",strCategory);
+		if(strParentSku == "")
+		{
+			jsonput(jsontemp,"Parent Sku", strModel);
+			bFlag = true;			
+		}
+		else
+		{
+			jsonput(jsontemp,"Parent Sku", strParentSku);
+		}
+		if(strRecommended == "Y")
+		{
+			jsonput(jsontemp,"Recommended", "Y");
+		}
+		else
+		{
+			jsonput(jsontemp,"Recommended", "N");	
+		}
+		
+		jsonarrayappend(jsonAccessoriesModelSku,jsontemp);
+		
+		if(bFlag AND findinarray(arrayChildSku,strSku) == -1)
+		{
+			if(sizeofarray(arrayParentSku) > 0)
+			{
+				for Parent in arrayParentSku
+				{
+					jsonput(jsontemp,"Parent Sku", Parent);
+					jsonarrayappend(jsonAccessoriesModelSku,jsontemp);
+					
+				}
+			}	
+			
+		}
+		elif(bFlag AND findinarray(arrayChildSku,strSku) <> -1)
+		{
+			if(sizeofarray(arrayParentSku) > 0)
+			{
+				for Parent in arrayParentSku
+				{
+					strTemp = strSku + "$,$" + Parent;
+					if(findinarray(arrayParentChildSku,strTemp) == -1)
+					{
+						jsonput(jsontemp,"Parent Sku", Parent);
+						jsonarrayappend(jsonAccessoriesModelSku,jsontemp);
+					}
+					
+				}
+			}
+		}
+		
+		
+	}
+	elif(strCategory == "Software" AND strSkuAssociation <> "Remove")
+	{
+		bFlag = false;
+		jsonput(jsontemp,"Sku Number",strSku);
+		jsonput(jsontemp,"SubCategory",strSubCategory);
+		jsonput(jsontemp,"Category",strCategory);
+		if(strParentSku == "")
+		{
+			jsonput(jsontemp,"Parent Sku", strModel);
+			bFlag = true;			
+		}
+		else
+		{
+			jsonput(jsontemp,"Parent Sku", strParentSku);
+		}
+		if(strRecommended == "Y")
+		{
+			jsonput(jsontemp,"Recommended", "Y");
+		}
+		else
+		{
+			jsonput(jsontemp,"Recommended", "N");	
+		}
+		
+		jsonarrayappend(jsonSoftwareModelSku,jsontemp);
+		
+		if(bFlag AND findinarray(arrayChildSku,strSku) == -1)
+		{
+			if(sizeofarray(arrayParentSku) > 0)
+			{
+				for Parent in arrayParentSku
+				{
+					jsonput(jsontemp,"Parent Sku", Parent);
+					jsonarrayappend(jsonSoftwareModelSku,jsontemp);
+					
+				}
+			}	
+			
+		}
+		elif(bFlag AND findinarray(arrayChildSku,strSku) <> -1)
+		{
+			if(sizeofarray(arrayParentSku) > 0)
+			{
+				for Parent in arrayParentSku
+				{
+					strTemp = strSku + "$,$" + Parent;
+					if(findinarray(arrayParentChildSku,strTemp) == -1)
+					{
+						jsonput(jsontemp,"Parent Sku", Parent);
+						jsonarrayappend(jsonSoftwareModelSku,jsontemp);
+					}
+					
+				}
+			}
+		}
+		
+		
+	}//software
+	elif(strCategory == "Learning Services" AND strSkuAssociation <> "Remove")
+	{
+		bFlag = false;
+		jsonput(jsontemp,"Sku Number",strSku);
+		jsonput(jsontemp,"SubCategory","NA");
+		jsonput(jsontemp,"Category",strCategory);
+		if(strParentSku == "")
+		{
+			jsonput(jsontemp,"Parent Sku", strModel);
+			bFlag = true;			
+		}
+		else
+		{
+			jsonput(jsontemp,"Parent Sku", strParentSku);
+		}
+		if(strRecommended == "Y")
+		{
+			jsonput(jsontemp,"Recommended", "Y");
+		}
+		else
+		{
+			jsonput(jsontemp,"Recommended", "N");	
+		}
+		
+		jsonarrayappend(jsonLearningModelSku,jsontemp);
+		
+		if(bFlag AND findinarray(arrayChildSku,strSku) == -1)
+		{
+			if(sizeofarray(arrayParentSku) > 0)
+			{
+				for Parent in arrayParentSku
+				{
+					jsonput(jsontemp,"Parent Sku", Parent);
+					jsonarrayappend(jsonLearningModelSku,jsontemp);
+					
+				}
+			}	
+			
+		}
+		elif(bFlag AND findinarray(arrayChildSku,strSku) <> -1)
+		{
+			if(sizeofarray(arrayParentSku) > 0)
+			{
+				for Parent in arrayParentSku
+				{
+					strTemp = strSku + "$,$" + Parent;
+					if(findinarray(arrayParentChildSku,strTemp) == -1)
+					{
+						jsonput(jsontemp,"Parent Sku", Parent);
+						jsonarrayappend(jsonLearningModelSku,jsontemp);
+					}
+					
+				}
+			}
+		}
+		
+		
+	}
+	elif(strCategory == "Parts" AND strSkuAssociation <> "Remove")
+	{
+		bFlag = false;
+		jsonput(jsontemp,"Sku Number",strSku);
+		jsonput(jsontemp,"SubCategory",strSubCategory);
+		jsonput(jsontemp,"Category",strCategory);
+		if(strParentSku == "")
+		{
+			jsonput(jsontemp,"Parent Sku", strModel);
+			bFlag = true;			
+		}
+		else
+		{
+			jsonput(jsontemp,"Parent Sku", strParentSku);
+		}
+		if(strRecommended == "Y")
+		{
+			jsonput(jsontemp,"Recommended", "Y");
+		}
+		else
+		{
+			jsonput(jsontemp,"Recommended", "N");	
+		}
+		
+		jsonarrayappend(jsonPartModelSku,jsontemp);
+		
+		if(bFlag AND findinarray(arrayChildSku,strSku) == -1)
+		{
+			if(sizeofarray(arrayParentSku) > 0)
+			{
+				for Parent in arrayParentSku
+				{
+					jsonput(jsontemp,"Parent Sku", Parent);
+					jsonarrayappend(jsonPartModelSku,jsontemp);
+					
+				}
+			}	
+			
+		}
+		elif(bFlag AND findinarray(arrayChildSku,strSku) <> -1)
+		{
+			if(sizeofarray(arrayParentSku) > 0)
+			{
+				for Parent in arrayParentSku
+				{
+					strTemp = strSku + "$,$" + Parent;
+					if(findinarray(arrayParentChildSku,strTemp) == -1)
+					{
+						jsonput(jsontemp,"Parent Sku", Parent);
+						jsonarrayappend(jsonPartModelSku,jsontemp);
+					}
+					
+				}
+			}
+		}
+		
+		
+	}
+	/*elif(strCategory == "Software")
+	{
+		jsonput(jsontemp,"Sku Number",strSku);
+		jsonput(jsontemp,"SubCategory",strSubCategory);
+		jsonput(jsontemp,"Category",strCategory);
+		if(strParentSku == "")
+		{
+			jsonput(jsontemp,"Parent Sku", strModel);
+		}
+		else
+		{
+			jsonput(jsontemp,"Parent Sku", strParentSku);
+		}
+		if(strRecommended == "Y")
+		{
+			jsonput(jsontemp,"Recommended", "Y");
+		}
+		else
+		{
+			jsonput(jsontemp,"Recommended", "N");	
+		}
+		jsonarrayappend(jsonSoftwareModelSku,jsontemp);
+	}*/
+	else
+	{
+		print "do nothing";
+	}
+	jsontemp = json();
+}
+// Move all Jsonarray to dict
+
+//Unique SKu including Accessories/Software
+
+if(jsonarraysize(jsonArraySKu) > 0)
+{
+	tempStr = jsonarraytostr(jsonArraySKu);
+	put(ret,"Sku Number",tempStr);
+}
+
+//Model SKU
+
+if(jsonarraysize(jsonArrayModelSku) > 0)
+{
+	tempStr = jsonarraytostr(jsonArrayModelSku);
+	put(ret,"ModelSku",tempStr);
+}
+else
+{
+	put(ret,"ModelSku","");
+}
+
+//Accessories Sku
+if(jsonarraysize(jsonAccessoriesModelSku) > 0)
+{
+	tempStr = jsonarraytostr(jsonAccessoriesModelSku);
+	put(ret,"Accessories",tempStr);
+}
+else
+{
+	put(ret,"Accessories","");
+}
+
+//Software Sku
+if(jsonarraysize(jsonSoftwareModelSku) > 0)
+{
+	tempStr = jsonarraytostr(jsonSoftwareModelSku);
+	put(ret,"Software",tempStr);
+}
+else
+{	
+	put(ret,"Software","");
+}
+if(jsonarraysize(jsonArrayAutoAdd) > 0)
+{
+	put(ret,"AutoAdd",jsonarraytostr(jsonArrayAutoAdd));
+}
+else
+{
+	put(ret,"AutoAdd","");
+
+}
+if(jsonarraysize(jsonLearningModelSku) > 0)
+{
+	tempStr = jsonarraytostr(jsonLearningModelSku);
+	put(ret,"Learning",tempStr);
+}
+else
+{
+	put(ret,"Learning","");
+}
+if(jsonarraysize(jsonPartModelSku) > 0)
+{
+	tempStr = jsonarraytostr(jsonPartModelSku);
+	put(ret,"Parts",tempStr);
+}
+else
+{
+	put(ret,"Parts","");
+}
+	
+
+return ret;

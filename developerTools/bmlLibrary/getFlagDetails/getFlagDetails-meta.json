@@ -1,0 +1,15 @@
+{
+  "name" : "Get Flag Details",
+  "variableName" : "getFlagDetails",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String Dictionary",
+  "parameters" : [ {
+    "name" : "accountProvince",
+    "type" : "String"
+  }, {
+    "name" : "accountType",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

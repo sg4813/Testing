@@ -1,0 +1,285 @@
+ret = dict("dict<string>");
+
+jsonArrayPricing = jsonarray(PriceGroupDetails);
+print "jsonArrayPricing";
+print jsonArrayPricing;
+strPurchasingMethod = get(Account,"Purchasing Method");
+strDirectMembership = get(Account,"Direct Membership");
+strIndirectMembership = get(Account,"Indirect Membership");
+strPriceList = get(Account,"Price List");
+arrayDirectMembership = string[];
+arrayIndirectMembership = string[];
+arrayPricing = string[];
+arrayIndirect = string[];
+arrayDirect = string[];
+arrayQuery = string[];
+tempDict = dict("string");
+tempPurchaseDict = dict("string");
+strPriceGrp = "";
+bFlag = false;
+temparray = float[];
+tempindirectarray = float[];
+dCurrentDate = getdate();
+dictPG = dict("dict<string>");
+dictPGTemp = dict("string");
+strOrganization = get(Account,"Organization");
+strTerritory = get(Account,"Territory");
+arrayPriceGrp = string[];
+
+if(strPurchasingMethod == "Direct")
+{
+	arrayDirect = split(strDirectMembership,"|^|");
+	arrayQuery = split(strDirectMembership,"|^|");
+}
+elif(strPurchasingMethod == "Both")
+{
+	arrayDirect = split(strDirectMembership,"|^|");
+	arrayQuery = split(strDirectMembership,"|^|");
+	arrayIndirect = split(strIndirectMembership,"|^|");
+	for each in arrayIndirect
+	{
+		append(arrayQuery,each);
+	}
+}
+elif(strPurchasingMethod == "Indirect")
+{
+	arrayIndirect = split(strIndirectMembership,"|^|");
+	for each in arrayIndirect
+	{
+		append(arrayQuery,each);
+	}
+}
+
+nCount = range(jsonarraysize(jsonArrayPricing));
+
+for each in nCount
+{
+	jsonTemp = json(jsonarrayget(jsonArrayPricing,each));
+	strPriceGroup1 = jsonget(jsonTemp,"Price Group");
+	if(findinarray(arrayPricing,strPriceGroup1) == -1)
+	{
+		append(arrayPricing,strPriceGroup1);
+	}
+}
+
+rs = recordset();
+
+if(strOrganization == "Zebra APAC USD" OR strOrganization == "Zebra APAC RMB")
+{
+	rs = bmql("Select PriceGroup,AdjustmentType,AdjustmentAmount,PartnerProgram,EffectiveFrom,EffectiveTo from DiscountMatrix where PriceGroup IN $arrayPricing AND PartnerProgram IN $arrayQuery AND Territory = $strTerritory AND AdjustmentType = '% Discount' Order by PriceGroup ASC");
+}
+else
+{
+	rs = bmql("Select PriceGroup,AdjustmentType,AdjustmentAmount,PartnerProgram,EffectiveFrom,EffectiveTo from DiscountMatrix where PriceGroup IN $arrayPricing AND PartnerProgram IN $arrayQuery AND AdjustmentType = '% Discount' Order by PriceGroup ASC");
+}
+jCount = 0;
+iCount = 0;
+for each in rs
+{
+	dStartDate = strtojavadate(get(each,"EffectiveFrom"), "MM/dd/yyyy HH:mm:ss","America/New_York");
+	dEndDate = getdate();
+	strEndDate = get(each,"EffectiveTo");
+	if(strEndDate <> "")
+	{
+		dEndDate = strtojavadate(strEndDate, "MM/dd/yyyy HH:mm:ss","America/New_York");
+	}
+	if(comparedates(dCurrentDate,dStartDate ) <> -1 AND (strEndDate == "" OR comparedates(dEndDate,dCurrentDate ) <> -1))
+	{
+		iCount = iCount + 1;
+		strPriceGrpTemp = get(each,"PriceGroup");
+		if(findinarray(arrayPriceGrp,strPriceGrpTemp) == -1)
+		{
+			append(arrayPriceGrp,strPriceGrpTemp);
+		}
+	}
+}
+strPriceGrp = "";
+for each in rs
+{
+	dStartDate = strtojavadate(get(each,"EffectiveFrom"), "MM/dd/yyyy HH:mm:ss","America/New_York");
+	dEndDate = getdate();
+	strEndDate = get(each,"EffectiveTo");
+	if(strEndDate <> "")
+	{
+		dEndDate = strtojavadate(strEndDate, "MM/dd/yyyy HH:mm:ss","America/New_York");
+	}
+	if(comparedates(dCurrentDate,dStartDate ) <> -1 AND (strEndDate == "" OR comparedates(dEndDate,dCurrentDate ) <> -1))
+	{
+		jCount = jCount + 1;
+		
+		if(strPriceGrp == "" OR strPriceGrp == get(each,"PriceGroup"))
+		{
+			strPriceGrp = get(each,"PriceGroup");
+			strMembership = get(each,"PartnerProgram");
+			append(temparray,atof(get(each,"AdjustmentAmount")));
+			strTemp = strPriceGrp + string(atof(get(each,"AdjustmentAmount")));
+			strTempMembership = "Indirect";
+			if(findinarray(arrayDirect,strMembership) <> -1 )
+			{	
+				strTempMembership = "Direct";
+			}
+			if(containskey(dictPGTemp,strTemp))
+			{
+				if(get(dictPGTemp,strTemp) == "Indirect")
+				{
+					put(dictPGTemp,strTemp,strTempMembership);
+				}
+			}
+			else
+			{
+				put(dictPGTemp,strTemp,strTempMembership);
+			}
+			if(findinarray(arrayDirect,strMembership) <> -1 )
+			{
+				bFlag = true;
+				
+			}
+			
+		}
+		else
+		{
+			//strPriceGrp = get(each,"PriceGroup");
+			
+			if(bFlag)
+			{
+				strDiscount = max(temparray);
+				put(tempDict,strPriceGrp,string(strDiscount));
+							
+			}
+			else
+			{
+				put(tempDict,strPriceGrp,"0");
+			}
+			bFlag = false;
+			strPriceGrp = get(each,"PriceGroup");
+			strMembership = get(each,"PartnerProgram");
+			temparray = float[];
+			append(temparray,atof(get(each,"AdjustmentAmount")));
+			strTemp = strPriceGrp + string(atof(get(each,"AdjustmentAmount")));
+			strTempMembership = "Indirect";
+			if(findinarray(arrayDirect,strMembership) <> -1 )
+			{	
+				strTempMembership = "Direct";
+			}
+			if(containskey(dictPGTemp,strTemp))
+			{
+				if(get(dictPGTemp,strTemp) == "Indirect")
+				{
+					put(dictPGTemp,strTemp,strTempMembership);
+				}
+			}
+			else
+			{
+				put(dictPGTemp,strTemp,strTempMembership);
+			}
+			
+			if(findinarray(arrayDirect,strMembership) <> -1)
+			{
+				bFlag = true;
+			}
+		}
+		if(iCount == jCount AND NOT(containskey(tempDict,strPriceGrp)))
+		{
+			if(bFlag)
+			{
+				strDiscount = max(temparray);
+				put(tempDict,strPriceGrp,string(strDiscount));
+		
+			}
+			else
+			{
+					put(tempDict,strPriceGrp,"0");					
+			}
+		}
+	}	
+	
+	
+}
+print tempDict;
+print "dictPGTemp";
+print dictPGTemp;
+nCount = range(jsonarraysize(jsonArrayPricing));
+//print jsonArrayPricing;
+for each in nCount
+{
+	dictTemp = dict("string");
+	jsonTemp = json(jsonarrayget(jsonArrayPricing,each));
+	strPriceGroup = "";
+	strSkuNumber = jsonget(jsonTemp,"Sku Number");
+	strPriceGroup = jsonget(jsonTemp,"Price Group");
+	strListPrice = jsonget(jsonTemp,"List Price");
+	strUOMFactor = jsonget(jsonTemp,"UOM Factor");
+	strPLM = jsonget(jsonTemp,"PLM Eligibility");
+	put(dictTemp,"List Price",strListPrice);
+	if(len(strUOMFactor) == 0)
+	{
+		strUOMFactor = "1";
+	}
+	ndiscount = 0;
+	if(containskey(tempDict,strPriceGroup))
+	{
+		ndiscount = atof(get(tempDict,strPriceGroup));
+	}
+	print "strPrice";
+	//print strPriceGroup;
+	//print get(tempDict,strPriceGroup);		
+	nPrice = "0";
+	strMemberShip = "";
+	if(ndiscount > 0)
+	{
+		if(find(strPriceList, "JPY") <> 0 AND find(strPriceList, "JPY") <> -1)
+		{
+			strListPrice = string(round(atof(strListPrice)/atof(strUOMFactor),0));
+			nPrice = string(round(((100-ndiscount)/100)*atof(strListPrice),0));
+			nPrice = string(round(atof(nPrice)*atof(strUOMFactor),0));
+		}
+		else
+		{
+			strListPrice = string(round(atof(strListPrice)/atof(strUOMFactor),2));
+			nPrice = string(round(((100-ndiscount)/100)*atof(strListPrice),2));
+			nPrice = string(round(atof(nPrice)*atof(strUOMFactor),2));
+		}
+		strTemp = strPriceGroup + get(tempDict,strPriceGroup);
+		print strTemp;
+		if(containskey(dictPGTemp,strTemp))
+		{
+			strMemberShip = get(dictPGTemp,strTemp);
+		}
+		
+		
+	}
+	else
+	{
+		nPrice = strListPrice;
+		if(findinarray(arrayPriceGrp,strPriceGroup) > -1)
+		{
+			strMemberShip = "Indirect";
+		}
+		else
+		{
+			strMemberShip = "";
+		}
+	}
+	put(dictTemp,"PriceList",nPrice );
+	put(dictTemp,"Purchase Method",strMembership);
+	put(dictTemp,"Eligible Flag","");
+	
+	if(strMembership == "Indirect")
+	{
+		put(dictTemp,"ErrorCode","CPQ-Indirect");
+	}
+	else
+	{
+		if(strPLM == "Y")
+		{
+			put(dictTemp,"ErrorCode","PLM");
+		}
+		else
+		{
+			put(dictTemp,"ErrorCode","");
+		}
+	}
+	put(ret,strSkuNumber,dictTemp);
+}
+print ret;
+return ret;

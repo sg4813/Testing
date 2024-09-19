@@ -1,0 +1,35 @@
+ret = "";
+retArray = string[];
+arrayCategory = string[];
+iCount = 0;
+setJson = jsonarray(JsonStr);
+arraySize = range(jsonarraysize(setJson));
+
+for each in arraySize
+{
+	localJsonObj = json(jsonarrayget(setJson,each));
+	strSubCategory = jsonget(localJsonObj,"SubCategory");
+	if(findinarray(retArray,strSubCategory) == -1 AND strSubCategory <> "")
+	{
+			append(retArray,strSubCategory);
+	}
+	
+}
+if( NOT isempty(retArray))
+{
+	for each in retArray
+	{
+		ret = ret + "|^|" + each;
+		iCount = iCount  + 1;
+	}
+}
+if(iCount > 1)
+{
+	ret = ret +"|^|"+ "Select All";
+}
+//if(startswith(ret, "|^|")){
+//ret = substring(ret,3,len(ret));
+//}
+
+
+return ret;

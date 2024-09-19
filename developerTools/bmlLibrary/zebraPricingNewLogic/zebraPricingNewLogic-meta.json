@@ -1,0 +1,18 @@
+{
+  "name" : "Zebra Pricing New Logic",
+  "variableName" : "zebraPricingNewLogic",
+  "description" : "",
+  "libraryFunctions" : [ "util.checkPartnerProgramEligibility", "util.getAccountDetails", "util.getAdditionalItemsDetailsnew", "util.getConfigurationData", "util.getEligibilityConstrainRule", "util.getEligibleItemsnew", "util.getFinalConfigurationData", "util.getFinalConfigurationDataNewLogic" ],
+  "returnType" : "Json",
+  "parameters" : [ {
+    "name" : "AccountId",
+    "type" : "String"
+  }, {
+    "name" : "ModelName",
+    "type" : "String"
+  }, {
+    "name" : "Language",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

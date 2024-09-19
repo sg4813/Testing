@@ -1,0 +1,30 @@
+{
+  "name" : "WCS Pricing",
+  "variableName" : "wCSPricing",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "Float[]",
+  "parameters" : [ {
+    "name" : "SKUArray",
+    "type" : "String[]"
+  }, {
+    "name" : "QuantityArray",
+    "type" : "Integer[]"
+  }, {
+    "name" : "SKUFlagArray",
+    "type" : "Boolean[]"
+  }, {
+    "name" : "BillingFrequency",
+    "type" : "String"
+  }, {
+    "name" : "Term",
+    "type" : "String"
+  }, {
+    "name" : "Dummy1",
+    "type" : "String"
+  }, {
+    "name" : "Dummy2",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

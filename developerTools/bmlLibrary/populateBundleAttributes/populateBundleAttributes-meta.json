@@ -1,0 +1,24 @@
+{
+  "name" : "Populate Bundle attributes",
+  "variableName" : "populateBundleAttributes",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "Anytype Dictionary",
+  "parameters" : [ {
+    "name" : "purchasingModel",
+    "type" : "String"
+  }, {
+    "name" : "solBundleType",
+    "type" : "String"
+  }, {
+    "name" : "retType",
+    "type" : "String"
+  }, {
+    "name" : "bundleNumber",
+    "type" : "Integer"
+  }, {
+    "name" : "Param",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

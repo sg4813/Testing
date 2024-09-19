@@ -1,0 +1,196 @@
+//[{"charges":[{"chargeName":"Monthly Fee","unitPrice":200,"listPrice":200,"unitListPrice":0,"chargeType":"ORA_RECURRING","periodicity":"MT","tiered":"Y","tierList":[{"SequenceNumber":1,"TierFrom":1,"TierTo":500,"ListPrice":200,"PriceFormat":"ORA_PER_UNIT","BlockSize":1},{"SequenceNumber":2,"TierFrom":501,"TierTo":1000,"ListPrice":190,"PriceFormat":"ORA_PER_UNIT","BlockSize":1},{"SequenceNumber":3,"TierFrom":1001,"TierTo":0,"ListPrice":180,"PriceFormat":"ORA_PER_UNIT","BlockSize":1}],"tierType":"ORA_ALL_TIERS"}],"hasErrors":false}]
+retVal = "";
+localNoOfLocations = "";
+localNoOfEmployees = "";
+localRevenueFromRetailStoresNotOverall = "";
+localNetProfitMargin = "";
+localTypeOfRetailer = "";
+localTypeOfHosting = "";
+localTypeOfSupport = "";
+localTermOfAgreement = "";
+localMultiLanguagePack = "";
+localRUM = "";
+localMonthlyHosting = "";
+localhostingForMoreHistory = "";
+localNumberOfStores = "";
+localNumberOfYearsCommitted = "";
+localDiscVal = 0.0;
+NoofyearsZ = "";
+NoofyearsR ="";
+
+	for line in transactionLine {
+		listPrice_l =0.0;
+		print line._document_number;
+		if(line._model_name <> ""){
+			localConfigurator = getconfigattrvalue(line._document_number, "configurator");
+			//localDiscVal = line.discountAmount_l;
+			if(localConfigurator == "Reflexis"){
+			localNoOfLocations = getconfigattrvalue(line._document_number, "store");
+			localNoOfEmployees = getconfigattrvalue(line._document_number, "emp");
+			localRevenueFromRetailStoresNotOverall = getconfigattrvalue(line._document_number, "revenue");
+			localNetProfitMargin = getconfigattrvalue(line._document_number, "retailerMargin");
+			localTypeOfRetailer = getconfigattrvalue(line._document_number, "retailerType");
+			localTypeOfHosting = getconfigattrvalue(line._document_number, "hosting");
+			localTypeOfSupport = getconfigattrvalue(line._document_number, "support");
+			localTermOfAgreement = getconfigattrvalue(line._document_number, "termOfAgreement");
+			localMultiLanguagePack = getconfigattrvalue(line._document_number, "LangPack");
+			if(localTermOfAgreement == "5 years - Included in Price")
+			{
+			NoofyearsR = "5";
+			}
+			else
+			{
+			if(localTermOfAgreement == "4 years - 7.5% License Fee Surcharge")
+			{
+			NoofyearsR = "4";
+			}
+			else
+			{
+			NoofyearsR = "3";
+			}
+			}
+			}
+			if(localConfigurator == "ZPA"){
+			localRUM = getconfigattrvalue(line._document_number, "rUM");
+			localMonthlyHosting = getconfigattrvalue(line._document_number, "monthlyHosting");
+			localhostingForMoreHistory = getconfigattrvalue(line._document_number, "hostingForMoreHistory");
+			localNumberOfStores = getconfigattrvalue(line._document_number, "numberOfStores");
+			localNumberOfYearsCommitted = getconfigattrvalue(line._document_number, "numberOfYearsCommitted");
+			if(localNumberOfYearsCommitted== "5 Year commitment")
+				{
+					NoofyearsZ = "5";
+				}
+			else
+				{
+					if(localNumberOfYearsCommitted== "3 Year commitment")
+					{
+						NoofyearsZ = "3";
+					}
+					else
+					{
+					NoofyearsZ= "1";
+					}
+				}
+			
+			}
+		}else{
+		setattributevalue(line._document_number, "customListPrice_l", 10);
+		setattributevalue(line._document_number, "discountAmount_l", localDiscVal);
+		if(line.oRCL_pRC_useUsageLock == false AND line._price_calculation_info <> ""  ) {
+			if(jsonarraysize(jsonarray(line._price_calculation_info)) == 0){
+					if(line._parent_line_item == "Cloud Support"){
+					listPrice_l = line._price_configurable_price ;
+					setattributevalue(line._document_number, "listPrice_l", (listPrice_l));
+					setattributevalue(line._document_number, "customDiscountValue_l", (0));
+					setattributevalue(line._document_number, "netPrice_l", (listPrice_l));
+					setattributevalue(line._document_number, "netAmount_l", (listPrice_l*line.requestedQuantity_l ));
+					}
+			}
+			calcInfo = jsonarrayget(jsonarray(line._price_calculation_info),0,"json");
+			
+			charges = jsonget(calcInfo,"charges", "jsonArray");
+			if(jsonarraysize(charges) > 0){
+			chargesJson = jsonarrayget(charges,0, "json");
+			tiered=  jsonget(chargesJson,"tiered", "string");
+			
+			if(tiered == "Y"){
+				tierListarray =  jsonget(chargesJson,"tierList", "jsonArray");
+					//print tierListarray;
+				if(line._part_number == "Work Force Connect Enterprise"){
+					if(line.requestedQuantity_l <=50000){
+						listPrice_Json =  jsonarrayget(tierListarray,0,"json");
+						listPrice_l=  jsonget(listPrice_Json, "ListPrice", "float");
+						
+					}
+					elif(line.requestedQuantity_l >= 50001 AND line.requestedQuantity_l <=100000){
+						listPrice_Json =  jsonarrayget(tierListarray,1,"json");
+						listPrice_l=  jsonget(listPrice_Json, "ListPrice", "float");
+					}
+					else{
+						listPrice_Json =  jsonarrayget(tierListarray,2,"json");
+						listPrice_l=  jsonget(listPrice_Json, "ListPrice", "float");
+					}
+					
+				}elif(line._part_number == "Work Force Connect PPT"){
+					if(line.requestedQuantity_l <=5000){
+						listPrice_Json =  jsonarrayget(tierListarray,0,"json");
+						listPrice_l=  jsonget(listPrice_Json, "ListPrice", "float");
+						
+					}
+					elif(line.requestedQuantity_l >= 5001 AND line.requestedQuantity_l <=900000){
+						listPrice_Json =  jsonarrayget(tierListarray,1,"json");
+						listPrice_l=  jsonget(listPrice_Json, "ListPrice", "float");
+					}
+					else{
+						listPrice_Json =  jsonarrayget(tierListarray,2,"json");
+						listPrice_l=  jsonget(listPrice_Json, "ListPrice", "float");
+					}
+					
+				}
+				else{
+					
+				
+					if(line.requestedQuantity_l <=500){
+						listPrice_Json =  jsonarrayget(tierListarray,0,"json");
+						listPrice_l=  jsonget(listPrice_Json, "ListPrice", "float");
+						
+					}
+					elif(line.requestedQuantity_l > 500 AND line.requestedQuantity_l <=1000){
+						listPrice_Json =  jsonarrayget(tierListarray,1,"json");
+						listPrice_l=  jsonget(listPrice_Json, "ListPrice", "float");
+					}
+					else{
+						listPrice_Json =  jsonarrayget(tierListarray,2,"json");
+						listPrice_l=  jsonget(listPrice_Json, "ListPrice", "float");
+					}
+				
+				}
+			}
+			else{
+				listPrice_l=   jsonget(chargesJson,"unitPrice", "float");
+			}
+			
+			print listPrice_l;
+			discount = 0.0;
+			productname = line._part_number;
+			recordsDiscount = bmql("select Adjustment_Amount from ORCL_PRC_ADJUSTMENTS where Product = $productname");
+			for result in recordsDiscount{
+				discount = atof(get(result,"Adjustment_Amount"));
+			}
+			
+			customDiscountValue_l = discount;
+			netPrice_l = listPrice_l* (1 - customDiscountValue_l/100);
+			netAmount = netPrice_l *line.requestedQuantity_l;
+			print "999";
+			setattributevalue(line._document_number, "listPrice_l", (listPrice_l));
+			setattributevalue(line._document_number, "customDiscountValue_l", (customDiscountValue_l));
+			setattributevalue(line._document_number, "netPrice_l", (netPrice_l));
+			setattributevalue(line._document_number, "netAmount_l", (netAmount));
+			
+			//returnString = returnString + "|"+util._SM.oRCL_pRC_populateCharges(charges, line._document_number);
+			}
+		}
+		}
+			
+	}
+	
+	
+	retVal = retVal + "1~noOfLocations~" + localNoOfLocations + "|";
+	retVal = retVal + "1~noOfEmployees~" + localNoOfEmployees + "|";
+	retVal = retVal + "1~revenueFromRetailStoresNotOverall~" + localRevenueFromRetailStoresNotOverall + "|";
+	retVal = retVal + "1~netProfitMargin~" + localNetProfitMargin + "|";
+	retVal = retVal + "1~typeOfRetailer~" + localTypeOfRetailer + "|";
+	retVal = retVal + "1~typeOfHosting~" + localTypeOfHosting + "|";
+	retVal = retVal + "1~typeOfSupport~" + localTypeOfSupport + "|";
+	retVal = retVal + "1~termOfAgreement~" + localTermOfAgreement + "|";
+	retVal = retVal + "1~multiLanguagePack_t~" + localMultiLanguagePack + "|";
+	retVal = retVal + "1~rUM~" + localRUM + "|";
+	retVal = retVal + "1~monthlyHosting~" + localMonthlyHosting + "|";
+	retVal = retVal + "1~hostingForMoreHistory~" + localhostingForMoreHistory + "|";
+	retVal = retVal + "1~numberOfStores~" + localNumberOfStores + "|";
+	retVal = retVal + "1~numberOfYearsCommitted~" + localNumberOfYearsCommitted + "|";
+	retVal = retVal + "1~pCNumber_t~" + NoofyearsR + "|";
+	retVal = retVal + "1~pCName_t~" + NoofyearsZ + "|";
+	
+	
+	return retVal;

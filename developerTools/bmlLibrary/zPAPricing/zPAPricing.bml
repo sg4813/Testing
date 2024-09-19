@@ -1,0 +1,64 @@
+price = 0.0;
+ListPrice1 =0.0;
+StorePrice = 0;
+YearsMultiplier =0.0;
+currency ="";
+coversionfac =1.0;
+revenue1 =0.0;
+//t_id =_transaction_id;
+
+rs1 = bmql("Select currency_t from commerce.transaction");//where _transaction_id = $_transaction_id
+for each in rs1
+	{
+		currency = get(each,"currency_t");
+		//print currency ;
+	}
+rs1 = bmql("Select ConversionFactor from ConversionFactor where SourceCurrency =$currency and TargetCurrency ='USD'");//where _transaction_id = $_transaction_id
+for each in rs1
+	{
+		coversionfac = atof(get(each,"ConversionFactor"));
+		//print currency ;
+	}
+revenue1 =rUM*coversionfac;		
+revenue = integer(revenue1 /1000000);
+print revenue ;
+hosting =((hostingForMoreHistory + monthlyHosting)*12)*coversionfac;
+print hosting ;
+rs = bmql("Select ListPrice from ZPAListPrice where MinRUM <= $revenue  AND MaxRUM > $revenue");
+for each in rs
+	{
+		ListPrice1  = atof(get(each,"ListPrice"));
+		print ListPrice1  ;
+	}
+
+rs2 = bmql("Select MaxStore from ZPAStoreComplex where MinStore = 0");
+for each in rs2
+	{
+		mstore  = 0;
+		mstore  = atof(get(each,"MaxStore"));
+	if(numberOfStores <=mstore ){
+	StorePrice  = 0.0;
+	}
+	else{
+rs3 = bmql("Select Impact from ZPAStoreComplex where MinStore <= $numberOfStores");
+for each1 in rs3
+	{
+		x =0.0;
+		x = atof(get(each1,"Impact"));
+		StorePrice  = StorePrice  +x;
+		
+	}
+	}
+	}
+	print StorePrice  ;
+rs = bmql("Select Multiplier from ZPAMultiplier where Years = $numberOfYearsCommitted");
+for each in rs
+	{
+		//YearsMultiplier   = 0.8;
+		YearsMultiplier  = atof(get(each,"Multiplier"));
+		print YearsMultiplier  ;
+	}
+	price = ((ListPrice1  + StorePrice +(hosting - 60000))*YearsMultiplier);
+	price = round(price/coversionfac,0);
+	
+return price;

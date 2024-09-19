@@ -1,0 +1,9 @@
+{
+  "name" : "CreateTransaction_StaticData",
+  "variableName" : "createTransaction_StaticData",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "attributes" : [ ]
+}

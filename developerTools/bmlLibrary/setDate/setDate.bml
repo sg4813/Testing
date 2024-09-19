@@ -1,0 +1,106 @@
+ret = "";
+tableColumn = "";
+localTable = "";
+sb = stringbuilder(); 
+rs = bmql("Select MobileComputersSKU.NBFrequencies from MobileComputersSKU where StdConfiguration = 'OB131125C601B132'");
+print rs;
+recSet = bmql("Select Table, Column1, Column2, Column3, Column4, Column5, Column6, Column7, Column8, Column9, Column10, Column11, Column12, Column13, Column14, Column15 from ModelColumns where Model = 'Omnii XT15 Narrowband' AND BundledKit = 'No'");
+for each in recSet{
+	localTable = get(each,"Table");
+	localColumn1 = get(each, "Column1");
+	localColumn2 = get(each, "Column2");
+	localColumn3 = get(each, "Column3");
+	localColumn4 = get(each, "Column4");
+	localColumn5 = get(each, "Column5");
+	localColumn6 = get(each, "Column6");
+	localColumn7 = get(each, "Column7");
+	localColumn8 = get(each, "Column8");
+	localColumn9 = get(each, "Column9");
+	localColumn10 = get(each, "Column10");
+	localColumn11 = get(each, "Column11");
+	localColumn12 = get(each, "Column12");
+	localColumn13 = get(each, "Column13");
+	localColumn14 = get(each, "Column14");
+	localColumn15 = get(each, "Column15");
+	print localColumn5;
+	if(localTable <> ""){
+		
+		tableColumn = tableColumn + localTable + "." + "StdConfiguration" + ", ";
+		//if(BundledKit == "Yes")
+		//{
+		//	tableColumn = tableColumn + localTable + "." + "ParentSKU" + ", ";
+		//}
+		if(localColumn1 <> ""){
+		//if(BundledKit == "No")
+		//{
+			tableColumn = tableColumn + localTable + "." + localColumn1 + ", ";
+		//}
+		sbappend(sb,localcolumn1,"~");	
+		}
+		if(localColumn2 <> ""){
+		print "";
+		//tableColumn = tableColumn + localTable + "." + localColumn2 + ", ";
+		//sbappend(sb,localcolumn2,"~");
+		}
+		//if(localColumn3 <> ""){
+		//tableColumn = tableColumn + localTable + "." + localColumn3 + ", ";
+		//sbappend(sb,localcolumn3,"~");
+		//}
+	//	if(localColumn4 <> ""){
+	//	tableColumn = tableColumn + localTable + "." + localColumn4 + ", ";
+	//	sbappend(sb,localcolumn4,"~");
+	//	}
+	//	if(localColumn5 <> ""){
+	//	tableColumn = tableColumn + localTable + "." + localColumn5 + ", ";
+	//	sbappend(sb,localcolumn5,"~");
+	//	}
+		if(localColumn6 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn6 + ", ";
+		sbappend(sb,localcolumn6,"~");
+		}
+		if(localColumn7 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn7 + ", ";
+		sbappend(sb,localcolumn7,"~");
+		}
+		if(localColumn8 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn8 + ", ";
+		sbappend(sb,localcolumn8,"~");
+		}
+		if(localColumn9 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn9 + ", ";
+		sbappend(sb,localcolumn9,"~");
+		}
+		if(localColumn10 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn10 + ", ";
+		sbappend(sb,localcolumn10,"~");
+		}
+		if(localColumn11 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn11 + ", ";
+		sbappend(sb,localcolumn11,"~");
+		}
+		if(localColumn12 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn12 + ", ";
+		sbappend(sb,localcolumn12,"~");
+		}
+		if(localColumn13 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn13 + ", ";
+		sbappend(sb,localcolumn13,"~");
+		}
+		if(localColumn14 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn14 + ", ";
+		sbappend(sb,localcolumn14,"~");
+		}
+		if(localColumn15 <> ""){
+		tableColumn = tableColumn + localTable + "." + localColumn15 + ", ";
+		sbappend(sb,localcolumn15,"~");
+		}
+		
+	}
+}
+print sb;
+if(endswith(tableColumn, ", ")){
+tableColumn = substring(tableColumn,0,len(tableColumn)-2);
+}
+print tableColumn;
+rs = bmql("Select $tableColumn from $localTable where StdConfiguration = 'OB131125C601B132' AND ParentSKU IS NULL");
+return "";

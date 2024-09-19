@@ -1,0 +1,75 @@
+/*
+company							(string)
+sessionId						(string)
+processName						(string)
+transactionName					(string)	//Transaction
+transactionVarName				(string)	//transaction
+transactionLineName				(string)	//Transaction Line
+transactionLineVarName			(string)	//transactionLine
+transactionID					(string)
+lineAttributeAndValuesString	(string)	//attr---attrval+++attr2---attrval2....
+userName						(string)	//admin 
+currencyPref					(string)	//USD
+actionName						(string)	//save_t
+*/
+
+result = "";
+
+bmiURL = "https://" + company + ".bigmachines.com/v1_0/receiver";
+
+wsUpdateTransactionsXML = "";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "<?xml version=\"1.0\" encoding=\"UTF-8\"?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "<soapenv:Header>";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "<bm:userInfo xmlns:bm=\"urn:soap.bigmachines.com\">";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "<bm:sessionId>" + sessionId + "</bm:sessionId>";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "</bm:userInfo>";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "<bm:category xmlns:bm=\"urn:soap.bigmachines.com\">Commerce</bm:category>";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "<bm:xsdInfo xmlns:bm=\"urn:soap.bigmachines.com\">";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "<bm:schemaLocation>https://" + company + ".bigmachines.com/bmfsweb/" + company + "/schema/v1_0/commerce/" + processName + ".xsd</bm:schemaLocation>";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "</bm:xsdInfo>";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "</soapenv:Header>";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "<soapenv:Body>";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "<bm:updateTransaction xmlns:bm=\"urn:soap.bigmachines.com\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "<bm:transaction>";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "<bm:id>" + transactionID + "</bm:id>";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "<bm:process_var_name>" + processName + "</bm:process_var_name>";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "<bm:data_xml>";
+
+
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "<bm:transaction bm:bs_id=\"" + transactionID + "\" bm:buyer_company_name=\"" + company + "\" bm:buyer_user_name=\"" + userName + "\" bm:currency_pref=\"" + currencyPref + "\" bm:data_type=\"0\" bm:document_name=\"" + transactionName + "\" bm:document_number=\"1\" bm:document_var_name=\"" + transactionVarName + "\" bm:process_var_name=\"" + processName + "\" bm:supplier_company_name=\"" + company + "\">";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "<bm:_document_number>1</bm:_document_number>";
+
+transactionAttributesAndValues = split(lineAttributeAndValuesString, "+++");
+if(sizeofarray(transactionAttributesAndValues) > 0){
+	index = 0;
+	for transAttr in transactionAttributesAndValues{
+		tempTransactionAttributesAndValues = split(transAttr, "---");
+		tempAttrVar = tempTransactionAttributesAndValues[0];
+		tempAttrVal = tempTransactionAttributesAndValues[1];
+	
+		wsUpdateTransactionsXML = wsUpdateTransactionsXML + "<bm:" + tempAttrVar + ">" + tempAttrVal + "</bm:" + tempAttrVar + ">";
+		index = index + 1;
+	}
+}
+
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "<bm:sub_documents>";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "</bm:sub_documents>";
+
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "</bm:transaction>";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "</bm:data_xml>";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "<bm:action_data>";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "<bm:action_var_name>" + actionName + "</bm:action_var_name>";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "</bm:action_data>";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "</bm:transaction>";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "</bm:updateTransaction>";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "</soapenv:Body>";
+wsUpdateTransactionsXML = wsUpdateTransactionsXML + "</soapenv:Envelope>";
+
+print "wsUpdateTransactionsXML";
+print wsUpdateTransactionsXML;
+
+trigger_wsUpdateTransactionLine = urldatabypost(bmiURL, wsUpdateTransactionsXML, "Failed to update transaction lines");
+print "trigger_wsUpdateTransactionLine response";
+print trigger_wsUpdateTransactionLine;
+
+return result;

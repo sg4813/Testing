@@ -1,0 +1,11 @@
+{
+  "name" : "SaaS Cost For WCS",
+  "variableName" : "saaSCostForWCS_c",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_parent_line_item", "_part_number", "_document_number", "unitCost_l", "costAmount_l", "_config_attr_info", "_config_attr_values", "license", "parentSKU_l", "_part_custom_field11", "_part_custom_field2", "modelName_l", "oRCL_ABO_ActionCode_l" ],
+  "mainDocAttributes" : [ "currency_t", "_transaction_document_number" ],
+  "systemAttributes" : [ ]
+}

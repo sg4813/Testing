@@ -1,0 +1,33 @@
+{
+  "name" : "wsCreateTransaction",
+  "variableName" : "wsCreateTransaction",
+  "description" : "",
+  "libraryFunctions" : [ "util.getXMLSingleTag" ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "company",
+    "type" : "String"
+  }, {
+    "name" : "sessionID",
+    "type" : "String"
+  }, {
+    "name" : "processName",
+    "type" : "String"
+  }, {
+    "name" : "segmentName",
+    "type" : "String"
+  }, {
+    "name" : "productLineName",
+    "type" : "String"
+  }, {
+    "name" : "modelName",
+    "type" : "String"
+  }, {
+    "name" : "partNumber",
+    "type" : "String[]"
+  }, {
+    "name" : "partQuantity",
+    "type" : "String[]"
+  } ],
+  "attributes" : [ ]
+}

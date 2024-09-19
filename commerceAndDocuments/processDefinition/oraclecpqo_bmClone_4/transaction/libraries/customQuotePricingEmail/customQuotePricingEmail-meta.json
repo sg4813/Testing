@@ -1,0 +1,11 @@
+{
+  "name" : "Custom Quote Pricing Email",
+  "variableName" : "customQuotePricingEmail",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "ZEB_pSOfferings", "annualCloudNetPrice_l", "_document_number" ],
+  "mainDocAttributes" : [ "transactionID_t" ],
+  "systemAttributes" : [ "_system_company_name" ]
+}

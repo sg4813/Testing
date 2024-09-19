@@ -1,0 +1,24 @@
+{
+  "name" : "wsUpdateTransactionSave",
+  "variableName" : "wsUpdateTransactionSave",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "company",
+    "type" : "String"
+  }, {
+    "name" : "sessionId",
+    "type" : "String"
+  }, {
+    "name" : "processName",
+    "type" : "String"
+  }, {
+    "name" : "transactionID",
+    "type" : "String"
+  }, {
+    "name" : "actionName",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

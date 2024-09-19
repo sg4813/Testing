@@ -1,0 +1,228 @@
+ret = json();
+arraySku = string[];
+jsonarrayAccessories = jsonarray();
+jsonarraySoftware = jsonarray();
+jsonarrayLearning =  jsonarray();
+jsonarrayParts = jsonarray();
+dictDescription = dict("string");
+dictPrice = dict("string");
+dictError = dict("string");
+dictImage = dict("string");
+dictSiebelRowId = dict("string");
+dictPurchasingMethod = dict("string");
+dictEligibleFlag = dict("string");
+dictListPrice = dict("string");
+dictProductFamily = dict("string");
+print "inside new";
+//print ConfigurationData;
+jsonTempArray = jsonarray(get(EligibleItem,"Sku Details"));
+nCount = range(jsonarraysize(jsonTempArray));
+for each in nCount
+{
+	jsonTemp = json(jsonarrayget(jsonTempArray,each));
+	print jsonTemp;
+	strSku = jsonget(jsonTemp,"Sku Number");
+	strDescription = jsonget(jsonTemp,"Description");
+	strImage = jsonget(jsonTemp,"Image");
+	strSiebel = jsonget(jsonTemp,"SiebelProductId");
+	strListPrice = jsonget(jsonTemp,"List Price");
+	strProductFamily = jsonget(jsonTemp,"ProductFamily");
+	put(dictDescription,strSku,strDescription);
+	
+	if(Containskey(itemData,strSku))
+	{
+		tempPricingDict = get(itemData,strSku);
+		put(dictPrice,strSku,get(tempPricingDict,"PriceList"));
+		put(dictError,strSku,get(tempPricingDict,"ErrorCode"));
+		put(dictPurchasingMethod,strSku,get(tempPricingDict,"Purchase Method"));
+		strEligibleFlag = get(tempPricingDict,"Eligible Flag");
+		put(dictEligibleFlag,strSku,strEligibleFlag);
+	
+	}
+	else
+	{
+		put(dictPrice,strSku,"");
+		put(dictError,strSku,"");
+		put(dictPurchasingMethod,strSku,"");
+		put(dictEligibleFlag,strSku,"");
+	}
+	put(dictImage,strSku,strImage);
+	put(dictSiebelRowId,strSku,strSiebel);
+	put(dictListPrice,strSku,strListPrice);
+	put(dictProductFamily,strSku,strProductFamily);
+}
+
+strJsonModel = get(ConfigurationData,"Accessories");
+//print "strJsonModel";
+print dictEligibleFlag;
+jsonput(ret,"Accessories","");
+if(strJsonModel <> "")
+{ 
+	jsonArrayModel = jsonarray(strJsonModel);
+	nCount = range(jsonarraysize(jsonArrayModel));
+	print nCount;
+	
+	for each in nCount
+	{
+		jsonTemp = json(jsonarrayget(jsonArrayModel,each));
+		strSkuNumber = jsonget(jsonTemp,"Sku Number");
+		print strSkuNumber;
+		print containskey(dictDescription,strSkuNumber);
+		if(containskey(dictDescription,strSkuNumber))
+		{
+			strDescription = get(dictDescription,strSkuNumber);
+			strPrice = get(dictPrice,strSkuNumber);
+			strError = get(dictError,strSkuNumber);
+			jsonTemp1 = json();
+			jsonput(jsonTemp1,"Parent Sku", jsonget(jsonTemp,"Parent Sku"));
+			jsonput(jsonTemp1,"Part Number",strSkuNumber);
+			jsonput(jsonTemp1,"Recommended", jsonget(jsonTemp,"Recommended"));
+			jsonput(jsonTemp1,"Category","Accessories");
+			jsonput(jsonTemp1,"Accessories","Accessories");
+			jsonput(jsonTemp1,"SubCategory",jsonget(jsonTemp,"SubCategory"));
+			jsonput(jsonTemp1,"Description",strDescription);
+			jsonput(jsonTemp1,"Price",strPrice);
+			jsonput(jsonTemp1,"ErrorCode",strError);
+			jsonput(jsonTemp1,"Image",get(dictImage,strSkuNumber));
+			jsonput(jsonTemp1,"SiebelProductId",get(dictSiebelRowId,strSkuNumber));
+			jsonput(jsonTemp1,"Purchasing Method",get(dictPurchasingMethod,strSkuNumber));
+			jsonput(jsonTemp1,"Eligible Flag",get(dictEligibleFlag,strSkuNumber));
+			jsonput(jsonTemp1,"List Price",get(dictListPrice,strSkuNumber));
+			jsonput(jsonTemp1,"ProductFamily",get(dictProductFamily,strSkuNumber));			
+			jsonarrayappend(jsonarrayAccessories,jsonTemp1);
+		}		
+		
+	}
+	if(jsonarraysize(jsonarrayAccessories) > 0)
+	{
+		jsonput(ret,"Accessories",jsonarraytostr(jsonarrayAccessories));
+	}
+	
+}
+strJsonModel = get(ConfigurationData,"Software");
+jsonput(ret,"Software","");
+if(strJsonModel <> "")
+{ 
+	jsonArrayModel = jsonarray(strJsonModel);
+	jsonArrayModelOutput = Jsonarray();
+	nCount = range(jsonarraysize(jsonArrayModel));
+	print nCount;
+	
+	for each in nCount
+	{
+		jsonTemp = json(jsonarrayget(jsonArrayModel,each));
+		strSkuNumber = jsonget(jsonTemp,"Sku Number");
+		if(containskey(dictDescription, strSkuNumber))
+		{
+			strDescription = get(dictDescription,strSkuNumber);
+			strPrice = get(dictPrice,strSkuNumber);
+			strError = get(dictError,strSkuNumber);
+			jsonTemp1 = json();
+			jsonput(jsonTemp1,"Parent Sku", jsonget(jsonTemp,"Parent Sku"));
+			jsonput(jsonTemp1,"Part Number",strSkuNumber);
+			jsonput(jsonTemp1,"Recommended", jsonget(jsonTemp,"Recommended"));
+			jsonput(jsonTemp1,"Category","Software");
+			jsonput(jsonTemp1,"Software","Software");
+			jsonput(jsonTemp1,"SubCategory",jsonget(jsonTemp,"SubCategory"));
+			jsonput(jsonTemp1,"Description",strDescription);
+			jsonput(jsonTemp1,"Price",strPrice);
+			jsonput(jsonTemp1,"ErrorCode",strError);
+			jsonput(jsonTemp1,"SiebelProductId",get(dictSiebelRowId,strSkuNumber));
+			jsonput(jsonTemp1,"Purchasing Method",get(dictPurchasingMethod,strSkuNumber));
+			jsonput(jsonTemp1,"Eligible Flag",get(dictEligibleFlag,strSkuNumber));
+			jsonput(jsonTemp1,"List Price",get(dictListPrice,strSkuNumber));
+			jsonput(jsonTemp1,"ProductFamily",get(dictProductFamily,strSkuNumber));
+			jsonarrayappend(jsonarraySoftware,jsonTemp1);
+		}	
+		
+	}
+	if(jsonarraysize(jsonarraySoftware) > 0)
+	{
+		jsonput(ret,"Software",jsonarraytostr(jsonarraySoftware));
+	}
+}
+strJsonModel = get(ConfigurationData,"Learning");
+jsonput(ret,"Learning","");
+if(strJsonModel <> "")
+{ 
+	jsonArrayModel = jsonarray(strJsonModel);
+	jsonArrayModelOutput = Jsonarray();
+	nCount = range(jsonarraysize(jsonArrayModel));
+	print nCount;
+	
+	for each in nCount
+	{
+		jsonTemp = json(jsonarrayget(jsonArrayModel,each));
+		strSkuNumber = jsonget(jsonTemp,"Sku Number");
+		if(containskey(dictDescription, strSkuNumber))
+		{
+			strDescription = get(dictDescription,strSkuNumber);
+			strPrice = get(dictPrice,strSkuNumber);
+			strError = get(dictError,strSkuNumber);
+			jsonTemp1 = json();
+			jsonput(jsonTemp1,"Parent Sku", jsonget(jsonTemp,"Parent Sku"));
+			jsonput(jsonTemp1,"Part Number",strSkuNumber);
+			jsonput(jsonTemp1,"Recommended", jsonget(jsonTemp,"Recommended"));
+			jsonput(jsonTemp1,"Category","Learning");
+			jsonput(jsonTemp1,"Learning","Learning");
+			jsonput(jsonTemp1,"SubCategory",jsonget(jsonTemp,"SubCategory"));
+			jsonput(jsonTemp1,"Description",strDescription);
+			jsonput(jsonTemp1,"Price",strPrice);
+			jsonput(jsonTemp1,"ErrorCode",strError);
+			jsonput(jsonTemp1,"SiebelProductId",get(dictSiebelRowId,strSkuNumber));
+			jsonput(jsonTemp1,"Purchasing Method",get(dictPurchasingMethod,strSkuNumber));
+			jsonput(jsonTemp1,"Eligible Flag",get(dictEligibleFlag,strSkuNumber));
+			jsonput(jsonTemp1,"List Price",get(dictListPrice,strSkuNumber));
+			jsonput(jsonTemp1,"ProductFamily",get(dictProductFamily,strSkuNumber));
+			jsonarrayappend(jsonarrayLearning,jsonTemp1);
+		}	
+		
+	}
+	if(jsonarraysize(jsonarrayLearning) > 0)
+	{
+		jsonput(ret,"Learning",jsonarraytostr(jsonarrayLearning));
+	}
+}
+strJsonModel = get(ConfigurationData,"Parts");
+jsonput(ret,"Parts","");
+if(strJsonModel <> "")
+{ 
+	jsonArrayModel = jsonarray(strJsonModel);
+	jsonArrayModelOutput = Jsonarray();
+	nCount = range(jsonarraysize(jsonArrayModel));
+	print nCount;
+	
+	for each in nCount
+	{
+		jsonTemp = json(jsonarrayget(jsonArrayModel,each));
+		strSkuNumber = jsonget(jsonTemp,"Sku Number");
+		if(containskey(dictDescription, strSkuNumber))
+		{
+			strDescription = get(dictDescription,strSkuNumber);
+			strPrice = get(dictPrice,strSkuNumber);
+			strError = get(dictError,strSkuNumber);
+			jsonTemp1 = json();
+			jsonput(jsonTemp1,"Parent Sku", jsonget(jsonTemp,"Parent Sku"));
+			jsonput(jsonTemp1,"Part Number",strSkuNumber);
+			jsonput(jsonTemp1,"Recommended", jsonget(jsonTemp,"Recommended"));
+			jsonput(jsonTemp1,"Category","Parts");
+			jsonput(jsonTemp1,"Parts","Parts");
+			jsonput(jsonTemp1,"SubCategory",jsonget(jsonTemp,"SubCategory"));
+			jsonput(jsonTemp1,"Description",strDescription);
+			jsonput(jsonTemp1,"Price",strPrice);
+			jsonput(jsonTemp1,"ErrorCode",strError);
+			jsonput(jsonTemp1,"SiebelProductId",get(dictSiebelRowId,strSkuNumber));
+			jsonput(jsonTemp1,"Purchasing Method",get(dictPurchasingMethod,strSkuNumber));
+			jsonput(jsonTemp1,"Eligible Flag",get(dictEligibleFlag,strSkuNumber));
+			jsonput(jsonTemp1,"List Price",get(dictListPrice,strSkuNumber));
+			jsonput(jsonTemp1,"ProductFamily",get(dictProductFamily,strSkuNumber));
+			jsonarrayappend(jsonarrayParts,jsonTemp1);
+		}	
+		
+	}
+	if(jsonarraysize(jsonarrayParts) > 0)
+	{
+		jsonput(ret,"Parts",jsonarraytostr(jsonarrayParts));
+	}
+}
+return ret;

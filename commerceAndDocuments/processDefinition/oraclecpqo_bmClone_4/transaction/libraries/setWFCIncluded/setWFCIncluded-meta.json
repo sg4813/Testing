@@ -1,0 +1,11 @@
+{
+  "name" : "Set WFC Included",
+  "variableName" : "setWFCIncluded",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "modelName_l", "_model_name" ],
+  "mainDocAttributes" : [ "isWFCIncluded" ],
+  "systemAttributes" : [ ]
+}

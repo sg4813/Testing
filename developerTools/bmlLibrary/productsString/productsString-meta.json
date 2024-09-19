@@ -1,0 +1,51 @@
+{
+  "name" : "ProductsString",
+  "variableName" : "productsString",
+  "description" : "",
+  "libraryFunctions" : [ "util.getProductPrice" ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "itemprices",
+    "type" : "Float"
+  }, {
+    "name" : "Discount",
+    "type" : "Float"
+  }, {
+    "name" : "Itemuplift",
+    "type" : "Float"
+  }, {
+    "name" : "maxPartnerdisc",
+    "type" : "Float"
+  }, {
+    "name" : "quantity",
+    "type" : "Integer"
+  }, {
+    "name" : "Term",
+    "type" : "Integer"
+  }, {
+    "name" : "partNumber",
+    "type" : "String"
+  }, {
+    "name" : "ExtraParameter",
+    "type" : "String"
+  }, {
+    "name" : "ProductName",
+    "type" : "String"
+  }, {
+    "name" : "ConvesrionFactor",
+    "type" : "Float"
+  }, {
+    "name" : "PartnerDiscountEligibility",
+    "type" : "String"
+  }, {
+    "name" : "Extraparam1",
+    "type" : "String"
+  }, {
+    "name" : "ExtraParam2",
+    "type" : "String"
+  }, {
+    "name" : "MaxDiscount",
+    "type" : "Float"
+  } ],
+  "attributes" : [ ]
+}

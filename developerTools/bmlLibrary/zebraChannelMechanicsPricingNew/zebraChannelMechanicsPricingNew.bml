@@ -1,0 +1,91 @@
+ret = ListPrice;
+dCurrentDate = getdate();
+strProgramMembership = ProgramMembership;
+arrayProgramMembership = string[];
+nTotalRecord = 0;
+nClassificationRecord = 0;
+arrayDiscount = float[];
+rs = recordset();
+countryCount = 0;
+if(find(strProgramMembership,"|^|") == -1)
+{
+	arrayProgramMembership[0] = strProgramMembership;
+}
+else
+{
+	arrayProgramMembership = split(strProgramMembership,"|^|");
+}
+if(OccCountry <> ""){
+	
+	rs = bmql("Select * from CM_Discount_Matrix where PromotionProgram = $PromotionProgram AND ProgramMembership IN $arrayProgramMembership AND Classification = $Classification AND Country = $OccCountry");
+	for each in rs
+	{
+		countryCount  = countryCount  + 1;
+	}
+	
+	
+}else{
+	
+	rs = bmql("Select * from CM_Discount_Matrix where PromotionProgram = $PromotionProgram AND ProgramMembership IN $arrayProgramMembership AND Country IS NULL");
+}
+if(countryCount  == 0)
+{
+	rs = bmql("Select * from CM_Discount_Matrix where PromotionProgram = $PromotionProgram AND ProgramMembership IN $arrayProgramMembership AND Country IS NULL");
+}
+
+for each in rs
+{
+	
+	dStartDate = strtojavadate(get(each,"StartDate"), "MM/dd/yyyy HH:mm:ss","America/New_York");
+	dEndDate = getdate();
+	strEndDate = get(each,"EndDate");
+	nDiscount = 0.0;
+	if(strEndDate <> "")
+	{
+		dEndDate = strtojavadate(strEndDate, "MM/dd/yyyy HH:mm:ss","America/New_York");
+	}
+	if(comparedates(dCurrentDate,dStartDate ) <> -1 AND (strEndDate == "" OR comparedates(dEndDate,dCurrentDate ) <> -1))
+	{
+		nTotalRecord = nTotalRecord + 1;
+		if(get(each,"Classification") == "" OR len(get(each,"Classification")) == 0)
+		{
+			nClassificationRecord = nClassificationRecord + 1;
+		}
+		nDiscount = atof(get(each,"Discount"));
+		append(arrayDiscount,nDiscount);
+	}
+}
+if(nTotalRecord  == nClassificationRecord AND nTotalRecord > 0)
+{
+	maxDiscount = (100 - max(arrayDiscount))/100;
+	ret = ret*maxDiscount;
+}
+elif(nTotalRecord > nClassificationRecord AND nTotalRecord > 0)
+{
+	arrayDiscount = float[];
+	for each in rs
+	{
+		dStartDate = strtojavadate(get(each,"StartDate"), "MM/dd/yyyy HH:mm:ss","America/New_York");
+		dEndDate = getdate();
+		strEndDate = get(each,"EndDate");
+		nDiscount = 0.0;
+		if(strEndDate <> "")
+		{
+			dEndDate = strtojavadate(strEndDate, "MM/dd/yyyy HH:mm:ss","America/New_York");
+		}
+		if(comparedates(dCurrentDate,dStartDate ) <> -1 AND (strEndDate == "" OR comparedates(dEndDate,dCurrentDate ) <> -1))
+		{
+			if(get(each,"Classification") == Classification)
+			{
+				nDiscount = atof(get(each,"Discount"));
+				append(arrayDiscount,nDiscount);
+			}
+		}
+	}
+	if(sizeofarray(arrayDiscount) > 0)
+	{
+		maxDiscount = (100 - max(arrayDiscount))/100;
+		ret = ret*maxDiscount;
+	}
+}
+return ret;

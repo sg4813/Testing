@@ -1,0 +1,14 @@
+{
+  "name" : "Approval History Creation Revise",
+  "variableName" : "approvalHistoryCreationRevise",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "ApprovalHistrory",
+    "type" : "String"
+  } ],
+  "subDocAttributes" : [ ],
+  "mainDocAttributes" : [ "approval_history_submit_t", "approval_status_submit_t", "approvalHistory", "quoteRevisionNew_t", "isThisCustomerAMultiNationalOrGlobalAccount_t" ],
+  "systemAttributes" : [ "_system_user_name" ]
+}

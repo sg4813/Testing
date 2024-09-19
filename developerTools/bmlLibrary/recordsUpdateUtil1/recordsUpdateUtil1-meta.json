@@ -1,0 +1,9 @@
+{
+  "name" : "Records update util1",
+  "variableName" : "recordsUpdateUtil1",
+  "description" : "",
+  "libraryFunctions" : [ "util.getTableId" ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "attributes" : [ ]
+}

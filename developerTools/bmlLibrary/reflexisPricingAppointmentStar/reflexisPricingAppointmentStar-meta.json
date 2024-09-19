@@ -1,0 +1,39 @@
+{
+  "name" : "Reflexis Pricing Appointment Starlight",
+  "variableName" : "reflexisPricingAppointmentStar",
+  "description" : "",
+  "libraryFunctions" : [ "util.getReflexisAdditionalQty" ],
+  "returnType" : "Float[]",
+  "parameters" : [ {
+    "name" : "SKUArray",
+    "type" : "String[]"
+  }, {
+    "name" : "QuantityArray",
+    "type" : "Integer[]"
+  }, {
+    "name" : "SKUFlagArray",
+    "type" : "Boolean[]"
+  }, {
+    "name" : "retailerMargin",
+    "type" : "String"
+  }, {
+    "name" : "retailerType",
+    "type" : "String"
+  }, {
+    "name" : "hosting",
+    "type" : "String"
+  }, {
+    "name" : "support",
+    "type" : "String"
+  }, {
+    "name" : "termOfAgreement",
+    "type" : "String"
+  }, {
+    "name" : "LangPack",
+    "type" : "String"
+  }, {
+    "name" : "appointments_Calc",
+    "type" : "Float"
+  } ],
+  "attributes" : [ ]
+}

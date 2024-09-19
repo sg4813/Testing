@@ -1,0 +1,11 @@
+{
+  "name" : "ModelCustomDiscount",
+  "variableName" : "modelCustomDiscount",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_part_custom_field11", "oRCL_ABO_ActionCode_l", "_parent_doc_number", "customDiscountAmount_l", "_document_number" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

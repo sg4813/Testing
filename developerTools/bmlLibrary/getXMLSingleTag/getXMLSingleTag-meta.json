@@ -1,0 +1,15 @@
+{
+  "name" : "getXMLSingleTag",
+  "variableName" : "getXMLSingleTag",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ {
+    "name" : "xmlString",
+    "type" : "String"
+  }, {
+    "name" : "tag",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

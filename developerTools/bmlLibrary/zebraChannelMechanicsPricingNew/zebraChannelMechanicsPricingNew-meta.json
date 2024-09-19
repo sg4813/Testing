@@ -1,0 +1,24 @@
+{
+  "name" : "Zebra Channel Mechanics Pricing New",
+  "variableName" : "zebraChannelMechanicsPricingNew",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "Float",
+  "parameters" : [ {
+    "name" : "PromotionProgram",
+    "type" : "String"
+  }, {
+    "name" : "Classification",
+    "type" : "String"
+  }, {
+    "name" : "ProgramMembership",
+    "type" : "String"
+  }, {
+    "name" : "ListPrice",
+    "type" : "Float"
+  }, {
+    "name" : "OccCountry",
+    "type" : "String"
+  } ],
+  "attributes" : [ ]
+}

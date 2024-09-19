@@ -1,0 +1,11 @@
+{
+  "name" : "Fetch Demo Validation",
+  "variableName" : "fetchDemoValidation",
+  "description" : "",
+  "libraryFunctions" : [ "util.salesforceAuthenticationAccessToken" ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_part_number", "_document_number", "_parent_line_item", "syncWithOCC_l", "syncWithSFDC_l", "demoNumber" ],
+  "mainDocAttributes" : [ "resellerID", "demoNumberTransaction", "demoFlag" ],
+  "systemAttributes" : [ ]
+}

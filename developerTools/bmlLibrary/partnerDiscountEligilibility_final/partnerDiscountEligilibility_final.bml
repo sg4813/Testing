@@ -1,0 +1,59 @@
+val = "";
+discountEligibility ="";
+partnermember = PartnerMembership;
+price = "";
+count = 0;
+dCurrentDate = getDate();
+partnerAccountDiscountEligibility = String[];
+
+priceGroupJsonString = jsonarray(PriceGroupString);
+priceString = range(jsonarraysize(priceGroupJsonString));
+for each in priceString {
+	priceGroup = jsonarrayget(priceGroupJsonString, each , "json");
+	isExpFound = jsonkeys(priceGroup);
+	if(isExpFound[0] == Product){
+	print Product;
+		price = jsonget(priceGroup, Product);
+		print price;
+	}
+}
+results = bmql("SELECT * FROM Eligibility_Matrix WHERE PartnerProgram IN $partnermember AND PriceGroup = $price");
+//print results;
+for eachrecord in results {
+	discountEligibility = "N";
+	count = count + 1;
+	EffecDate = get(eachrecord, "EffectiveTo");
+	effectFrom = get(eachrecord, "EffectiveFrom");
+	print effectFrom;
+	dStartDate = strtojavadate(get(eachrecord,"EffectiveFrom"), "MM/dd/yyyy HH:mm:ss","America/New_York");
+	dEndDate = getdate();
+	//EffecDate1 = strtojavadate(EffecDate, "MM/dd/yyyy HH:mm:ss", "America/New_York");
+	if(EffecDate <> "") {
+		EffecDate1 = strtojavadate(get(eachrecord,"EffectiveTo"), "MM/dd/yyyy HH:mm:ss","America/New_York");
+	}
+	strEndDate = get(eachrecord,"EffectiveTo");
+	
+		if(strEndDate <> "")
+		{
+			//print dStartDate;
+			dEndDate = strtojavadate(strEndDate, "MM/dd/yyyy HH:mm:ss","America/New_York");
+			//print dEndDate;
+		}
+	if(discountEligibility == "N") {
+		if(comparedates(dCurrentDate,dStartDate) <> -1 AND (strEndDate == "" OR comparedates(dEndDate,dCurrentDate ) <> -1)){
+		//if(effectFrom <> ""){
+			discountEligibility ="Y";
+			append(partnerAccountDiscountEligibility, discountEligibility);
+				
+		}
+		else {
+			discountEligibility ="N";
+			append(partnerAccountDiscountEligibility, discountEligibility);
+		}
+	}
+}
+if(count == 0) {
+	discountEligibility ="N";
+	append(partnerAccountDiscountEligibility, discountEligibility);
+}
+return discountEligibility;

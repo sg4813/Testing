@@ -1,0 +1,107 @@
+retStr = "";
+retAccessStr = ""; 
+retSoftStr = ""; 
+retServStr = "";
+localPart = "";
+localCategory = "";
+localAvailability = "";
+count = 0;
+accessCount = 0;
+SKUCount = 0;
+softwareCount = 0;
+serviceCount = 0;
+localCountrySku = string[];
+localCountry = dict("string");
+strAvailbility = dict("string");
+recordSet = bmql("Select PartNumber, Country, DECODE from CountryCertification where PartNumber IN $additionalItems Order by PartNumber DESC");
+print recordSet;
+for each in recordSet
+{
+	if(findinarray(localCountrySku,get(each,"PartNumber")) == -1)
+	{
+		append(localCountrySku,get(each,"PartNumber"));
+		put(strAvailbility,get(each,"PartNumber"),get(each,"DECODE"));
+	}
+	print "localCountrySku";
+	print localCountrySku;
+}
+for each in recordSet
+{
+	if(get(each,"Country") == shipToCountry)
+	{
+		put(localCountry,get(each,"PartNumber"),get(each,"DECODE"));	
+	}
+	print "localCountry";
+	print localCountry;
+}
+
+for each in additionalItems
+{
+	strAvalilble = "";
+	print each;
+	if(containskey(localCountry,each))
+	{
+		strAvalilble = get(localCountry,each);
+	}
+	elif(containskey(strAvailbility,each))
+	{
+		strAvalilble = get(strAvailbility,each);
+		if(strAvalilble == "Available")
+		{
+			strAvalilble = "Not Available";
+		}
+		else
+		{
+			strAvalilble = "Available";
+		}
+	}
+	print "strAvalilble";
+	print strAvalilble;
+	if(strAvalilble == "Not Available")
+	{
+		print "hi";
+		localPart = each;
+		retStr = "<li>This item is not sellable in ";
+		retStr = retStr + shipToCountry + ".</li>";
+		localCategory = get(categoryDict,each);
+		print localCategory;
+		//retStr = "<li>This item is not sellable in ";
+		//retStr = retStr + shipToCountry + ".</li>";
+		if(localCategory == "SKU"){
+		print "SKU";
+		if(SKUCount == 0){
+		retAccessStr = retAccessStr + "<li>Items: ";
+		SKUCount = SKUCount + 1;
+		}
+		retAccessStr = retAccessStr + localPart + " are not certified for operation in "+shipToCountry+".</li>,";
+		}
+		if(localCategory == "Accessories"){
+			if(accessCount == 0){
+			retAccessStr = retAccessStr + " Accessories: ";
+			accessCount = accessCount + 1;
+			}
+			retAccessStr = retAccessStr + localPart + ",";
+		}
+		if(localCategory == "Software"){
+			if(softwareCount == 0){
+			retSoftStr = retSoftStr + " Software: ";
+			softwareCount = softwareCount + 1;
+			}
+			retSoftStr = retSoftStr + localPart + ",";
+		}
+	
+		if(localCategory == "Services"){
+			if(serviceCount == 0){
+			retServStr = retServStr + " Services: ";
+			serviceCount = serviceCount + 1;
+			}
+			retServStr = retServStr + localPart + ",";
+		}
+	}
+}
+retStr = retStr + retAccessStr + retSoftStr + retServStr;
+if(endswith(retStr,",")){
+retStr = substring(retStr,0,len(retStr)-1);
+}
+
+return retStr;

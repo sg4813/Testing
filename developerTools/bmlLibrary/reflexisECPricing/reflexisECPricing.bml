@@ -1,0 +1,185 @@
+//addArr = AddArray;
+price = float[];
+icount =0;
+jcount = integer[];
+rttm = 0;
+tm = 0;
+retailerMarginMultiplier =0.0;
+retailerTypeRRTMMultiplier=0.0;
+retailerTypeTMMultiplier=0.0;
+retailerTypeSPMultiplier=0.0;
+hostingMultiplier=0.0;
+supportTMMultiplier=0.0;
+supportWFSMultiplier=0.0;
+termMultiplier=0.0;
+langPackMultiplier=0.0;
+
+currency ="";
+coversionfac =1.0;
+
+rs1 = bmql("Select currency_t from commerce.transaction");//where _transaction_id = $_transaction_id
+for each in rs1
+	{
+		currency = get(each,"currency_t");
+		//print currency ;
+	}
+rs1 = bmql("Select ConversionFactor from ConversionFactor where SourceCurrency =$currency and TargetCurrency ='USD'");//where _transaction_id = $_transaction_id
+for each in rs1
+	{
+		coversionfac = atof(get(each,"ConversionFactor"));
+		//print currency ;
+	}		
+
+rs = bmql("Select Multiplier from Reflexis_Multiplier where Category = 'Retailer Margin' AND Value = $retailerMargin");
+for each in rs
+	{
+		retailerMarginMultiplier = atof(get(each,"Multiplier"));
+	}
+	
+rs = bmql("Select Multiplier from Reflexis_Multiplier where Category = 'Retail Segment' AND SubCategory = 'RRTM' AND Value = $retailerType");
+for each in rs
+	{
+		retailerTypeRRTMMultiplier = atof(get(each,"Multiplier"));
+	}
+	
+rs = bmql("Select Multiplier from Reflexis_Multiplier where Category = 'Retail Segment' AND SubCategory = 'TM' AND Value = $retailerType");
+for each in rs
+	{
+		retailerTypeTMMultiplier = atof(get(each,"Multiplier"));
+	}
+
+rs = bmql("Select Multiplier from Reflexis_Multiplier where Category = 'Retail Segment' AND SubCategory = 'SP' AND Value = $retailerType");
+for each in rs
+	{
+		retailerTypeSPMultiplier = atof(get(each,"Multiplier"));
+	}
+
+rs = bmql("Select Multiplier from Reflexis_Multiplier where Category = 'Hosting Fees' AND Value = $hosting");
+for each in rs
+	{
+		hostingMultiplier= atof(get(each,"Multiplier"));
+	}
+	
+rs = bmql("Select Multiplier from Reflexis_Multiplier where Category = 'Support' AND SubCategory = 'TM' AND Value = $support");
+for each in rs
+	{
+		supportTMMultiplier = atof(get(each,"Multiplier"));
+	}
+	
+rs = bmql("Select Multiplier from Reflexis_Multiplier where Category = 'Support' AND SubCategory = 'WFS' AND Value = $support");
+for each in rs
+	{
+		supportWFSMultiplier = atof(get(each,"Multiplier"));
+	}
+
+rs = bmql("Select Multiplier from Reflexis_Multiplier where Category = 'Term of Agreement' AND Value = $termOfAgreement");
+for each in rs
+	{
+		termMultiplier = atof(get(each,"Multiplier"));
+	}	
+
+rs = bmql("Select Multiplier from Reflexis_Multiplier where Category = 'MultiLang Pack' AND Value = $LangPack");
+for each in rs
+	{
+		langPackMultiplier = atof(get(each,"Multiplier"));
+	}
+					
+for each in SKUFlagArray
+{
+	if (each == true){
+	append(jcount,icount);
+	}
+	if (SKUArray[icount]== "Real-Time Task Manager"){
+	rttm = icount;
+	}
+	if (SKUArray[icount]== "Task Manager"){
+	tm = icount;
+	}
+	if (SKUArray[icount]== "Pulse"){
+	pu= icount;
+	}
+icount=icount+1;
+}
+
+//print jcount;
+//RTTM Calc
+rTTMSKU = SKUArray[rttm];
+
+rs = bmql("Select Min_Price,Add_Mobile_OS from RefSKUDetails where SKU = $rTTMSKU ");
+for each in rs
+	{
+		Min_Price= atof(get(each,"Min_Price"));
+		Add_Mobile_OS = atof(get(each,"Add_Mobile_OS"));
+		Cases_Quantity=util.getReflexisAdditionalQty(SKUArray,QuantityArray,"RTTM Additional Use Cases");
+		Mobile_Quantity=util.getReflexisAdditionalQty(SKUArray,QuantityArray,"RTTM Additional Mobile OS");
+		array1 =float[]{intrim_Calc1,Min_Price};
+		price[rttm] = (max(array1) + (external_Connections_Calc*Cases_Quantity) +50000)*(1 + (Mobile_Quantity*.1))*langPackMultiplier *termMultiplier*hostingMultiplier*retailerMarginMultiplier *retailerTypeRRTMMultiplier*supportTMMultiplier ; 
+		price[rttm] = round(price[rttm],0);
+		//price[rttm] = price[rttm]/coversionfac ;
+	}
+
+//RTTM Calc
+tMSKU = SKUArray[tm];
+
+rs = bmql("Select Min_Price,Add_Mobile_OS from RefSKUDetails where SKU = $tMSKU ");
+for each in rs
+	{
+		Min_Price= atof(get(each,"Min_Price"));
+		Add_Mobile_OS = atof(get(each,"Add_Mobile_OS"));
+		Mobile_Quantity=util.getReflexisAdditionalQty(SKUArray,QuantityArray,"TM Additional Mobile OS");
+		//print Mobile_Quantity;
+		array1 =float[]{intrim_Calc1,Min_Price};
+		price[tm] = (max(array1) +25000)*(1+(Mobile_Quantity*.1))*langPackMultiplier *termMultiplier*hostingMultiplier*retailerMarginMultiplier *retailerTypeTMMultiplier*supportTMMultiplier ; 
+		price[tm] = round(price[tm],0);
+		//price[tm] = price[tm]/coversionfac ;
+	}
+
+//print jcount;
+for each in jcount
+{
+//print jcount;
+	//i = jcount[each];
+	SKU = SKUArray[each];
+	//print jCount[each];
+	if ( each <> rttm and each<> tm) {
+	rs = bmql("Select Min_Price,Add_Mobile_OS from RefSKUDetails where SKU = $SKU ");
+	for each1 in rs
+	{
+		Min_Price= atof(get(each1,"Min_Price"));
+		Add_Mobile_OS = atof(get(each1,"Add_Mobile_OS"));
+		
+		if (SKU == "Pulse"){
+		Cases_Quantity=util.getReflexisAdditionalQty(SKUArray,QuantityArray,"Pulse Additional Use Cases");
+		Mobile_Quantity=util.getReflexisAdditionalQty(SKUArray,QuantityArray,"Pulse Additional Mobile OSs");
+		array1 =float[]{intrim_Calc1,Min_Price};
+		price[each] = (max(array1) + (external_Connections_Calc*Cases_Quantity))*(1+((Mobile_Quantity*Add_Mobile_OS)/100))*langPackMultiplier *termMultiplier*hostingMultiplier*retailerMarginMultiplier *retailerTypeSPMultiplier*supportTMMultiplier ; 
+		price[each] = round(price[each],0);
+		//price[each] = price[each]/coversionfac ;
+		}
+		
+		if (SKU == "Advanced Analytics & Reporting for Real-Time Task Manager"){
+		array1 =float[]{price[rttm]*(Add_Mobile_OS/100),Min_Price};
+		price[each] = round(max(array1),0) ; 
+		//price[each] = price[each]/coversionfac ;
+		}
+		
+		if (SKU == "Advanced Analytics & Reporting for Task Manager"){
+		array1 =float[]{(price[tm]*Add_Mobile_OS)/100,Min_Price};
+		price[each] = round(max(array1),0) ; 
+		//price[each] = price[each]/coversionfac ;
+		}
+		
+		if (SKU == "Native Mobile MyWork App for Task Manager"){
+		Mobile_Quantity=util.getReflexisAdditionalQty(SKUArray,QuantityArray,"Native Mobile TM No. of Mobile OSs");
+		price[each] = round(((price[tm]*Add_Mobile_OS*Mobile_Quantity)/100),0) ; 
+		//price[each] = price[each]/coversionfac ;
+		}
+	}
+	}
+}
+for each in jcount
+{
+price[each] = round(price[each]/coversionfac,0) ;
+}
+
+return price;

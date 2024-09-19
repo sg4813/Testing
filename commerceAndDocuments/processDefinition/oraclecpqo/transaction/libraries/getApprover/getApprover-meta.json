@@ -1,0 +1,11 @@
+{
+  "name" : "getApprover",
+  "variableName" : "getApprover",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ ],
+  "mainDocAttributes" : [ "ownerLogin_t" ],
+  "systemAttributes" : [ ]
+}

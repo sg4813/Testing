@@ -1,0 +1,11 @@
+{
+  "name" : "Audit Trail",
+  "variableName" : "auditTrail",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "Json",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_part_number", "customDiscountValue_l", "customDiscountType_l", "annualCloudPriceInclHosting_l", "license" ],
+  "mainDocAttributes" : [ "status_t", "auditTrailJson" ],
+  "systemAttributes" : [ ]
+}

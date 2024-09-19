@@ -1,0 +1,377 @@
+retVal = "";
+localRegion = "";
+localConfigurator = "";
+localNoOfLocations = 0;
+localNoOfEmployees = 0;
+localRevenueFromRetailStoresNotOverall = 0.0;
+localNetProfitMargin = "";
+localTypeOfRetailer = "";
+localTypeOfHosting = "";
+localTypeOfSupport = "";
+localDiscVal = 0.0;
+localWFM = "";
+localRTM = "";
+localRetailType = "";
+localCost = "";
+localPSCost = 0.0;
+localSKU = "";
+localPFDesc = "";
+localPercentNetPrice = 0.0;
+localZPAPercentNetPrice = 0.0;
+localAnnualListPrice = 0.0;
+configuratorArr = string[];
+dictPFDesc = dict("string");
+dictCostMod = dict("float");
+region_config = "";
+newQuestions="";
+//added by Prathyusha for 5021
+for each in transactionline{
+region_config = getconfigattrvalue(each._document_number, "inpersonTrainingRequired_Ref");
+newQuestions= getconfigattrvalue(each._document_number, "newQuestions_pl");
+////print newQuestions;
+////print region_config ;
+break;
+}
+//Ended by Prathyusha for 5021
+	for line in transactionLine {
+	listPrice_l = 0.0;
+		if(line._model_name <> "" AND line.oRCL_ABO_ActionCode_l <>"DELETE"){ // added not equal to DELETE for CCZC-6742 by Triveni
+			//getconfigattrvalue(line._document_number, "configurator");
+			localConfigurator = line._model_name;
+			if(localConfigurator == "Reflexis"){
+				append(configuratorArr, localConfigurator);
+				//localNoOfLocations = atoi(getconfigattrvalue(line._document_number, "storeDummyRef"));
+				//localNoOfEmployees = atoi(getconfigattrvalue(line._document_number, "empDummyRef"));
+				//localTypeOfHosting = getconfigattrvalue(line._document_number, "hostingDummyRef");	
+				localNoOfLocations = line.storecount_l;
+				localNoOfEmployees = line.empcount_l;
+				localTypeOfHosting = line.typeOfHosting_l;		
+				if(localNoOfEmployees > 100000){
+				localWFM = "Very Large WFM";
+				}elif(localNoOfEmployees > 40000 AND localNoOfEmployees <= 100000){
+				localWFM = "Large WFM";
+				}elif(localNoOfEmployees > 10000 AND localNoOfEmployees <= 40000){
+				localWFM = "Medium WFM";
+				}else{
+				localWFM = "Small WFM";
+				}
+				if(localNoOfLocations > 1000){
+				localRTM = "Large RTM";
+				}elif(localNoOfLocations > 150 AND localNoOfLocations <= 1000){
+				localRTM = "Medium RTM";
+				}else{
+				localRTM = "Small RTM";
+				}
+				//localRevenueFromRetailStoresNotOverall = atof(getconfigattrvalue(line._document_number, "revenueFromRetailStoresNotOverallDummyRef"));
+				//localNetProfitMargin = getconfigattrvalue(line._document_number, "netProfitMarginDummyRef");
+				//localTypeOfRetailer = getconfigattrvalue(line._document_number, "typeOfRetailerDummyRef");
+				localRevenueFromRetailStoresNotOverall = line.revenueFromRetailStoresNotOverall_l;
+				localNetProfitMargin = line.netProfitMargin_l;
+				localTypeOfRetailer = line.typeOfRetailer_l;
+				if(localTypeOfRetailer == "Banking"){
+				localRetailType = "Banking";
+				}else{
+				localRetailType = "Other";
+				}
+			}if(localConfigurator == "Prescriptive Analytics"){
+			append(configuratorArr, localConfigurator);
+			}
+		}
+		//print "Vinay";
+		//print localWFM;
+		//Code added by Prathyusha for 5021
+		if(line._model_name<> " " AND newQuestions=="Training" AND line.oRCL_ABO_ActionCode_l <>"DELETE" AND  line.oRCL_ABO_ActionCode_l <>"NO_UPDATE" ){ // added not equal to delete for CCZC-6742 by Triveni
+		 localExeCost="";
+		 costValue =0.0;
+		 
+		 partNum = line._part_number;
+		 //print partNum;
+		 rsExeCost = bmql("Select SKU from RefSKUDetails where SKU = $partNum");
+		 for each in rsExeCost 
+			{
+			
+				localExeCost = get(each,"SKU");
+			}
+		  conversionfactor = 1.0;
+			rsConFactor = bmql("Select ConversionFactor from ConversionFactor where SourceCurrency =$currency_t AND TargetCurrency ='USD'");
+ 
+			for each in rsConFactor 
+			{
+				conversionfactor = atof(get(each,"ConversionFactor"));
+				//print conversionfactor ;
+			}
+                        region = " ";
+                         if(localExeCost <> "RFLX-U-TRNG-TRVL"){
+                        rsCost = bmql("Select SWLicense from SaaSHostingCost where CostModule= $localExeCost" );
+			
+			for each in rsCost 
+			{
+				costValue = atof(get(each,"SWLicense"));
+			}
+			//print costValue;
+			costValue = costValue / conversionfactor ;
+			localFinalCostPrice = round(costValue, 2);
+			retVal = retVal + line._document_number + "~unitCost_l~" + string(localFinalCostPrice) + "|";}
+                        if(localExeCost == "RFLX-U-TRNG-TRVL"){
+                        //region = region_config ;
+                       // print region;
+                       //print " in if";
+                       //region_config = getconfigattrvalue(line._document_number, "inpersonTrainingRequired_Ref");
+                      
+
+                        rsCost = bmql("Select SWLicense from SaaSHostingCost where CostModule= $localExeCost AND CustomerSize=$region_config " );
+                        //print localExeCost ;
+                        //print "region config";
+                        //print region_config;
+                        for each in rsCost 
+			{
+				costValue = atof(get(each,"SWLicense"));
+				//print "cost value";
+				//print costValue ;
+			}
+                        costValue = costValue / conversionfactor ;
+			localFinalCostPrice = round(costValue, 2);
+			retVal = retVal + line._document_number + "~unitCost_l~" + string(localFinalCostPrice) + "|";
+                        }
+			
+	         }
+		//Ended by Prathyusha for 5021
+		
+		
+		elif (line.oRCL_ABO_ActionCode_l <>"DELETE" AND line._model_name == "" AND  line.oRCL_ABO_ActionCode_l <>"NO_UPDATE"){ // added not equal to DELETE for CCZC-6742 by Triveni
+			
+				//Below Code for Cost Calculations
+		partNum = line._part_number;
+		
+		rsCost = bmql("Select ProductFamilyDesc, SKU, CostModule from RefSKUDetails where SKU = $partNum");
+			for each in rsCost{
+			
+				localCost = get(each, "CostModule");
+				localSKU = get(each, "SKU");
+				localPFDesc = get(each, "ProductFamilyDesc");
+			//print "TestCost===="+localCost ;
+			//print "TestSKU===="+localSKU ;
+			//print "TestDesc===="+localPFDesc ;
+			}
+			
+			put(dictPFDesc, localSKU , localPFDesc);
+			if(containskey(dictCostMod, localCost)){
+			//print localCost;
+			//print localSKU;
+			//print line.annualCloudPriceInclHosting_l;
+			//print dictCostMod;
+			localAnnualListPrice = get(dictCostMod, localCost) + line.annualCloudPriceInclHosting_l;
+			put(dictCostMod, localCost, localAnnualListPrice);
+			}else{
+			print localCost;
+			print localSKU;
+			print line.annualCloudPriceInclHosting_l;
+			print dictCostMod;
+			put(dictCostMod, localCost, line.annualCloudPriceInclHosting_l);
+			localAnnualListPrice = line.annualCloudPriceInclHosting_l;
+			}
+		}
+	}
+	print configuratorArr;
+	print localRTM;
+	print localRetailType;
+	print localConfigurator;
+	print dictPFDesc;
+	print dictCostMod;
+	print localWFM;
+	//another loop
+	localBusiness = "";
+	iCount = 0;
+	for line in transactionLine{
+	if(line._model_name <> "" AND line.oRCL_ABO_ActionCode_l <>"DELETE" AND  line.oRCL_ABO_ActionCode_l <>"NO_UPDATE"){ // Added not equal to DELETE for CCZC-6742 by Triveni
+	localConfigurator = line._model_name;
+	//localBusiness = getconfigattrvalue(line._document_number, "typeOfRetailerRef");
+	localBusiness = line.typeOfRetailer_l;
+	}elif(line.oRCL_ABO_ActionCode_l <>"DELETE" AND  line.oRCL_ABO_ActionCode_l <>"NO_UPDATE"){ // Added not equal to DELETE for CCZC-6742 by Triveni
+		partNum = line._part_number;
+		
+	
+		localHrs = line.hours_l;
+		if(region_t == "Zebra NALA"){
+			if(find(accountPriceList_t, "LA") <> -1){
+			localRegion = "LA";
+			}else{
+			localRegion = "NA";
+			}
+		}
+		if(find(region_t,"EMEA") <> -1){
+		localRegion = "EMEA";
+		}
+		if(find(region_t,"APAC") <> -1 OR find(region_t,"Australia") <> -1){
+		localRegion = "APAC";
+		}
+		localFinalCostPrice = 0.0;
+		rsCost = bmql("Select CostModule from RefSKUDetails where SKU = $partNum");
+		for each in rsCost{
+		localCost = get(each, "CostModule");
+		//print localCost ;
+		}
+		if(findinarray(configuratorArr,"Reflexis") <> -1 AND localConfigurator == "Reflexis"){
+			rs= recordset();
+			rs2= recordset();
+			if(get(dictPFDesc, partNum) == "Professional Services"){
+			rs3 = bmql("Select Cost from PS_PerHour_Price where ModelName = 'Reflexis' AND Org = $localRegion");
+			for each in rs3
+			{
+				localPSCost = atof(get(each,"Cost"));
+			}
+			conversionfac = 1.0;
+			rs1 = bmql("Select ConversionFactor from ConversionFactor where SourceCurrency =$currency_t AND TargetCurrency ='USD'");
+			for each in rs1
+			{
+				conversionfac = atof(get(each,"ConversionFactor"));
+			}
+			businessFactor = 1.0;
+			recordSetBusiness = bmql("select Category,Value,Multiplier from Reflexis_Multiplier where Category = 'Type of Retailer' and Value = $localBusiness");
+			for eachBusiness in recordSetBusiness{
+				businessFactor = atof(get(eachBusiness,"Multiplier"));
+			}
+			localPSCost = localPSCost * localHrs * businessFactor;
+			localPSCost = localPSCost / conversionfac;
+			localFinalCostPrice = round(localPSCost , 2);
+			}
+			//Added by Shalini for 4411
+			
+			elif(get(dictPFDesc, partNum) == "Execution & Communication Suite SI"){
+			localExeCost="";
+			costValue =0.0;
+			
+			partNum = line._part_number;
+			rsExeCost = bmql("Select CostModule from RefSKUDetails where SKU = $partNum");
+			for each in rsExeCost 
+			{
+				localExeCost = get(each,"CostModule");
+			}
+			
+			conversionfactor = 1.0;
+			rsConFactor = bmql("Select ConversionFactor from ConversionFactor where SourceCurrency =$currency_t AND TargetCurrency ='USD'");
+			for each in rsConFactor 
+			{
+				conversionfactor = atof(get(each,"ConversionFactor"));
+				//print conversionfactor ;
+			}
+			rsCost = bmql("Select CostModule,SWLicense from SaaSHostingCost where CostModule= $localExeCost");
+			for each in rsCost 
+			{
+				costValue = atof(get(each,"SWLicense"));
+			}
+			
+			costValue = costValue / conversionfactor ;
+			localFinalCostPrice = round(costValue, 2);
+			}
+			//Ended by Shalini for 4411
+			
+			
+			else{
+			
+				if(localCost == "WFM"){
+				print "Vinay";
+				rs = bmql("Select DataHosting, SWLicense from SaaSHostingCost where Model = 'Reflexis' AND TypeOfRetailer = $localRetailType AND CostModule = $localCost AND CustomerSize = $localWFM");
+				}elif(localCost == "AI Budget" OR localCost == "AI Suite"){
+				//print "Vinay";
+				rs = bmql("Select DataHosting, SWLicense from SaaSHostingCost where Model = 'Reflexis' AND TypeOfRetailer = $localRetailType AND CostModule = $localCost");
+				}
+				//Code added by Prathyusha based on JIRA CCZC-6708
+				if(localCost == "TSKMGT-SIMPLEPROJ" OR localCost == "TSKMGT-SIMPLEPROJ-RPT"){
+				//print "Vinay";
+				rs2 = bmql ("Select SWLicense from SaaSHostingCost where Model = 'Reflexis' AND CostModule = $localCost AND TypeOfRetailer = 'Execution & Communication Suite'");
+				}
+				//Code ended by Prathyusha based on JIRA CCZC-6708 
+				elif(localCost == "RTM" OR localCost == "Q-Comm" OR localCost == "Q-Doc" OR localCost == "Appointments" OR localCost == "Q-Visual"){
+				print "Vinay";
+					rs = bmql("Select DataHosting, SWLicense from SaaSHostingCost where Model = 'Reflexis' AND TypeOfRetailer = $localRetailType AND CostModule = $localCost AND CustomerSize = $localRTM");
+				}
+				//print rs;
+				DataHostingVal = 0;
+				SWLicenseVal = 0;
+				totalCostVal = 0.0;
+				totalZPACostVal = 0.0;
+				//Code Added by Prathyusha based on JIRA CCZC-6708
+				CaostValuetskmmgt =0.0;
+				for each in rs2{
+					CaostValuetskmmgt = atof(get(each,"SWLicense"));
+					}
+				//Code ended by Prathyusha based on JIRA CCZC-6708		
+				for each in rs{
+					DataHostingVal = atof(get(each, "DataHosting"));
+					SWLicenseVal = atof(get(each,"SWLicense"));
+					totalCostVal = DataHostingVal + SWLicenseVal;
+				}
+				if(localTypeOfHosting == "99.90% - Higher Availability - Surcharge"){
+					totalCostVal = 1.4 * totalCostVal;
+				}
+				conversionfac = 1.0;
+				rs1 = bmql("Select ConversionFactor from ConversionFactor where SourceCurrency =$currency_t AND TargetCurrency ='USD'");
+				for each in rs1
+				{
+					conversionfac = atof(get(each,"ConversionFactor"));
+				}
+				totalCostVal = totalCostVal / conversionfac;
+				CaostValuetskmmgt = CaostValuetskmmgt / conversionfac;//added by Prathyusha for cczc-6708
+				if(get(dictCostMod, localCost) > 0.0){
+					localNetFactor = 0.0;
+					localListFactor = 0.0;
+					rs2 = bmql("Select CostPercentage, CostBasis, CostComponent from SaaSCost where Model = $localConfigurator");
+						for each in rs2
+						{
+							localCostBasis = get(each,"CostBasis");
+							if(localCostBasis == "Net Price"){
+							localNetFactor = localNetFactor + atof(get(each,"CostPercentage"))/100;
+							}else{
+							localListFactor = localListFactor + atof(get(each,"CostPercentage"))/100;
+							}
+						}
+						localPercentNetPrice = round((localNetFactor * line.annualCloudNetPrice_l),2);
+						if(localCost == "AI Budget"){
+							localFinalCostPrice = round((totalCostVal * line.annualCloudPriceInclHosting_l)/get(dictCostMod, localCost),2);
+						}
+						//Code added by Prathyusha based on JIRA CCZC-6708
+						if(localCost == "TSKMGT-SIMPLEPROJ" OR localCost == "TSKMGT-SIMPLEPROJ-RPT"){
+						localFinalCostPrice = round(CaostValuetskmmgt,2); 
+						}
+						//Code ended by Prathyusha based on JIRA CCZC-6708
+						else{
+							localFinalCostPrice = round((totalCostVal * line.annualCloudPriceInclHosting_l)/get(dictCostMod, localCost),2) + localPercentNetPrice;
+						}
+				}
+			}
+		}
+		if(findinarray(configuratorArr,"Prescriptive Analytics") <> -1 AND localConfigurator == "Prescriptive Analytics"){
+		localNetFactor = 0.0;
+		localListFactor = 0.0;
+		rs3 = bmql("Select CostPercentage, CostBasis, CostComponent from SaaSCost where Model = $localConfigurator");
+			for each in rs3
+			{
+				localCostBasis = get(each,"CostBasis");
+				if(localCostBasis == "Net Price"){
+				localNetFactor = localNetFactor + atof(get(each,"CostPercentage"))/100;
+				}else{
+				localListFactor = localListFactor + atof(get(each,"CostPercentage"))/100;
+				}
+			}
+		if(iCount == 0){
+		totalZPACostVal = round((localListFactor * line.annualCloudPriceInclHosting_l), 2);
+		iCount = iCount + 1;
+		}else{
+		totalZPACostVal = round((0.8 * localListFactor * line.annualCloudPriceInclHosting_l), 2);
+		}
+		localZPAPercentNetPrice = round((localNetFactor * line.annualCloudNetPrice_l),2);
+		localFinalCostPrice = round(totalZPACostVal  + localZPAPercentNetPrice, 2);
+		}
+		
+		if(line._part_custom_field11 == "Shell" AND line.ZEB_pSOfferings <> "Custom Quote Required" AND (startswith(line.modelName_l,"Prescriptive Analytics") OR startswith(line.modelName_l,"Reflexis") OR (startswith(line.modelName_l,"Professional Services") AND startswith(line.parentSKU_l,"Reflexis")))) {
+		retVal = retVal + line._document_number + "~unitCost_l~" + string(localFinalCostPrice) + "|";	
+		}
+		
+	//End code
+	}
+	else {
+		retVal = retVal + line._document_number + "~unitCost_l~1.00" + "|";
+	}
+	}
+	return retVal;

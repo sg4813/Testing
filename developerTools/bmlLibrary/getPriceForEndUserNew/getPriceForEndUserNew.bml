@@ -1,0 +1,229 @@
+ret = dict("dict<string>");
+strPriceList = get(Account,"Price List");
+arrayPG = string[];
+arraySku = string[];
+arrayPLM = string[];
+strAccount = get(Account,"Account Number");
+strjsonArraySkuDetails = get(ItemDetails,"Sku Details");
+jsonArraySkuDetails = jsonarray(strjsonArraySkuDetails);
+nCount = range(jsonarraysize(jsonArraySkuDetails));
+dictUOMFactor = dict("string");
+jsonListPrice = json();
+jsonSkuPG = json();
+dCurrentDate = getdate();
+arrayTable2 = string[];
+for each in nCount
+{
+	jsonTemp = json(jsonarrayget(jsonArraySkuDetails,each));
+	strSku = jsonget(jsonTemp,"Sku Number");
+	strPG = jsonget(jsonTemp,"Price Group");
+	strPLM = jsonget(jsonTemp,"PLM Eligibility");
+	strUOM = jsonget(jsonTemp,"UOM Factor");
+	if(len(strUOM) == 0)
+	{
+		strUOM = "1";
+	}
+	if(findinarray(arrayPG,strPG) == -1)
+	{
+		append(arrayPG,strPG);
+	}
+	if(strPLM == "Y")
+	{
+		append(arrayPLM,strSku);
+	}
+	append(arraySku,strSku);
+	jsonput(jsonListPrice,strSku,jsonget(jsonTemp,"List Price"));
+	jsonput(jsonSkuPG,strSku,strPG);
+	put(dictUOMFactor,strSku,strUOM);	
+}
+arrayAccountSku = string[];
+rs = bmql("Select SkuNumber,AdjustmentAmount,AdjustmentType,EffectiveFrom,EffectiveTo from AccNetPrice_Disc where AccountNumber = $strAccount AND SkuNumber IN $arraySku");
+print rs;
+for each in rs
+{
+	dStartDate = strtojavadate(get(each,"EffectiveFrom"), "MM/dd/yyyy HH:mm:ss","America/New_York");
+	dEndDate = getdate(true);
+	strEndDate = get(each,"EffectiveTo");
+	if(strEndDate <> "")
+	{
+		dEndDate = strtojavadate(strEndDate, "MM/dd/yyyy HH:mm:ss","America/New_York");
+	}
+	if(comparedates(dCurrentDate,dStartDate ) <> -1 AND (strEndDate == "" OR comparedates(dEndDate,dCurrentDate ) <> -1))
+	{
+		strSku = get(each,"SkuNumber");
+		append(arrayAccountSku,strSku);
+		jsonTemp = dict("string");
+		TempListPrice = jsonget(jsonListPrice,strSku);	
+		put(jsonTemp,"List Price",TempListPrice);
+		if(get(each,"AdjustmentType") == "Price Override")
+		{
+			put(jsonTemp,"PriceList",get(each,"AdjustmentAmount"));
+		}
+		else
+		{
+			nPrice = "0";
+			ndiscount = atof(get(each,"AdjustmentAmount"));
+			strUOMFactor = get(dictUOMFactor,strSku);
+			if(find(strPriceList, "JPY") <> 0 AND find(strPriceList, "JPY") <> -1)
+			{
+				//nPrice = string(round(((100-ndiscount)/100)*atof(TempListPrice),0));	
+				strListPrice = string(round(atof(TempListPrice)/atof(strUOMFactor),0));
+				nPrice = string(round(((100-ndiscount)/100)*atof(strListPrice),0));
+				nPrice = string(round(atof(nPrice)*atof(strUOMFactor),0));			
+			}
+			else
+			{
+				strListPrice = string(round(atof(TempListPrice)/atof(strUOMFactor),2));
+				nPrice = string(round(((100-ndiscount)/100)*atof(strListPrice),2));
+				nPrice = string(round(atof(nPrice)*atof(strUOMFactor),2));		
+			}
+			put(jsonTemp,"PriceList",nPrice);			
+			
+		}
+		put(jsonTemp,"Eligible Flag","Y");
+		put(jsonTemp,"Purchase Method","");
+		
+		if(findinarray(arrayPLM,strSku) == -1)
+		{
+			put(jsonTemp,"ErrorCode","");
+		}
+		else
+		{
+			put(jsonTemp,"ErrorCode","PLM");
+		}
+		put(ret,strsku,jsonTemp);				
+	}
+}
+if(sizeofarray(arrayAccountSku) == sizeofarray(arraySku))
+{
+	return ret;
+}
+if(sizeofarray(arrayAccountSku) > 0)
+{
+	for each in arraySku
+	{
+		if(findinarray(arrayAccountSku,each) == -1)
+		{
+			append(arrayTable2,each);
+		}
+	}
+}
+else
+{
+	arrayTable2 = arraySku;
+}
+rs = bmql("Select PriceGroup,AdjustmentAmount,AdjustmentType,EffectiveFrom,EffectiveTo from AccPriceGrp_Disc where AccountNumber = $strAccount AND PriceGroup IN $arrayPG");
+dictPG = dict("dict<string>");
+for each in rs
+{
+	dStartDate = strtojavadate(get(each,"EffectiveFrom"), "MM/dd/yyyy HH:mm:ss","America/New_York");
+	dEndDate = getdate(true);
+	strEndDate = get(each,"EffectiveTo");
+	if(strEndDate <> "")
+	{
+		dEndDate = strtojavadate(strEndDate, "MM/dd/yyyy HH:mm:ss","America/New_York");
+	}
+	if(comparedates(dCurrentDate,dStartDate ) <> -1 AND (strEndDate == "" OR comparedates(dEndDate,dCurrentDate ) <> -1))
+	{
+		TempJson = dict("string");
+		strPG = get(each,"PriceGroup");
+		strAdjustmentAmount = get(each,"AdjustmentAmount");
+		strAdjustmentType = get(each,"AdjustmentType");
+		put(TempJson,"AdjustmentAmount",strAdjustmentAmount);
+		put(TempJson,"AdjustmentType",strAdjustmentType);
+		put(dictPG,strPG,TempJson);
+	}
+}
+for each in arrayTable2
+{
+	tempPG = jsonget(jsonSkuPG,each);
+	print tempPG;
+	print containskey(dictPG,tempPG);
+	strsku = each;
+	if(containskey(dictPG,tempPG))
+	{
+		jsonTemp = dict("string");
+		append(arrayAccountSku,each);
+		tempdict = get(dictPG,tempPG);
+		strAdjustmentType = get(tempdict, "AdjustmentType");
+		TempListPrice = jsonget(jsonListPrice,each);	
+		put(jsonTemp,"List Price",TempListPrice);		
+		if(strAdjustmentType == "Price Override")
+		{
+			strNetPrice = get(tempdict,"AdjustmentAmount");	
+			put(jsonTemp,"PriceList",strNetPrice);		
+		}
+		else
+		{
+			nPrice = "0";
+			ndiscount = atof(get(tempdict,"AdjustmentAmount"));
+			strUOMFactor = get(dictUOMFactor,strSku);
+			if(find(strPriceList, "JPY") <> 0 AND find(strPriceList, "JPY") <> -1)
+			{
+				strListPrice = string(round(atof(TempListPrice)/atof(strUOMFactor),0));
+				nPrice = string(round(((100-ndiscount)/100)*atof(strListPrice),0));
+				nPrice = string(round(atof(nPrice)*atof(strUOMFactor),0));				
+			}
+			else
+			{
+				strListPrice = string(round(atof(TempListPrice)/atof(strUOMFactor),2));
+				nPrice = string(round(((100-ndiscount)/100)*atof(strListPrice),2));
+				nPrice = string(round(atof(nPrice)*atof(strUOMFactor),2));						
+			}
+			put(jsonTemp,"PriceList",nPrice);
+		}			
+			put(jsonTemp,"Eligible Flag","Y");
+			put(jsonTemp,"Purchase Method","");
+			if(findinarray(arrayPLM,strSku) == -1)
+			{
+				put(jsonTemp,"ErrorCode","");
+			}
+			else
+			{
+				put(jsonTemp,"ErrorCode","PLM");
+			}
+			put(ret,strsku,jsonTemp);
+	}
+}
+if(sizeofarray(arrayAccountSku) == sizeofarray(arraySku))
+{
+	return ret;
+}
+arrayTable2 = string[];
+if(sizeofarray(arrayAccountSku) > 0)
+{
+	for each in arraySku
+	{
+		if(findinarray(arrayAccountSku,each) == -1)
+		{
+			append(arrayTable2,each);
+		}
+	}
+}
+else
+{
+	arrayTable2 = arraySku;
+}
+
+for each in arrayTable2
+{
+	nCount = range(jsonarraysize(jsonArraySkuDetails));
+	for count in nCount
+	{
+		jsonTemp = json(jsonarrayget(jsonArraySkuDetails,count));
+		jsonTemp1 = dict("string");
+		if(each == jsonget(jsonTemp,"Sku Number"))
+		{
+			put(jsonTemp1,"PriceList",jsonget(jsonTemp,"List Price"));
+			put(jsonTemp1,"Eligible Flag","N");
+			put(jsonTemp1,"Purchase Method","");
+			//put(jsonTemp1,"ErrorCode","CPQ-Err-DirectCustomer");
+			put(jsonTemp1,"ErrorCode","");
+			put(jsonTemp1,"List Price",jsonget(jsonTemp,"List Price"));
+			put(ret,each,jsonTemp1);
+			
+		}
+	}	
+}
+
+return ret;

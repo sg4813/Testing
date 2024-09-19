@@ -1,0 +1,240 @@
+ret = dict("string");
+
+sbWhere = stringbuilder();
+sbappend(sbWhere,"PriceList = '",PriceList, "'");  
+
+sbSkuNumber = stringbuilder();
+sbCondition = stringbuilder();
+
+jsonArraySku = jsonarray();
+jsonArrayItemSku = jsonarray();
+jsonArraySkuDetails = jsonarray();
+jsonArrayAccessCode = jsonarray();
+jsonArrayPriceGroup = jsonarray();
+isEligibleItems = "N";
+dCurrentDate = getdate();
+JsonArrayEligibleItems = jsonarray();
+arrayEligibleItems = string[];
+temparrayEligibleItems = string[];
+
+
+if(NOT(isempty(SkuNumber)))
+{
+	bFlag = true;
+	for each in SkuNumber
+	{
+		if(bFlag)
+		{
+			sbappend(sbSkuNumber,"( SkuNumber = '",each,"')");
+			bFlag = false;
+			
+		}
+		else
+		{
+			sbappend(sbSkuNumber," OR ( SkuNumber = '",each,"')");
+		}
+		
+	}
+	
+	sbappend(sbWhere," AND (", sbtostring(sbSkuNumber), ")"); 
+}
+strWhere = sbtostring(sbWhere);
+
+if(NOT(isempty(Condition)))
+{
+	bFlag = true;
+	for each in Condition
+	{
+		if(bFlag)
+		{
+			sbappend(sbCondition,each);
+			bFlag = False;
+		}
+		else
+		{
+			sbappend(sbCondition," AND ", each);
+		}
+		
+	}
+	
+	sbappend(sbWhere," AND (", sbtostring(sbCondition), ")"); 
+}
+
+//sbappend(sbWhere," AND (", sbtostring(sbCondition), ")");
+
+strOragnization = "AND (Organization = '" + Oragnization + "')";
+sbappend(sbWhere,strOragnization);
+ 
+strWhere = sbtostring(sbWhere);
+print strWhere;
+//Abhishek:16/01/2016:Modify query with UOMFactor
+QuerySiebelProdId = string[];
+rs = bmql("Select ItemId,SkuNumber,AccessCode,PriceGroup,ListPrice,StartDate,EndDate,Description,Image,SiebelProductId,Eligibility,UOMFactor,Sellable from Item_Master where $strWhere");
+
+if(AccountType == "Partner" OR AccountType == "End User" OR AccountType == "Non Classified Reseller")
+{
+	for each in rs
+	{
+		dictTemp = json();
+		dStartDate = strtojavadate(get(each,"StartDate"), "MM/dd/yyyy HH:mm:ss","America/New_York");
+		dEndDate = getdate();
+		strAccessCodeCheck = get(each,"AccessCode");
+		strEndDate = get(each,"EndDate");
+		if(strEndDate <> "")
+		{
+			dEndDate = strtojavadate(strEndDate, "MM/dd/yyyy HH:mm:ss","America/New_York");
+		}
+		if(comparedates(dCurrentDate,dStartDate ) <> -1 AND (strEndDate == "" OR comparedates(dEndDate,dCurrentDate ) <> -1) AND len(strAccessCodeCheck) > 0)
+		{
+			if(findinarray(QuerySiebelProdId,get(each,"SiebelProductId")) == -1 AND get(each,"Eligibility") == "Y")
+			{
+				
+				jsonput(dictTemp,"SiebelProductId",get(each,"SiebelProductId"));
+				jsonput(dictTemp,"Sellable",get(each,"Sellable"));
+				jsonput(dictTemp,"Eligibility",get(each,"Eligibility"));
+				jsonput(dictTemp,"SKU",get(each,"SkuNumber"));
+				jsonarrayappend(JsonArrayEligibleItems,dictTemp);
+				append(QuerySiebelProdId,get(each,"SiebelProductId"));
+			}
+			elif(get(each,"Eligibility") == "No" OR get(each,"Eligibility") == "")
+			{
+				append(temparrayEligibleItems,get(each,"SkuNumber"));
+			}	
+		}
+	}
+	print QuerySiebelProdId;
+	print temparrayEligibleItems;
+
+	if(sizeofarray(QuerySiebelProdId) > 0)
+	{
+		arrayEligibleItems = util.checkCustomEligibility(QuerySiebelProdId,AccountNumber,JsonArrayEligibleItems);
+		print "arrayEligibleItems";
+		print arrayEligibleItems;
+	}
+	if(sizeofarray(temparrayEligibleItems) > 0)
+	{
+		for each in temparrayEligibleItems
+		{
+			append(arrayEligibleItems,each);
+		}
+	}
+		
+}
+else
+{
+	for each in rs
+	{
+		append(arrayEligibleItems,get(each,"SkuNumber"));
+	}
+}
+
+
+for each in rs
+{
+	
+	dStartDate = strtojavadate(get(each,"StartDate"), "MM/dd/yyyy HH:mm:ss","America/New_York");
+	dEndDate = getdate();
+	strEndDate = get(each,"EndDate");
+	strSku =  get(each,"SkuNumber");
+	strAccessCodeCheck = get(each,"AccessCode");
+	if(strEndDate <> "")
+	{
+		dEndDate = strtojavadate(strEndDate, "MM/dd/yyyy HH:mm:ss","America/New_York");
+	}
+	if(comparedates(dCurrentDate,dStartDate ) <> -1 AND (strEndDate == "" OR comparedates(dEndDate,dCurrentDate ) <> -1) AND len(strAccessCodeCheck) > 0 AND findinarray(arrayEligibleItems,strSku) <> -1)
+	{
+		
+		isEligibleItems = "Y";
+		jsonTemp = json();
+		strItem = get(each,"ItemId");
+		strListPrice = get(each,"ListPrice");
+		strPriceGroup = get(each,"PriceGroup");
+		strDescription = get(each,"Description");
+		strDescription = replace(strDescription,"&nbsp;","");
+		strEligibility = get(each,"Eligibility");
+		strSiebelProductId = get(each,"SiebelProductId");
+		//Abhishek:16:01:2020: getting UOM Factor
+		strUOMFactor = get(each,"UOMFactor");
+		arrayAccessCode = split(get(each,"AccessCode"),"-");
+		//print arrayAccessCode;
+		strAccessCode =  atoi(arrayAccessCode[0]);
+		strImage = get(each,"Image");
+		
+		jsonput(jsonTemp,"Sku Number", strSku);
+		jsonarrayappend(jsonArraySku,jsonTemp);
+		jsonput(jsonTemp,"Item ID", strItem);
+		jsonarrayappend(jsonArrayItemSku,jsonTemp);
+		jsonput(jsonTemp,"List Price",strListPrice);
+		jsonput(jsonTemp,"Access Code",strAccessCode);
+		jsonput(jsonTemp,"Price Group", strPriceGroup);
+		jsonput(jsonTemp,"Description",strDescription);
+		jsonput(jsonTemp,"Image",strImage);
+		jsonput(jsonTemp,"Eligibility",strEligibility);
+		jsonput(jsonTemp,"SiebelProductId",strSiebelProductId);
+		jsonarrayappend(jsonArraySkuDetails,jsonTemp);
+		
+		if(strAccessCode > 2)
+		{
+			jsonTemp1 = json();
+			jsonput(jsonTemp1,"Sku Number", strSku);
+			jsonput(jsonTemp1,"Access Code",strAccessCode);
+			jsonput(jsonTemp1,"List Price",strListPrice);
+			jsonarrayappend(jsonArrayAccessCode,jsonTemp1);
+		}
+		else
+		{
+			jsonTemp1 = json();
+			jsonput(jsonTemp1,"Sku Number", strSku);
+			jsonput(jsonTemp1,"Access Code",strAccessCode);
+			jsonput(jsonTemp1,"List Price",strListPrice);
+			jsonput(jsonTemp1,"Price Group", strPriceGroup);
+			//Abhishek:16:01:2020: getting UOM Factor
+			jsonput(jsonTemp1,"UOM Factor",strUOMFactor);
+			jsonarrayappend(jsonArrayPriceGroup,jsonTemp1);
+		}
+	}
+		
+	
+}
+if(jsonarraysize(jsonArraySku) == 0)
+{
+	put(ret,"Sku Number","");
+}
+else
+{
+	put(ret,"Sku Number", jsonarraytostr(jsonArraySku));
+}
+if(jsonarraysize(jsonArrayItemSku) == 0)
+{
+	put(ret,"Item/Sku Id","");
+}
+else
+{
+	put(ret,"Item/Sku Id", jsonarraytostr(jsonArrayItemSku));
+}
+if(jsonarraysize(jsonArraySkuDetails) == 0)
+{
+	put(ret,"Sku Details", "");
+}
+else
+{
+	put(ret,"Sku Details", jsonarraytostr(jsonArraySkuDetails));
+}
+if(jsonarraysize(jsonArrayPriceGroup) == 0)
+{
+	put(ret,"Price Group", "");
+}
+else
+{
+	put(ret,"Price Group", jsonarraytostr(jsonArrayPriceGroup));
+}
+if(jsonarraysize(jsonArrayAccessCode) == 0)
+{
+	put(ret,"Account Sku", "");
+}
+else
+{
+	put(ret,"Account Sku", jsonarraytostr(jsonArrayAccessCode));
+}
+put(ret,"isEligibleItems",isEligibleItems);
+return ret;

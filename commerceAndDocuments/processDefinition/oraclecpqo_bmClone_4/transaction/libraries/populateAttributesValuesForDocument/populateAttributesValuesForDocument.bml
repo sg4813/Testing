@@ -1,0 +1,13 @@
+retString = stringbuilder();
+
+annualVolumnShipment = "";
+for line in transactionLine{
+	if( (line._part_number == "Fourkites real time transportation visibility Solution to Reflexis RTTM integration") AND
+		(NOT(ISNULL(line.annaulVolumnShipment_l))) AND (line.annaulVolumnShipment_l <> "") ){
+			annualVolumnShipment = line.annaulVolumnShipment_l;
+	}
+}
+sbappend(retString, "1~annualVolumnShipment_t~", annualVolumnShipment, "|");
+
+// Return
+return sbtostring(retString);

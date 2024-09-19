@@ -1,0 +1,11 @@
+{
+  "name" : "Set SF Synch Flag",
+  "variableName" : "setSFSynchFlag",
+  "description" : "",
+  "libraryFunctions" : [ ],
+  "returnType" : "String",
+  "parameters" : [ ],
+  "subDocAttributes" : [ "_config_attr_info", "parentSKU_l", "_document_number", "_part_number" ],
+  "mainDocAttributes" : [ ],
+  "systemAttributes" : [ ]
+}

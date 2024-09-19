@@ -1,0 +1,21 @@
+{
+  "name" : "Zebra Pricing Intelligent Cabinet",
+  "variableName" : "zebraPricingIntelligentCabinet",
+  "description" : "",
+  "libraryFunctions" : [ "util.checkPartnerProgramEligibility", "util.getAccountDetails", "util.getAdditionalItemsDetailsnew", "util.getEligibilityConstrainRule", "util.getEligibleItemsnew", "util.getFinalConfigurationData" ],
+  "returnType" : "Json",
+  "parameters" : [ {
+    "name" : "AccountId",
+    "type" : "String"
+  }, {
+    "name" : "ModelName",
+    "type" : "String"
+  }, {
+    "name" : "Language",
+    "type" : "String"
+  }, {
+    "name" : "SkuArray",
+    "type" : "String[]"
+  } ],
+  "attributes" : [ ]
+}
